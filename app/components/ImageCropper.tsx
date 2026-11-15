@@ -27,7 +27,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
   function apply() {
     const image = imageRef.current;
     if (!image?.naturalWidth || !image.naturalHeight) return;
-    const width = 1200;
+    const width = aspectRatio === 16 / 9 ? 2560 : 1200;
     const height = Math.round(width / aspectRatio);
     const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight) * zoom;
     const drawWidth = image.naturalWidth * scale;
@@ -56,9 +56,8 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
         <div className="crop-preview-wrap">
           <div className="crop-preview" style={{aspectRatio}}>
             {source && <img ref={imageRef} src={source} alt="Prévia do corte" style={{objectPosition: `${50 - x}% ${50 - y}%`, transform: `scale(${zoom})`}}/>}
-            {aspectRatio === 1 && <i className="crop-circle-guide"/>}
           </div>
-          <p>Use os controles para enquadrar a imagem do seu jeito.</p>
+          <p>Ajuste o enquadramento. O quadro mostra exatamente o formato que será salvo.</p>
         </div>
         <div className="crop-controls">
           <label>Zoom <div><Minus size={15}/><input type="range" min="1" max="3" step="0.01" value={zoom} onChange={e=>setZoom(Number(e.target.value))}/><Plus size={15}/></div></label>
