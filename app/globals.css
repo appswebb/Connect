@@ -642,3 +642,7 @@ button>svg{flex:none}
  .people-card-meta{font-size:10px}
  .people-card-meta>i span{font-size:10px}
 }
+
+
+/* Chat history management */
+.chat-history-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line,#26313a);border-radius:16px;background:var(--panel,#10171d);margin:9px 0}.chat-history-open{display:flex;align-items:center;gap:12px;min-width:0;text-align:left;background:transparent;border:0;color:inherit;padding:4px}.chat-history-open>span{display:grid;min-width:0}.chat-history-open strong,.chat-history-open small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-history-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.chat-history-actions button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line,#303b45);background:#172129;color:#cbd5dc;border-radius:10px;padding:9px 10px;font-size:12px}.chat-history-actions .delete-chat-action{color:#ff9a9a;border-color:#633b42}@media(max-width:560px){.chat-history-item{grid-template-columns:minmax(0,1fr);gap:8px}.chat-history-actions{justify-content:stretch}.chat-history-actions button{flex:1;justify-content:center}}
