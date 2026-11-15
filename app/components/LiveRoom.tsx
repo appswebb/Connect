@@ -105,7 +105,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       } else if(data.can_publish){
         await room.localParticipant.setMicrophoneEnabled(true);
         setMicOn(true);
-        const {data:guest}=await supabase.from("live_guest_requests").select("video_enabled").eq("live_id",liveId).eq("status","accepted").maybeSingle();
+        const {data:guest}=await supabase.from("live_guest_requests").select("video_enabled").eq("live_id",liveId).eq("user_id",(await supabase.auth.getUser()).data.user?.id||"").eq("status","accepted").maybeSingle();
         if(guest?.video_enabled){await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});setCameraOn(true);}
         setRequestState("accepted");
       }
@@ -126,19 +126,39 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
     if(e){setError(e.message);return;}
     setGuestRequests(old=>old.filter(x=>x.id!==requestId));
   }
+  const connectRef=useRef<()=>Promise<void>>(async()=>{});
+  connectRef.current=connect;
   useEffect(()=>{
-    if(!connected)return;
+    let active=true;
     const channel=supabase.channel("live-guests-"+liveId)
       .on("postgres_changes",{event:"*",schema:"public",table:"live_guest_requests",filter:"live_id=eq."+liveId},payload=>{
         const row=(payload.new||payload.old) as any;
-        if(!row)return;
-        if(row.user_id===undefined)return;
-        if(row.user_id && row.status==="pending" && isHost){setGuestRequests(old=>[...old.filter(x=>x.id!==row.id),row]);}
-        if(!isHost && row.user_id){const next=row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none";setRequestState(next);if(next==="accepted"&&roomRef.current){void (async()=>{await roomRef.current?.disconnect();roomRef.current=null;setConnected(false);setTracks([]);setAudioTracks([]);await connect();})();}}
-      }).subscribe();
-    if(isHost) void supabase.from("live_guest_requests").select("id,user_id,video_enabled,status").eq("live_id",liveId).eq("status","pending").then(({data})=>setGuestRequests(data||[]));
-    return ()=>{void supabase.removeChannel(channel);};
-  },[connected,liveId,isHost]);
+        if(!active||!row?.user_id)return;
+        if(isHost){
+          if(row.status==="pending") setGuestRequests(old=>[...old.filter(x=>x.id!==row.id),row]);
+          else setGuestRequests(old=>old.filter(x=>x.id!==row.id));
+        } else {
+          void supabase.auth.getUser().then(({data})=>{
+            if(row.user_id!==data.user?.id)return;
+            const next=row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none";
+            setRequestState(next);
+            if(next==="accepted"&&!roomRef.current) void connectRef.current();
+          });
+        }
+      })
+      .subscribe((status)=>{if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")setError("A conexão em tempo real caiu. Tentando manter os pedidos sincronizados.");});
+    if(isHost){
+      void supabase.from("live_guest_requests").select("id,user_id,video_enabled,status").eq("live_id",liveId).eq("status","pending").then(({data,error:e})=>{if(active){if(e)setError(e.message);else setGuestRequests(data||[]);}});
+    } else {
+      void supabase.auth.getUser().then(async({data})=>{
+        if(!data.user)return;
+        const {data:request,error:e}=await supabase.from("live_guest_requests").select("status").eq("live_id",liveId).eq("user_id",data.user.id).maybeSingle();
+        if(active&&request)setRequestState(request.status as any);
+        if(e&&active)setError(e.message);
+      });
+    }
+    return ()=>{active=false;void supabase.removeChannel(channel);};
+  },[liveId,isHost]);
   async function toggleCamera(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setCameraEnabled(!cameraOn,{facingMode:cameraFacing});setCameraOn(!cameraOn);}catch(e:any){setError(e?.message||"Não foi possível acessar a câmera.");}}
   async function flipCamera(){const r=roomRef.current;if(!r||!cameraOn)return;const next=cameraFacing==="user"?"environment":"user";try{const publication=r.localParticipant.getTrackPublication(Track.Source.Camera);if(!publication?.videoTrack)throw new Error("A câmera ainda não está disponível.");await publication.videoTrack.restartTrack({facingMode:next});setCameraFacing(next);}catch(e:any){setError(e?.message||"Este aparelho não conseguiu trocar a câmera.");}}
   async function toggleMic(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setMicrophoneEnabled(!micOn);setMicOn(!micOn);}catch(e:any){setError(e?.message||"Não foi possível acessar o microfone.");}}
