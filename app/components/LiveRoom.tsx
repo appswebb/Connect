@@ -100,7 +100,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       }
       if(isHost){
         await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});
-        await room.localParticipant.setMicrophoneEnabled(true);
+        await room.localParticipant.setMicrophoneEnabled(true,{echoCancellation:true,noiseSuppression:true,autoGainControl:true});
         setCameraOn(true);setMicOn(true);
       } else if(data.can_publish){
         await room.localParticipant.setMicrophoneEnabled(true);
