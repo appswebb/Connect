@@ -17,6 +17,7 @@ type MessageRequestItem = { id:string; sender_id:string; recipient_id:string; in
 type RoomMessage = {id:string;room_code:string;user_id:string;body:string;created_at:string;author:Profile};
 type LiveSessionRow = {id:string;host_user_id:string;title:string;room_name:string;status:string;created_at:string;host?:Profile};
 type NotificationItem = {id:string;recipient_id:string;actor_id:string|null;type:string;title:string;body:string;entity_type:string|null;entity_id:string|null;read_at:string|null;created_at:string;actor?:Profile|null};
+const essentialNotificationTypes=["message","match","match_accepted","match_closed","live","post","site_update"] as const;
 const genders:Record<string,string>={woman:"Mulher",man:"Homem",non_binary:"Pessoa não binária",self_described:"Outro gênero",prefer_not_to_say:"Prefiro não informar"};
 const preferences:Record<string,string>={woman:"Mulheres",man:"Homens",non_binary:"Pessoas não binárias",self_described:"Outros gêneros",prefer_not_to_say:"Pessoas que preferem não informar",any:"Qualquer gênero"};
 const brazilStates:Record<string,string>={AC:"Acre",AL:"Alagoas",AP:"Amapá",AM:"Amazonas",BA:"Bahia",CE:"Ceará",DF:"Distrito Federal",ES:"Espírito Santo",GO:"Goiás",MA:"Maranhão",MT:"Mato Grosso",MS:"Mato Grosso do Sul",MG:"Minas Gerais",PA:"Pará",PB:"Paraíba",PR:"Paraná",PE:"Pernambuco",PI:"Piauí",RJ:"Rio de Janeiro",RN:"Rio Grande do Norte",RS:"Rio Grande do Sul",RO:"Rondônia",RR:"Roraima",SC:"Santa Catarina",SP:"São Paulo",SE:"Sergipe",TO:"Tocantins"};
@@ -42,7 +43,7 @@ export default function Home(){
  const fail=(s:string)=>{setError(s);setNotice("");};
 
  async function loadNotifications(uid:string){
-  const r=await supabase.from("notifications").select("id,recipient_id,actor_id,type,title,body,entity_type,entity_id,read_at,created_at").eq("recipient_id",uid).order("created_at",{ascending:false}).limit(50);
+  const r=await supabase.from("notifications").select("id,recipient_id,actor_id,type,title,body,entity_type,entity_id,read_at,created_at").eq("recipient_id",uid).in("type",[...essentialNotificationTypes]).order("created_at",{ascending:false}).limit(50);
   if(r.error){fail("Não foi possível carregar suas notificações: "+r.error.message);return;}
   const rows=(r.data||[]) as NotificationItem[];
   const actorIds=[...new Set(rows.map(x=>x.actor_id).filter(Boolean) as string[])];
@@ -76,7 +77,7 @@ export default function Home(){
   if(item.type==="match"&&item.entity_id){await loadPendingMatch(item.entity_id);setTab("chat");return;}
   if(item.type==="match_accepted"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setQueue("matched");setTab("chat");return;}
   if(item.type==="match_closed"){setTab("chat");return;}
-  if(item.type==="live"){setTab("lives");void loadLives();return;}
+  if(item.type==="live"){setTab("lives");void loadLives();return;}if(item.type==="site_update"){setTab("feed");return;}
   setTab("feed");
   if(item.type==="comment"&&item.entity_id)void openComments(item.entity_id);
  }
@@ -144,6 +145,7 @@ export default function Home(){
   const channel=supabase.channel("connect-notifications-"+uid)
    .on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"recipient_id=eq."+uid},payload=>{
     const item=payload.new as NotificationItem;
+    if(!essentialNotificationTypes.includes(item.type as typeof essentialNotificationTypes[number]))return;
     void loadNotifications(uid);
     if(typeof window!=="undefined"&&"Notification" in window&&Notification.permission==="granted"&&document.visibilityState!=="visible"){
      void showBrowserNotification(item);
