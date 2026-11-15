@@ -72,7 +72,7 @@ export default function Home(){
  async function openNotification(item:NotificationItem){
   await markNotificationRead(item);
   setNotificationsOpen(false);
-  if(item.type==="message"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setTab("chat");return;}
+  if((item.type==="message"||item.type==="new_message"||item.type==="message_request_accepted")&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setChatInboxTab("conversations");setTab("chat");return;}if(item.type==="message_request"){setChatInboxTab("requests");setChatView("direct");setTab("chat");return;}if(item.type==="new_follower"&&item.actor_id){setTab("people");void openProfile(item.actor_id);return;}
   if(item.type==="match"&&item.entity_id){await loadPendingMatch(item.entity_id);setTab("chat");return;}
   if(item.type==="match_accepted"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setQueue("matched");setTab("chat");return;}
   if(item.type==="match_closed"){setTab("chat");return;}
