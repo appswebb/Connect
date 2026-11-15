@@ -646,3 +646,14 @@ button>svg{flex:none}
 
 /* Chat history management */
 .chat-history-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line,#26313a);border-radius:16px;background:var(--panel,#10171d);margin:9px 0}.chat-history-open{display:flex;align-items:center;gap:12px;min-width:0;text-align:left;background:transparent;border:0;color:inherit;padding:4px}.chat-history-open>span{display:grid;min-width:0}.chat-history-open strong,.chat-history-open small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-history-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.chat-history-actions button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line,#303b45);background:#172129;color:#cbd5dc;border-radius:10px;padding:9px 10px;font-size:12px}.chat-history-actions .delete-chat-action{color:#ff9a9a;border-color:#633b42}@media(max-width:560px){.chat-history-item{grid-template-columns:minmax(0,1fr);gap:8px}.chat-history-actions{justify-content:stretch}.chat-history-actions button{flex:1;justify-content:center}}
+
+
+/* Chat header precision fix: keep profile identity separate from action controls */
+.chat>header{display:flex;align-items:center;gap:12px;min-width:0;padding:14px 16px}
+.chat>header>.profile-open-avatar{display:grid;place-items:center;flex:0 0 48px;width:48px;height:48px;min-width:48px;padding:0;border:0;background:transparent;border-radius:50%;overflow:hidden}
+.chat>header>.profile-open-avatar .avatar{width:48px;height:48px;flex:0 0 48px}
+.chat>header>.chat-person-info{display:flex;flex:1 1 auto;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-width:0;overflow:hidden}
+.chat>header>.chat-person-info .profile-open-name{display:block;width:auto;max-width:100%;height:auto;min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:#f4f7f4;font:700 15px/1.25 Manrope,system-ui,sans-serif;text-align:left;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.chat>header>.chat-person-info>span{display:block;max-width:100%;font-size:11px;line-height:1.35;color:#8d9aa3;overflow-wrap:anywhere}
+.chat>header>button:not(.profile-open-avatar){flex:0 0 40px;width:40px;height:40px;padding:0;display:grid;place-items:center;border:1px solid #303b45;border-radius:11px;background:#182128;color:#aab5bd}
+@media(max-width:560px){.chat>header{gap:9px;padding:12px}.chat>header>.profile-open-avatar,.chat>header>.profile-open-avatar .avatar{flex-basis:44px;width:44px;height:44px;min-width:44px}.chat>header>.chat-person-info .profile-open-name{font-size:14px}.chat>header>.chat-person-info>span{font-size:10px}.chat>header>button:not(.profile-open-avatar){flex-basis:36px;width:36px;height:36px}}
