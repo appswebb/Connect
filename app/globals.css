@@ -484,3 +484,38 @@ img,video{max-width:100%}
     align-items: center !important;
   }
 }
+
+
+/* CONNECT Live gifts, wallet and battle UI */
+.gift-store{margin:22px 0;padding:20px;border:1px solid var(--line,#29343d);border-radius:18px;background:var(--panel,#111920)}
+.gift-store-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}
+.gift-store-head small{letter-spacing:.14em;color:#f2a7bd;font-weight:800}
+.gift-store-head h2{margin:5px 0;font-size:22px}
+.gift-store-head p,.gift-store-note{margin:0;color:var(--muted,#9aa7b1);font-size:13px}
+.gift-wallet{display:flex;align-items:center;gap:7px;padding:10px 13px;border-radius:12px;background:#26321d;color:#d7f3a9;white-space:nowrap}
+.gift-store-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.gift-store-item{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 10px;border:1px solid var(--line,#29343d);border-radius:14px;background:#0c1217;text-align:center}
+.gift-store-emoji{font-size:34px}.gift-store-item>span:not(.gift-store-emoji){font-size:12px;color:#e8c77a}
+.gift-store-item small{color:var(--muted,#9aa7b1)}
+.gift-store-item button{width:100%;font-size:12px;padding:9px}
+.gift-store-note,.gift-store-message{display:block;margin-top:14px}
+.live-gift-panel,.live-battle-panel,.live-battle-invite{margin:10px;padding:12px;border:1px solid #35434d;border-radius:13px;background:#101820;color:#f2f5f7}
+.live-gift-head,.live-battle-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.live-gift-head strong,.live-gift-head span{display:flex;align-items:center;gap:6px}
+.live-gift-head span{color:#e8d18a;font-size:12px}
+.live-gift-list{display:flex;gap:8px;overflow-x:auto;padding:10px 0 3px;scrollbar-width:thin}
+.live-gift-list button{flex:0 0 86px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 5px;border:1px solid #34434c;border-radius:10px;background:#1a252d;color:#fff}
+.live-gift-list button span{font-size:24px}.live-gift-list button small{font-size:10px}.live-gift-list button b{font-size:10px;color:#e8d18a}
+.live-gift-target{display:flex;gap:8px;margin-top:10px}
+.live-gift-target button,.live-battle-invite button,.live-battle-panel button{padding:7px 10px;border:1px solid #53616b;border-radius:9px;background:#202d36;color:#fff}
+.live-gift-target button.active{background:#4b3c20;border-color:#d8b45b}
+.live-battle-title{font-weight:800;color:#ffd36d}
+.live-battle-score{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.live-battle-score b{color:#ff6d8c}
+.live-battle-invite{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px}
+@media(max-width:760px){
+ .gift-store{padding:14px}.gift-store-head h2{font-size:19px}
+ .gift-store-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .live-gift-panel{margin:6px;padding:9px}
+ .live-gift-list button{flex-basis:76px}
+}
