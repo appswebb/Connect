@@ -1290,3 +1290,30 @@ button>svg{flex:none}
  .people-state-rooms .room-title{gap:8px}
  .people-state-rooms .room-message-list{max-height:280px}
 }
+
+
+/* Atalhos persistentes para navegar entre as áreas de Pessoas sem rolar a página toda */
+.people-quick-nav{
+ position:sticky;top:8px;z-index:30;display:flex;align-items:center;gap:7px;
+ width:max-content;max-width:100%;margin:0 0 14px;padding:5px;
+ overflow-x:auto;overflow-y:hidden;white-space:nowrap;
+ border:1px solid #34434a;border-radius:13px;
+ background:rgba(17,26,32,.96);backdrop-filter:blur(12px);
+ box-shadow:0 7px 22px #0005;scrollbar-width:none;
+ -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+}
+.people-quick-nav::-webkit-scrollbar{display:none}
+.people-quick-nav a{
+ display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:7px;
+ min-height:42px;padding:9px 13px;border:1px solid transparent;border-radius:9px;
+ color:#c5d0ce;text-decoration:none;font-size:11px;font-weight:750;
+ touch-action:manipulation;transition:background .16s,border-color .16s,color .16s;
+}
+.people-quick-nav a:first-child{background:#26372d;border-color:#465c45;color:#e5f6d7}
+.people-quick-nav a:active{background:#314638;color:#fff}
+.people-quick-nav svg{width:16px;height:16px;flex:none}
+#people-directory,#people-state-rooms,#people-live-section{scroll-margin-top:76px}
+@media(max-width:620px){
+ .people-quick-nav{top:5px;width:100%;gap:5px;margin-bottom:12px;padding:4px;border-radius:11px}
+ .people-quick-nav a{flex:1 0 auto;min-height:42px;padding:8px 11px;font-size:10px}
+}
