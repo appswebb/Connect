@@ -122,7 +122,6 @@
 
 .room-select button{display:flex;align-items:center;gap:8px}.room-select button img{width:25px;height:17px;object-fit:cover;border-radius:2px}.room-select>span{font-size:9px;color:#84939b;font-weight:800;letter-spacing:.7px;margin-left:4px}
 .state-room-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.state-room-grid button{display:flex;align-items:center;gap:7px;min-width:0;padding:8px 7px;border:1px solid #2e3a43;border-radius:8px;background:#111920;color:#9eabb0;font-size:10px;font-weight:800}.state-room-grid button.active{border-color:#9bcf5c;background:#263421;color:#d5ff9c}.state-room-grid img{width:27px;height:18px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #ffffff24;flex:none}.room-title-flag{width:42px;height:30px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px #ffffff30}
-@media(max-width:760px){.state-room-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.state-room-grid button{justify-content:center;padding:8px 4px}}
 @media(max-width:390px){.state-room-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 
@@ -825,26 +824,70 @@ button>svg{flex:none}
   max-width: 100%;
 }
 .state-room-grid {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   min-width: 0;
   max-width: 100%;
-  gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 2px 8px;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
+  gap: 9px;
+  overflow: visible;
+  padding: 2px;
 }
 .state-room-grid button {
-  flex: 0 0 76px;
-  min-width: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  scroll-snap-align: start;
+  gap: 6px;
+  min-width: 0;
+  min-height: 70px;
+  padding: 9px 5px;
+  border: 1px solid #2e3a43;
+  border-radius: 11px;
+  background: #111920;
+  color: #aebbc0;
+  font-size: 10px;
+  font-weight: 800;
+  scroll-snap-align: none;
+}
+.state-room-grid button.active {
+  border-color: #9bcf5c;
+  background: linear-gradient(145deg, #293a24, #1b2922);
+  color: #d5ff9c;
+  box-shadow: inset 0 0 0 1px #9bcf5c35;
+}
+.state-room-grid button img {
+  display: block;
+  width: 38px;
+  height: 26px;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #ffffff24;
+  flex: none;
+}
+.state-room-grid button span {
+  display: block;
+  line-height: 1;
+}
+.room-title-flag {
+  display: block;
+  width: 48px;
+  height: 32px;
+  flex: 0 0 48px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #ffffff30;
 }
 @media (max-width: 760px) {
+  .state-room-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .state-room-grid button {
+    min-height: 66px;
+  }
   .chat-mode-switch {
     width: 100%;
   }
@@ -1284,9 +1327,9 @@ button>svg{flex:none}
  .people-state-rooms-heading h2{font-size:16px}
  .people-state-rooms-heading p{max-width:230px;font-size:9px}
  .people-state-rooms-heading>span{padding:6px 7px;font-size:8px}
- .people-state-rooms .state-room-grid{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:2px 1px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
- .people-state-rooms .state-room-grid::-webkit-scrollbar{display:none}
- .people-state-rooms .state-room-grid button{flex:0 0 48px;min-width:48px;min-height:49px}
+ .people-state-rooms .state-room-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;overflow:visible;padding:2px}
+ .people-state-rooms .state-room-grid button{min-width:0;min-height:64px;flex:none}
+ .people-state-rooms .state-room-grid button img{width:34px;height:23px}
  .people-state-rooms .room-title{gap:8px}
  .people-state-rooms .room-message-list{max-height:280px}
 }
