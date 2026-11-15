@@ -82,8 +82,8 @@
 .crop-dialog>header h2{font-size:19px;margin:5px 0 0}
 .crop-dialog>header button{width:36px;height:36px;border:1px solid #35404a;border-radius:10px;background:#1b252d;color:#dce4e7}
 .crop-preview-wrap{display:grid;justify-items:center;gap:9px}
-.crop-preview{position:relative;width:min(100%,480px);max-height:48vh;overflow:hidden;border-radius:13px;background:#080d11;box-shadow:inset 0 0 0 1px #ffffff22}
-.crop-preview img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .08s linear}
+.crop-preview{position:relative;max-height:none;overflow:hidden;border-radius:13px;background:#080d11;box-shadow:inset 0 0 0 1px #ffffff22}
+.crop-preview img{position:absolute;inset:0;width:100%;height:100%;max-width:none;display:block;object-fit:cover;transform-origin:center center;transition:transform .08s linear}
 .crop-preview-wrap>p{font-size:11px;color:#9ba8ad;margin:0;text-align:center}
 .crop-controls{display:grid;gap:13px;margin:19px 0}
 .crop-controls label{display:grid;gap:7px;font-size:11px;color:#b8c2c5}
@@ -193,10 +193,13 @@
 /* Image sizing guardrails: keep every uploaded image inside its component. */
 img,video{max-width:100%}
 .avatar img{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;display:block}
-.post-media{display:flex;align-items:center;justify-content:center;max-height:560px}
-.post-media img,.post-media video{display:block;width:100%;max-width:100%;height:auto;max-height:560px;object-fit:contain}
+.post-media{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:4/5;max-height:560px;min-height:0;overflow:hidden}
+.post-media img,.post-media video{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;flex:0 1 auto}
 .chat-attachment img,.chat-attachment video{display:block;width:auto;max-width:100%;height:auto;max-height:320px;object-fit:contain}
 .crop-preview img{display:block;width:100%;height:100%;max-width:none;object-fit:cover}
 .live-media{display:block;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain}
 .live-media-mirrored{transform:scaleX(-1)}
 @media(max-width:760px){.mobile-nav{height:66px;grid-template-columns:repeat(6,minmax(0,1fr));padding:4px}.mobile-nav button{gap:3px;font-size:7px}}
+
+.store-products{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(210px,.8fr);gap:14px;align-items:start}.store-product{display:flex;gap:16px;padding:22px;border:1px solid #38482f;border-radius:16px;background:linear-gradient(145deg,#18221b,#11181c)}.store-product-icon{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:#2b3b21;color:var(--lime)}.store-product-copy{min-width:0;flex:1}.store-kicker{font-size:8px;font-weight:900;letter-spacing:1.4px;color:var(--lime)}.store-product h2{font:800 21px Manrope;margin:7px 0}.store-product p{font-size:11px;line-height:1.7;color:#aab6bd}.store-product ul{display:grid;gap:9px;padding:0;margin:15px 0;list-style:none}.store-product li{display:flex;align-items:flex-start;gap:8px;font-size:10px;color:#d3ddd7}.store-product li svg{width:15px;height:15px;flex:none;color:var(--lime)}.store-product-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #2e3b32}.store-price{font-size:9px;color:#a5b19f;line-height:1.5}.store-product-footer button{white-space:nowrap}.store-product-footer button:disabled{opacity:.7;cursor:not-allowed}.store-payment-note{display:block;margin-top:11px;font-size:9px;color:#82908a;line-height:1.6}.store-free-plan{display:grid;gap:9px;padding:18px;border:1px solid #303c45;border-radius:14px;background:#131b21}.store-free-plan strong{font:700 13px Manrope}.store-free-plan span{font-size:19px;font-weight:900;color:var(--lime)}.store-free-plan p{font-size:10px;line-height:1.6;color:#89969f;margin:0}@media(max-width:760px){.store-products{grid-template-columns:1fr}.store-product{padding:16px;gap:11px;flex-direction:column}.store-product-footer{align-items:flex-start;flex-direction:column}.store-product-footer button{width:100%;justify-content:center}.live-header-actions{align-items:flex-start;flex-direction:column}.live-header-end{width:100%}}
+.live-header-actions{display:flex;align-items:center;gap:10px}.live-header-end,.live-end-list{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 11px;border:1px solid #713b46;border-radius:9px;background:#351d25;color:#ffbac4;font-size:9px;font-weight:800;white-space:nowrap}.live-end-list{margin-left:auto}.live-header-end:hover,.live-end-list:hover{background:#49232d}.live-controls button.disabled{opacity:.45;cursor:not-allowed}
