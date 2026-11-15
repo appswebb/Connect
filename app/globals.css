@@ -120,3 +120,9 @@
 
 
 .blocked-list{display:grid;gap:9px;padding-top:11px;border-top:1px solid #2b3741}.blocked-list>strong{font-size:11px}.blocked-list>div{display:flex;align-items:center;gap:9px;padding:8px 0}.blocked-list>div>span{display:grid;gap:3px;flex:1;font-size:10px}.blocked-list>div>span small,.blocked-list>small{font-size:9px;color:#8d9ba2}.blocked-list button{padding:7px 10px;font-size:9px}
+
+
+.room-select button{display:flex;align-items:center;gap:8px}.room-select button img{width:25px;height:17px;object-fit:cover;border-radius:2px}.room-select>span{font-size:9px;color:#84939b;font-weight:800;letter-spacing:.7px;margin-left:4px}
+.state-room-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.state-room-grid button{display:flex;align-items:center;gap:7px;min-width:0;padding:8px 7px;border:1px solid #2e3a43;border-radius:8px;background:#111920;color:#9eabb0;font-size:10px;font-weight:800}.state-room-grid button.active{border-color:#9bcf5c;background:#263421;color:#d5ff9c}.state-room-grid img{width:27px;height:18px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #ffffff24;flex:none}.room-title-flag{width:42px;height:30px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px #ffffff30}
+@media(max-width:760px){.state-room-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.state-room-grid button{justify-content:center;padding:8px 4px}}
+@media(max-width:390px){.state-room-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
