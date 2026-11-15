@@ -687,3 +687,9 @@ button>svg{flex:none}
 .mobile-nav .nav-more-panel button{min-height:42px;border:0;border-radius:9px;background:transparent;color:#b7c0c5;display:flex;flex-direction:row;justify-content:flex-start;gap:11px;padding:0 12px;font-size:11px}
 .mobile-nav .nav-more-panel button.selected,.mobile-nav .nav-more-panel button:hover{background:#263321;color:#d8f7b0}
 @media(max-width:760px){.mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))!important}.mobile-nav button{min-width:0;font-size:8px}.mobile-nav .nav-more{min-width:0}}
+
+
+/* Store shortcut stays in its original top-bar position */
+.topbar-store{display:grid;place-items:center;width:40px;height:40px;border:1px solid #2c3942;border-radius:11px;background:#141d23;color:#c8d3d7;cursor:pointer;transition:.18s}
+.topbar-store:hover{border-color:#91c85a;color:#c5ef8b;background:#1a271b}
+@media(max-width:520px){.topbar-store{width:38px;height:38px}}
