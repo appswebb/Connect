@@ -1123,3 +1123,90 @@ button>svg{flex:none}
   .people-live-section{margin-top:22px;padding:16px;border-radius:16px}
   .people-live-section-heading{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Pessoas: hierarquia compacta e proporções pensadas primeiro para celular */
+.people-page-header{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  min-width:0;margin:8px 0 18px;padding:0 2px;
+}
+.people-page-header>div:first-child{display:grid;gap:4px;min-width:0}
+.people-page-header>div:first-child>small{display:flex;align-items:center;gap:6px;color:var(--lime);font-size:9px;font-weight:850;letter-spacing:1.2px}
+.people-page-header h1{margin:0;color:#f1f5f2;font:800 25px/1.15 Manrope,system-ui,sans-serif;letter-spacing:-.035em}
+.people-page-header p{margin:0;color:#94a1a6;font-size:11px;line-height:1.4}
+.people-quick-stats{display:flex;align-items:center;gap:7px;flex:none}
+.people-quick-stats>span{display:flex;align-items:center;gap:5px;min-height:30px;padding:6px 9px;border:1px solid #2d3b40;border-radius:9px;background:#141d22;color:#aab7b7;font-size:9px;white-space:nowrap}
+.people-quick-stats strong{color:#f1f5ed;font-size:11px}
+.people-quick-stats .people-live-dot{width:6px;height:6px;box-shadow:none}
+.people-directory-search{height:44px;margin:0 0 10px;border-radius:11px}
+.people-filter-row{display:flex;flex-wrap:nowrap;gap:7px;margin:0 0 12px;padding:2px 1px 6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.people-filter-row::-webkit-scrollbar{display:none}
+.people-filter-row button{flex:0 0 auto;min-height:34px;padding:7px 11px;font-size:10px}
+.people-directory-results{margin:3px 2px 10px;font-size:9px}
+.people-directory-results span:last-child{display:none}
+.people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.people-directory-card{min-height:0;border-radius:13px}
+.people-card-cover{height:58px;padding:7px}
+.people-card-cover>span{font-size:6px;padding:4px 6px}
+.people-card-content{grid-template-columns:42px minmax(0,1fr);column-gap:8px;padding:0 9px 10px}
+.people-card-content>.avatar{width:42px;height:42px;margin-top:-18px;font-size:12px}
+.people-card-identity{gap:2px}
+.people-card-identity strong{font-size:11px;line-height:1.25}
+.people-card-identity small{font-size:9px}
+.people-card-content>p{max-height:29px;min-height:0;margin:7px 0;font-size:9px;line-height:1.45}
+.people-card-meta{gap:5px;padding-top:7px;font-size:8px}
+.people-card-meta>i{width:23px;height:23px}
+.people-card-meta>i span{display:none}
+.people-live-section{gap:12px;margin-top:22px;padding:14px;border-radius:14px}
+.people-live-section-heading{align-items:center;gap:10px;padding-bottom:10px}
+.people-live-section-heading>div{gap:3px}
+.people-live-section-heading small{font-size:8px;letter-spacing:.1em}
+.people-live-section-heading h2{font-size:17px;line-height:1.2}
+.people-live-section-heading p{font-size:10px;line-height:1.35}
+.people-live-section-heading>span{padding:6px 8px;font-size:9px;white-space:nowrap}
+.people-live-intro{display:flex;align-items:center;gap:8px;color:#9eadae;font-size:10px;line-height:1.45}
+.people-live-intro svg{flex:none;color:var(--lime)}
+.people-live-section .live-create{display:flex;align-items:flex-end;gap:9px;padding:0;margin:0}
+.people-live-section .live-create label{flex:1;min-width:0;font-size:10px}
+.people-live-section .live-create input{min-height:40px}
+.people-live-section .live-create button{min-height:40px;padding:9px 12px;font-size:10px;white-space:nowrap}
+.people-live-section .live-list-heading{margin:2px 0 0}
+.people-live-section .live-list-heading strong{font-size:11px}
+.people-live-section .live-list-heading button{min-height:32px;padding:7px 10px;font-size:9px}
+.people-live-section .live-list article{gap:9px;padding:10px;border-radius:11px}
+.people-live-section .live-list article>div:nth-child(2){min-width:0}
+.people-live-section .live-list article strong{font-size:11px}
+.people-live-section .live-list article span,.people-live-section .live-list article small{font-size:9px}
+.people-live-section .live-list article>button{min-height:34px;padding:7px 9px;font-size:9px;white-space:nowrap}
+@media(max-width:620px){
+ .people-page-header{align-items:flex-start;margin:4px 0 14px;gap:8px}
+ .people-page-header h1{font-size:22px}
+ .people-page-header p{max-width:190px;font-size:10px}
+ .people-quick-stats{gap:5px}
+ .people-quick-stats>span{min-height:28px;padding:5px 7px;font-size:8px;gap:4px}
+ .people-quick-stats strong{font-size:10px}
+ .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .people-directory-card{min-height:0}
+ .people-card-cover{height:54px}
+ .people-card-content{grid-template-columns:38px minmax(0,1fr);column-gap:7px;padding:0 8px 9px}
+ .people-card-content>.avatar{width:38px;height:38px;margin-top:-16px}
+ .people-card-identity strong{font-size:10px}
+ .people-card-identity small{font-size:8px}
+ .people-card-content>p{font-size:8px;max-height:25px;margin:6px 0}
+ .people-card-meta{font-size:7px}
+ .people-live-section{margin-top:18px;padding:12px;gap:10px}
+ .people-live-section-heading{align-items:flex-start}
+ .people-live-section-heading>span{font-size:8px;padding:5px 7px}
+ .people-live-section-heading h2{font-size:15px}
+ .people-live-section-heading p{max-width:200px;font-size:9px}
+ .people-live-section .live-create{align-items:stretch;flex-direction:column;gap:7px}
+ .people-live-section .live-create button{width:100%;justify-content:center}
+ .people-live-section .live-list article{flex-wrap:wrap}
+ .people-live-section .live-list article>button{margin-left:auto}
+}
+@media(max-width:360px){
+ .people-page-header{flex-wrap:wrap}
+ .people-quick-stats{width:100%}
+ .people-directory-grid{grid-template-columns:1fr}
+ .people-card-cover{height:62px}
+}
