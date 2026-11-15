@@ -42,6 +42,7 @@ function TrackTile({ item, mirrorCamera }: { item: PublishedTrack; mirrorCamera:
 
 export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; isHost: boolean; onLeave: () => void }) {
   const roomRef = useRef<Room|null>(null);
+  const guestReconnectRef = useRef(false);
   const [connected,setConnected] = useState(false);
   const [connecting,setConnecting] = useState(false);
   const [cameraOn,setCameraOn] = useState(false);
@@ -142,7 +143,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
             if(row.user_id!==data.user?.id)return;
             const next=row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none";
             setRequestState(next);
-            if(next==="accepted"&&!roomRef.current) void connectRef.current();
+            if(next==="accepted"&&!guestReconnectRef.current){guestReconnectRef.current=true;void (async()=>{await roomRef.current?.disconnect();roomRef.current=null;setConnected(false);setTracks([]);setAudioTracks([]);await connectRef.current();guestReconnectRef.current=false;})();}
           });
         }
       })
