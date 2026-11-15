@@ -73,8 +73,8 @@ Deno.serve(async (req: Request) => {
     roomJoin: true,
     room: live.room_name,
     canSubscribe: true,
-    canPublish: isHost,
-    canPublishData: isHost,
+    canPublish,
+    canPublishData: canPublish,
   });
   return json({ token: await access.toJwt(), server_url: livekitUrl, is_host: isHost, can_publish: canPublish });
 });
