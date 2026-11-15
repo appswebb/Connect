@@ -13,6 +13,7 @@ type Props = {
 
 export default function ImageCropper({ file, aspectRatio, title, onCancel, onApply }: Props) {
   const [source, setSource] = useState("");
+  const [imageReady, setImageReady] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
@@ -22,6 +23,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
   useEffect(() => {
     const url = URL.createObjectURL(file);
     setSource(url);
+    setImageReady(false);
     setZoom(1);
     setX(0);
     setY(0);
@@ -54,7 +56,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
 
   function apply() {
     const canvas = canvasRef.current;
-    if (!canvas || !canvas.width || !canvas.height) return;
+    if (!imageReady || !canvas || !canvas.width || !canvas.height) return;
     canvas.toBlob(blob => {
       if (!blob) return;
       const name = file.name.replace(/\.[^.]+$/, "") + "-connect.jpg";
@@ -69,7 +71,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
         <div className="crop-preview-wrap">
           <div className="crop-preview" style={{aspectRatio, width:`min(100%, ${48*aspectRatio}vh)`}}>
             <canvas ref={canvasRef} aria-label="Prévia exata da imagem recortada"/>
-            {source && <img ref={imageRef} src={source} alt="" className="crop-source" onLoad={renderCrop}/>}
+            {source && <img ref={imageRef} src={source} alt="" className="crop-source" onLoad={()=>{setImageReady(true);renderCrop();}}/>}
           </div>
           <p>Ajuste o enquadramento. A prévia e a imagem salva usam exatamente o mesmo recorte.</p>
         </div>
@@ -78,7 +80,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
           <label>Horizontal <input type="range" min="-50" max="50" value={x} onChange={e=>setX(Number(e.target.value))}/></label>
           <label>Vertical <input type="range" min="-50" max="50" value={y} onChange={e=>setY(Number(e.target.value))}/></label>
         </div>
-        <footer><button type="button" className="secondary" onClick={()=>{setZoom(1);setX(0);setY(0);}}><RotateCcw size={15}/> Redefinir</button><button type="button" className="primary" onClick={apply}><Check size={16}/> Usar esta imagem</button></footer>
+        <footer><button type="button" className="secondary" onClick={()=>{setZoom(1);setX(0);setY(0);}}><RotateCcw size={15}/> Redefinir</button><button type="button" className="primary" disabled={!imageReady} onClick={apply}><Check size={16}/> Usar esta imagem</button></footer>
       </section>
     </div>
   );
