@@ -53,6 +53,18 @@ Deno.serve(async (req: Request) => {
   if (liveError || !live) return json({ error: "Live not found or already ended" }, 404);
 
   const isHost = live.host_user_id === authData.user.id;
+  let canPublish = isHost;
+  if (!isHost) {
+    const { data: guestRequest, error: guestError } = await supabase
+      .from("live_guest_requests")
+      .select("status")
+      .eq("live_id", live.id)
+      .eq("user_id", authData.user.id)
+      .eq("status", "accepted")
+      .maybeSingle();
+    if (guestError) return json({ error: "Could not verify guest permission" }, 500);
+    canPublish = !!guestRequest;
+  }
   const access = new AccessToken(livekitApiKey, livekitApiSecret, {
     identity: authData.user.id,
     ttl: "2h",
@@ -64,5 +76,5 @@ Deno.serve(async (req: Request) => {
     canPublish: isHost,
     canPublishData: isHost,
   });
-  return json({ token: await access.toJwt(), server_url: livekitUrl, is_host: isHost });
+  return json({ token: await access.toJwt(), server_url: livekitUrl, is_host: isHost, can_publish: canPublish });
 });
