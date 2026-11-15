@@ -235,3 +235,7 @@ img,video{max-width:100%}
 .avatar img{border-radius:9px}
 @keyframes publicPulse{0%,100%{transform:scale(.97);opacity:.45}50%{transform:scale(1.03);opacity:1}}
 @media(max-width:760px){.public-home{padding:0 18px}.public-header{height:72px}.public-header button{padding:9px 11px;font-size:9px}.public-hero{min-height:0;grid-template-columns:1fr;gap:0;padding:28px 0}.public-hero-copy{padding:32px 0 5px}.public-hero-copy h1{font-size:clamp(42px,12vw,60px);letter-spacing:-2px}.public-hero-copy p{font-size:12px}.public-points{gap:12px}.public-hero-art{height:300px;min-height:300px}.public-orbit-one{width:40%}.public-orbit-two{width:65%}.public-orbit-three{width:88%}.public-core{width:82px;height:82px;border-radius:24px}.public-core svg{width:34px;height:34px}.public-float{font-size:8px;padding:9px 11px}.public-footer{font-size:7px}.public-footer span{max-width:55%;text-align:right}}
+
+.demo-link{border:0;background:transparent;color:#a7dc5a;font-size:10px;font-weight:800;padding:12px 4px;cursor:pointer}
+.demo-readonly-banner{display:flex;align-items:center;gap:8px;padding:10px 13px;margin:12px 0;border:1px solid #536d3a;border-radius:9px;background:#202d1b;color:#d5f0b5;font-size:9px;font-weight:900;letter-spacing:.8px}
+.demo-readonly-note{padding:12px 14px;border:1px dashed #455b39;border-radius:10px;background:#18231a;color:#b7cba5;font-size:10px;line-height:1.6;margin:12px 0}
