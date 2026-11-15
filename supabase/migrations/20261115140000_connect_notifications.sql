@@ -16,6 +16,9 @@ create index if not exists notifications_recipient_created_idx
 create index if not exists notifications_unread_idx
   on public.notifications (recipient_id, created_at desc)
   where read_at is null;
+create index if not exists notifications_actor_id_idx
+  on public.notifications (actor_id)
+  where actor_id is not null;
 
 alter table public.notifications enable row level security;
 revoke all on public.notifications from anon, public;
