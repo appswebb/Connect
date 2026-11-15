@@ -124,3 +124,25 @@
 .state-room-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}.state-room-grid button{display:flex;align-items:center;gap:7px;min-width:0;padding:8px 7px;border:1px solid #2e3a43;border-radius:8px;background:#111920;color:#9eabb0;font-size:10px;font-weight:800}.state-room-grid button.active{border-color:#9bcf5c;background:#263421;color:#d5ff9c}.state-room-grid img{width:27px;height:18px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #ffffff24;flex:none}.room-title-flag{width:42px;height:30px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px #ffffff30}
 @media(max-width:760px){.state-room-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.state-room-grid button{justify-content:center;padding:8px 4px}}
 @media(max-width:390px){.state-room-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+
+/* Live matchmaking search feedback */
+.queue-state{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 10px;border:1px solid #43513a;border-radius:999px;background:#172116;color:#aeca91;font-size:8px;font-weight:900;letter-spacing:1.15px}
+.queue-state i{width:7px;height:7px;border-radius:50%;background:#91a77c}
+.queue-state.is-active{border-color:#9edb5a66;background:#9edb5a12;color:#d6f6b6}
+.queue-state.is-active i{background:#b9f36b;box-shadow:0 0 0 0 #b9f36b88;animation:queuePulse 1.5s ease-out infinite}
+.connection-art-caption{position:absolute;z-index:2;bottom:2px;color:#b6d990;font-size:8px;font-weight:900;letter-spacing:1.8px;text-align:center}
+.search-orbit-dot{display:none;position:absolute;z-index:3;width:11px;height:11px;border-radius:50%;background:#d8ff9e;box-shadow:0 0 20px #c8ff7a;top:50%;left:50%;transform:translate(-50%,-50%)}
+.connection-art.is-searching .ring.r1{border-color:#c5f47788;animation:queueBreathe 2.2s ease-in-out infinite}
+.connection-art.is-searching .ring.r2{border-color:#c5f47766;animation:spin 8s linear infinite}
+.connection-art.is-searching .ring.r3{border-color:#c5f47735;animation:queueBreathe 3s ease-in-out infinite reverse}
+.connection-art.is-searching .core{animation:queueCore 2s ease-in-out infinite;box-shadow:0 0 35px #b7ed6b55,0 0 90px #b7ed6b22}
+.connection-art.is-searching .search-orbit-dot{display:block;animation:queueOrbit 3.4s linear infinite}
+.connection-art.is-found .core{background:linear-gradient(140deg,#e8ffbf,#a7ed5a);box-shadow:0 0 70px #b7ed6b77}
+.connection-art.is-found .ring{border-color:#c5f47788}
+@keyframes queuePulse{0%{box-shadow:0 0 0 0 #b9f36b88}70%{box-shadow:0 0 0 8px #b9f36b00}100%{box-shadow:0 0 0 0 #b9f36b00}}
+@keyframes queueBreathe{0%,100%{transform:scale(.94);opacity:.45}50%{transform:scale(1.06);opacity:1}}
+@keyframes queueCore{0%,100%{transform:scale(.96);filter:saturate(.9)}50%{transform:scale(1.08);filter:saturate(1.25)}}
+@keyframes queueOrbit{from{transform:translate(-50%,-50%) rotate(0deg) translateX(122px)}to{transform:translate(-50%,-50%) rotate(360deg) translateX(122px)}}
+@media(max-width:760px){.connection-art-caption{bottom:0}.connection-art.is-searching .search-orbit-dot{animation-name:queueOrbitMobile}}
+@keyframes queueOrbitMobile{from{transform:translate(-50%,-50%) rotate(0deg) translateX(102px)}to{transform:translate(-50%,-50%) rotate(360deg) translateX(102px)}}
