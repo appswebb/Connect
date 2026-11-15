@@ -4,6 +4,7 @@ import { Gift,Coins,ShoppingBag } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 type GiftItem={id:string;name:string;emoji:string;price_coins:number};
+const GIFT_ART:Record<string,string>={bala_arco_iris:"/Connect/gifts/bala-arco-iris.webp",tulipa_encantada:"/Connect/gifts/tulipa-encantada.webp",corgi_fofo:"/Connect/gifts/corgi-fofo.webp",fenix_dourada:"/Connect/gifts/fenix-dourada.webp",dragao_real:"/Connect/gifts/dragao-real.webp"};
 export default function GiftStore(){
  const [items,setItems]=useState<GiftItem[]>([]);
  const [balance,setBalance]=useState(0);
@@ -30,7 +31,7 @@ export default function GiftStore(){
  }
  return <section className="gift-store">
   <div className="gift-store-head"><div><small>CONNECT LIVE GIFTS</small><h2>Loja de presentes</h2><p>Escolha presentes para enviar durante as transmissões.</p></div><div className="gift-wallet"><Coins size={18}/><strong>{balance}</strong><span>moedas</span></div></div>
-  <div className="gift-store-grid">{items.map(g=><article key={g.id} className="gift-store-item"><span className="gift-store-emoji">{g.emoji}</span><strong>{g.name}</strong><span>{g.price_coins} moedas</span><small>No inventário: {inventory[g.id]||0}</small><button className="primary" disabled={!!busy} onClick={()=>void buy(g.id)}><ShoppingBag size={14}/>{busy===g.id?"Comprando...":"Comprar presente"}</button></article>)}</div>
+  <div className="gift-store-grid">{items.map(g=><article key={g.id} className="gift-store-item"><span className="gift-store-art">{GIFT_ART[g.id]?<img src={GIFT_ART[g.id]} alt={g.name} loading="lazy"/>:<span className="gift-store-emoji">{g.emoji}</span>}</span><strong>{g.name}</strong><span>{g.price_coins} moedas</span><small>No inventário: {inventory[g.id]||0}</small><button className="primary" disabled={!!busy} onClick={()=>void buy(g.id)}><ShoppingBag size={14}/>{busy===g.id?"Comprando...":"Comprar presente"}</button></article>)}</div>
   <p className="gift-store-note">Moedas são virtuais. A compra de moedas com dinheiro real ainda não está disponível.</p>
   {message&&<p className="gift-store-message">{message}</p>}
  </section>;
