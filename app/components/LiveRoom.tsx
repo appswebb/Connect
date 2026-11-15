@@ -154,7 +154,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       setWalletCoins(Number(w.data?.coins||0));
       setBattle(b.data||null);setAcceptedGuests(guests.data||[]);
       if(b.data){const {data:sc}=await supabase.from("live_battle_scores").select("user_id,score").eq("battle_id",b.data.id);if(active)setBattleScores(Object.fromEntries((sc||[]).map((x:any)=>[x.user_id,Number(x.score)])));}
-      setGiftTarget(user.id);
+      setGiftTarget(b.data?.host_user_id||"");
     };
     void load();
     const channel=supabase.channel("live-economy-"+liveId)
@@ -166,7 +166,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   },[liveId]);
   useEffect(()=>{
     if(!battle||battle.status!=="active"||!battle.ends_at)return;
-    const tick=()=>{const left=Math.max(0,Math.ceil((new Date(battle.ends_at).getTime()-Date.now())/1000));setBattleSeconds(left);if(left===0){void supabase.from("live_battles").update({status:"ended",winner_user_id:(Number(battleScores[battle.host_user_id]||0)>=Number(battleScores[battle.challenger_user_id]||0)?battle.host_user_id:battle.challenger_user_id)}).eq("id",battle.id).eq("status","active");}};
+    const tick=()=>{const left=Math.max(0,Math.ceil((new Date(battle.ends_at).getTime()-Date.now())/1000));setBattleSeconds(left);if(left===0){void supabase.rpc("finish_live_battle",{p_battle_id:battle.id});}};
     tick();const timer=window.setInterval(tick,1000);return()=>window.clearInterval(timer);
   },[battle?.id,battle?.status,battle?.ends_at,battleScores]);
   async function sendGift(g:LiveGift){
