@@ -207,3 +207,183 @@ begin
   end if;
 end;
 $publication$;
+
+-- Additional important events: new posts from active matches and closed conversations.
+alter table public.notifications drop constraint if exists notifications_type_check;
+alter table public.notifications add constraint notifications_type_check
+check (type in ('like','comment','message','match','match_accepted','match_closed','live','post'));
+
+create or replace function public.handle_connect_notification_event()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+declare
+  v_recipient uuid;
+  v_actor uuid;
+  v_entity uuid;
+  v_type text;
+  v_title text;
+  v_body text;
+  v_entity_type text;
+begin
+  if tg_table_name = 'post_likes' then
+    v_actor := new.user_id;
+    v_entity := new.post_id;
+    v_entity_type := 'post';
+    v_type := 'like';
+    v_title := 'Curtiram sua publicação';
+    v_body := 'Alguém curtiu uma publicação sua.';
+    select p.user_id into v_recipient from public.posts p where p.id = new.post_id;
+  elsif tg_table_name = 'comments' then
+    v_actor := new.user_id;
+    v_entity := new.post_id;
+    v_entity_type := 'post';
+    v_type := 'comment';
+    v_title := 'Novo comentário';
+    v_body := 'Alguém comentou em uma publicação sua.';
+    select p.user_id into v_recipient from public.posts p where p.id = new.post_id;
+  elsif tg_table_name = 'posts' then
+    insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+    select distinct
+      case when m.user_one = new.user_id then m.user_two else m.user_one end,
+      new.user_id,
+      'post',
+      left(actor.display_name, 60) || ' publicou algo novo',
+      'Uma pessoa com quem você tem conexão publicou no CONNECT.',
+      'post',
+      new.id
+    from public.matches m
+    join public.profiles actor on actor.id = new.user_id and actor.is_demo = false
+    join public.profiles recipient
+      on recipient.id = case when m.user_one = new.user_id then m.user_two else m.user_one end
+     and recipient.is_demo = false
+    where (m.user_one = new.user_id or m.user_two = new.user_id)
+      and m.match_status = 'accepted'
+      and m.ended_at is null
+      and not exists (
+        select 1 from public.user_blocks b
+        where (b.blocker_id = recipient.id and b.blocked_id = new.user_id)
+           or (b.blocker_id = new.user_id and b.blocked_id = recipient.id)
+      );
+    return new;
+  elsif tg_table_name = 'messages' then
+    v_actor := new.sender_id;
+    v_entity := new.match_id;
+    v_entity_type := 'match';
+    v_type := 'message';
+    v_title := 'Nova mensagem';
+    v_body := 'Você recebeu uma nova mensagem privada.';
+    select case when m.user_one = new.sender_id then m.user_two else m.user_one end
+      into v_recipient
+      from public.matches m
+      where m.id = new.match_id
+        and m.match_status = 'accepted'
+        and m.ended_at is null;
+  elsif tg_table_name = 'matches' then
+    if tg_op = 'INSERT' and new.match_status = 'pending' then
+      insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+      select pair.recipient_id, pair.actor_id, 'match', 'Nova conexão para confirmar',
+             'Você encontrou alguém! Confirme a conexão dentro do prazo.',
+             'match', new.id
+      from (values (new.user_one,new.user_two),(new.user_two,new.user_one)) as pair(recipient_id,actor_id)
+      join public.profiles recipient on recipient.id = pair.recipient_id and recipient.is_demo = false
+      join public.profiles actor on actor.id = pair.actor_id and actor.is_demo = false
+      where not exists (
+        select 1 from public.user_blocks b
+        where (b.blocker_id = pair.recipient_id and b.blocked_id = pair.actor_id)
+           or (b.blocker_id = pair.actor_id and b.blocked_id = pair.recipient_id)
+      );
+    elsif tg_op = 'UPDATE' and old.ended_at is null and new.ended_at is not null then
+      insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+      select pair.recipient_id, pair.actor_id, 'match_closed', 'Conversa encerrada',
+             'A conversa foi encerrada. O histórico continua salvo.',
+             'match', new.id
+      from (values (new.user_one,new.user_two),(new.user_two,new.user_one)) as pair(recipient_id,actor_id)
+      join public.profiles recipient on recipient.id = pair.recipient_id and recipient.is_demo = false
+      join public.profiles actor on actor.id = pair.actor_id and actor.is_demo = false
+      where not exists (
+        select 1 from public.user_blocks b
+        where (b.blocker_id = pair.recipient_id and b.blocked_id = pair.actor_id)
+           or (b.blocker_id = pair.actor_id and b.blocked_id = pair.recipient_id)
+      );
+    elsif tg_op = 'UPDATE' and old.match_status is distinct from new.match_status then
+      if new.match_status = 'accepted' then
+        insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+        select pair.recipient_id, pair.actor_id, 'match_accepted', 'Conexão confirmada!',
+               'Vocês aceitaram a conexão. A conversa já está disponível.',
+               'match', new.id
+        from (values (new.user_one,new.user_two),(new.user_two,new.user_one)) as pair(recipient_id,actor_id)
+        join public.profiles recipient on recipient.id = pair.recipient_id and recipient.is_demo = false
+        join public.profiles actor on actor.id = pair.actor_id and actor.is_demo = false
+        where not exists (
+          select 1 from public.user_blocks b
+          where (b.blocker_id = pair.recipient_id and b.blocked_id = pair.actor_id)
+             or (b.blocker_id = pair.actor_id and b.blocked_id = pair.recipient_id)
+        );
+      elsif new.match_status in ('declined','expired') then
+        insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+        select pair.recipient_id, pair.actor_id, 'match_closed', 'Conexão encerrada',
+               case when new.match_status = 'expired'
+                    then 'O prazo para confirmar a conexão terminou.'
+                    else 'A conexão não foi confirmada.' end,
+               'match', new.id
+        from (values (new.user_one,new.user_two),(new.user_two,new.user_one)) as pair(recipient_id,actor_id)
+        join public.profiles recipient on recipient.id = pair.recipient_id and recipient.is_demo = false
+        join public.profiles actor on actor.id = pair.actor_id and actor.is_demo = false
+        where not exists (
+          select 1 from public.user_blocks b
+          where (b.blocker_id = pair.recipient_id and b.blocked_id = pair.actor_id)
+             or (b.blocker_id = pair.actor_id and b.blocked_id = pair.recipient_id)
+        );
+      end if;
+    end if;
+    return new;
+  elsif tg_table_name = 'live_sessions' then
+    if tg_op = 'INSERT' and new.status = 'live' then
+      insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+      select recipient.id, new.host_user_id, 'live', 'Nova transmissão ao vivo',
+             left(host.display_name, 80) || ' iniciou uma live: ' || left(new.title, 90),
+             'live', new.id
+      from public.profiles recipient
+      join public.profiles host on host.id = new.host_user_id and host.is_demo = false
+      where recipient.is_demo = false
+        and recipient.id <> new.host_user_id
+        and not exists (
+          select 1 from public.user_blocks b
+          where (b.blocker_id = recipient.id and b.blocked_id = new.host_user_id)
+             or (b.blocker_id = new.host_user_id and b.blocked_id = recipient.id)
+        );
+    end if;
+    return new;
+  end if;
+
+  if v_recipient is null or v_actor is null or v_recipient = v_actor then
+    return new;
+  end if;
+
+  if exists (
+    select 1 from public.profiles actor
+    join public.profiles recipient on recipient.id = v_recipient
+    where actor.id = v_actor
+      and actor.is_demo = false
+      and recipient.is_demo = false
+  ) and not exists (
+    select 1 from public.user_blocks b
+    where (b.blocker_id = v_recipient and b.blocked_id = v_actor)
+       or (b.blocker_id = v_actor and b.blocked_id = v_recipient)
+  ) then
+    insert into public.notifications (recipient_id, actor_id, type, title, body, entity_type, entity_id)
+    values (v_recipient, v_actor, v_type, v_title, v_body, v_entity_type, v_entity);
+  end if;
+
+  return new;
+end;
+$function$;
+
+revoke all on function public.handle_connect_notification_event() from public, anon, authenticated;
+
+drop trigger if exists notify_post_published on public.posts;
+create trigger notify_post_published after insert on public.posts
+for each row execute function public.handle_connect_notification_event();
