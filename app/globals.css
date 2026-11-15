@@ -442,3 +442,45 @@ img,video{max-width:100%}
   .live-error{flex:none;margin:5px 10px;padding:8px;font-size:10px}
   .live-stage>header .live-header-end{padding:8px 9px;font-size:9px}
 }
+
+
+/* Force portrait live layout even if older responsive grid rules are cached/overlap. */
+@media screen and (max-width: 760px) and (orientation: portrait) {
+  .live-stage .live-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 0 !important;
+    gap: 5px !important;
+    padding: 5px !important;
+    overflow: hidden !important;
+  }
+  .live-stage .live-grid > .live-tile {
+    display: block !important;
+    position: relative !important;
+    flex: 1 1 50% !important;
+    width: 100% !important;
+    height: 50% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    aspect-ratio: auto !important;
+  }
+  .live-stage .live-grid > .live-tile .live-media-holder,
+  .live-stage .live-grid > .live-tile .live-media {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+  }
+  .live-stage > header {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+}
