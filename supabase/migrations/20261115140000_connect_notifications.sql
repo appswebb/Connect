@@ -22,6 +22,7 @@ create index if not exists notifications_actor_id_idx
 
 alter table public.notifications enable row level security;
 revoke all on public.notifications from anon, public;
+revoke all on public.notifications from authenticated;
 grant select, update, delete on public.notifications to authenticated;
 
 drop policy if exists "Users can read their own notifications" on public.notifications;
