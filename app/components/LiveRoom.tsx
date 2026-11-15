@@ -42,6 +42,8 @@ function TrackTile({ item, mirrorCamera }: { item: PublishedTrack; mirrorCamera:
 
 export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; isHost: boolean; onLeave: () => void }) {
   const roomRef = useRef<Room|null>(null);
+  const onLeaveRef = useRef(onLeave);
+  onLeaveRef.current = onLeave;
   const guestReconnectRef = useRef(false);
   const [connected,setConnected] = useState(false);
   const [connecting,setConnecting] = useState(false);
@@ -181,7 +183,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       await roomRef.current?.disconnect();
       roomRef.current=null;
       setConnected(false);setTracks([]);setAudioTracks([]);
-      onLeave();
+      onLeaveRef.current();
     };
     const channel=supabase.channel("live-status-"+liveId)
       .on("postgres_changes",{event:"UPDATE",schema:"public",table:"live_sessions",filter:"id=eq."+liveId},payload=>{
@@ -196,7 +198,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       window.clearInterval(fallback);
       void supabase.removeChannel(channel);
     };
-  },[liveId,isHost,onLeave]);
+  },[liveId,isHost]);
 
   return <section className="live-stage">
     <header><div><span className="live-on"><i/> AO VIVO</span><strong>{isHost?"Sua transmissão":"Assistindo transmissão"}</strong></div><div className="live-header-actions"><span className="live-secure"><Wifi size={14}/> Conexão criptografada</span>{isHost&&<button type="button" className="live-header-end" onClick={()=>void leave()}><PhoneOff size={14}/> Encerrar live</button>}</div></header>
