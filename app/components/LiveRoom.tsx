@@ -137,6 +137,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   async function decideGuest(requestId:string, accept:boolean){
     const {error:e}=await supabase.from("live_guest_requests").update({status:accept?"accepted":"declined",updated_at:new Date().toISOString()}).eq("id",requestId);
     if(e){setError(e.message);return;}
+    const chosen=guestRequests.find(x=>x.id===requestId);if(accept&&chosen)setAcceptedGuests(old=>[...old.filter(x=>x.user_id!==chosen.user_id),{user_id:chosen.user_id,video_enabled:chosen.video_enabled}]);
     setGuestRequests(old=>old.filter(x=>x.id!==requestId));
   }
   useEffect(()=>{
