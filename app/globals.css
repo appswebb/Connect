@@ -106,7 +106,7 @@
 
 /* Public rooms and location matching */
 .chat-mode-switch{display:flex;gap:6px;padding:4px;border:1px solid #2d3942;border-radius:11px;background:#10171d}
-.chat-mode-switch button,.room-select button{padding:9px 12px;border:0;border-radius:8px;background:transparent;color:#9ba8ae;font-size:10px;font-weight:800}
+.chat-mode-switch button,.room-select button{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px;border:0;border-radius:8px;background:transparent;color:#9ba8ae;font-size:10px;font-weight:800}.chat-mode-switch button svg{width:15px;height:15px;flex:none;stroke-width:2}
 .chat-mode-switch button.active,.room-select button.active{background:#263421;color:#c7ff8a}
 .rooms-panel{display:grid;gap:13px;padding:16px;border:1px solid #2b3741;border-radius:16px;background:linear-gradient(145deg,#141b21,#10161b)}
 .room-select{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.room-select select{min-height:38px;padding:8px 11px;border:1px solid #35414b;border-radius:8px;background:#0d1419;color:#dce5e4;font-size:10px}
@@ -624,23 +624,37 @@ button>svg{flex:none}
 .people-card-badges>.people-status-online{background:#263d24;color:#c9f28f}
 .people-card-badges>.people-status-offline{background:#17232b;color:#a9b7bd}
 .people-card-content>p{min-height:34px}
+/* Diretório compacto: foto e identidade lado a lado, sem cartões gigantes */
+.people-card-content{display:grid;grid-template-columns:46px minmax(0,1fr);align-items:center;column-gap:10px;padding:0 12px 12px}
+.people-card-content>.avatar{grid-column:1;grid-row:1;width:46px;height:46px;margin-top:-18px;border:3px solid #141d22;font-size:13px}
+.people-card-identity{grid-column:2;grid-row:1;min-width:0;margin-top:0;gap:3px}
+.people-card-identity strong{font-size:12px}
+.people-card-identity small{font-size:9px}
+.people-card-content>p{grid-column:1/-1;height:auto;min-height:0;max-height:30px;margin:8px 0;font-size:9px;line-height:1.5}
+.people-card-meta{grid-column:1/-1;padding-top:8px;font-size:8px}
 @media(max-width:620px){
- .people-network-bar{align-items:flex-start;padding:11px 12px}
- .people-network-bar>div{flex:1 1 100%;gap:6px}
+ .people-network-bar{align-items:center;padding:10px 12px}
+ .people-network-bar>div{flex:1 1 auto;gap:6px}
  .people-network-bar>div small{flex-basis:100%;padding-left:14px}
- .people-network-bar>button{min-height:34px}
+ .people-network-bar>button{min-height:32px}
  .people-filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- .people-filter-row button{width:100%;min-width:0;padding:9px 7px;font-size:11px;white-space:normal;text-align:center}
- .people-directory-results{font-size:10px}
- .people-directory-grid{grid-template-columns:minmax(0,1fr);gap:12px}
- .people-card-cover{height:76px}
- .people-card-content{padding:0 14px 14px}
- .people-card-content>.avatar{width:58px;height:58px;margin-top:-29px}
- .people-card-identity strong{font-size:14px}
- .people-card-identity small{font-size:11px}
- .people-card-content>p{font-size:11px;min-height:36px}
- .people-card-meta{font-size:10px}
- .people-card-meta>i span{font-size:10px}
+ .people-filter-row button{width:100%;min-width:0;padding:8px 6px;font-size:10px;white-space:normal;text-align:center}
+ .people-directory-results{font-size:9px}
+ .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .people-directory-card{border-radius:12px}
+ .people-card-cover{height:52px;padding:6px}
+ .people-card-cover>span{padding:4px 6px;font-size:6px}
+ .people-card-content{grid-template-columns:38px minmax(0,1fr);column-gap:7px;padding:0 8px 9px}
+ .people-card-content>.avatar{width:38px;height:38px;margin-top:-13px;font-size:11px}
+ .people-card-identity{gap:2px}
+ .people-card-identity strong{font-size:10px;line-height:1.25}
+ .people-card-identity small{font-size:8px}
+ .people-card-content>p{max-height:27px;margin:6px 0;font-size:8px;line-height:1.4}
+ .people-card-meta{gap:4px;padding-top:6px;font-size:7px}
+ .people-card-meta>span{gap:3px}
+ .people-card-meta>span svg{width:10px;height:10px}
+ .people-card-meta>i{min-width:21px;height:21px;padding:0 4px;border-radius:6px}
+ .people-card-meta>i span{font-size:7px}
 }
 
 
