@@ -115,6 +115,13 @@ export default function Home(){
  useEffect(()=>{let alive=true;supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setLoading(false);}});const {data:listener}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);if(!s){setProfile(null);setPosts([]);setMatchId("");setQueue("idle");}});return()=>{alive=false;listener.subscription.unsubscribe();};},[]);
  useEffect(()=>{if(session?.user.id){void loadProfile(session.user.id);void loadFeed(session.user.id);}},[session]);
  useEffect(()=>{if(session?.user.id)void loadCommunityProfiles(session.user.id);},[session]);
+ useEffect(()=>{
+  if(!session?.user.id)return;
+  const channel=supabase.channel("connect-people-directory")
+   .on("postgres_changes",{event:"*",schema:"public",table:"profiles"},()=>void loadCommunityProfiles(session.user.id))
+   .subscribe();
+  return()=>{void supabase.removeChannel(channel);};
+ },[session?.user.id]);
 
  useEffect(()=>{
   if(!session?.user.id||!profile)return;
