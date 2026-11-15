@@ -44,7 +44,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
     context.drawImage(image, dx, dy, drawWidth, drawHeight);
     canvas.toBlob(blob => {
       if (!blob) return;
-      const name = file.name.replace(/\\.[^.]+$/, "") + "-connect.jpg";
+      const name = file.name.replace(/\.[^.]+$/, "") + "-connect.jpg";
       onApply(new File([blob], name, { type: "image/jpeg", lastModified: Date.now() }));
     }, "image/jpeg", 0.92);
   }
@@ -58,7 +58,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
             {source && <img ref={imageRef} src={source} alt="Prévia do corte" style={{objectPosition: `${50 - x}% ${50 - y}%`, transform: `scale(${zoom})`}}/>}
             {aspectRatio === 1 && <i className="crop-circle-guide"/>}
           </div>
-          <p>Arraste os controles para enquadrar a imagem do seu jeito.</p>
+          <p>Use os controles para enquadrar a imagem do seu jeito.</p>
         </div>
         <div className="crop-controls">
           <label>Zoom <div><Minus size={15}/><input type="range" min="1" max="3" step="0.01" value={zoom} onChange={e=>setZoom(Number(e.target.value))}/><Plus size={15}/></div></label>
