@@ -9,7 +9,7 @@ const corsHeaders = {
   "Vary": "Origin",
 };
 const attempts = new Map<string, { count: number; resetAt: number }>();
-const demoEmail = "connect-demo@connect.invalid";
+const demoEmail = "connect-demo@connect.app";
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin");
