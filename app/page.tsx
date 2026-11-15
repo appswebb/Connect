@@ -220,6 +220,7 @@ export default function Home() {
           email: email.trim(),
           password,
           options: {
+            emailRedirectTo: "https://appswebb.github.io/Connect/",
             data: {
               display_name: displayName.trim(),
               username: cleanUsername,
