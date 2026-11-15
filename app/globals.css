@@ -580,3 +580,19 @@ img,video{max-width:100%}
 @media(max-width:620px){.people-page-hero{grid-template-columns:1fr;min-height:0;padding:23px 20px;margin:18px 0 23px}.people-hero-copy h1{font-size:33px}.people-hero-art{position:absolute;width:130px;height:130px;right:-22px;bottom:-23px;opacity:.42;transform:scale(.85)}.people-hero-stats{gap:18px}.people-directory-head h2{font-size:21px}.people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.people-card-cover{height:65px}.people-card-content{padding:0 10px 11px}.people-card-content>.avatar{width:52px;height:52px;margin-top:-26px}.people-card-identity strong{font-size:11px}.people-card-content>p{font-size:9px}.people-card-meta{font-size:8px}.people-refresh{padding:9px;font-size:0}.people-refresh svg{width:17px;height:17px}}
 
 @media(max-width:760px){.mobile-nav{grid-template-columns:repeat(7,minmax(0,1fr))!important}.mobile-nav button{min-width:0;padding-inline:1px;font-size:6.5px}.mobile-nav button svg{width:17px;height:17px}}
+
+/* CONNECT icon system: consistent weight, sizing and active states */
+.brand-icon{width:40px;height:40px;border-radius:14px;background:linear-gradient(145deg,#e4ffb5,#a5d85e);box-shadow:0 7px 22px #b7ed6b30}
+.brand-icon svg{width:21px;height:21px;stroke-width:2.35}
+.sidebar nav button{position:relative;min-height:48px;border-radius:12px;gap:12px;transition:background .18s,color .18s,transform .18s}
+.sidebar nav button>svg{width:19px;height:19px;stroke-width:1.9;flex:none;transition:transform .18s,color .18s}
+.sidebar nav button:hover>svg{transform:scale(1.08)}
+.sidebar nav button.selected{background:linear-gradient(100deg,#283624,#1b2425);box-shadow:inset 3px 0 #c5f477,0 5px 15px #0002}
+.sidebar nav button.selected>svg{stroke-width:2.25;filter:drop-shadow(0 0 5px #c5f47735)}
+.mobile-nav button{min-height:54px;gap:5px;font-weight:650;letter-spacing:.05px;transition:background .18s,color .18s}
+.mobile-nav button svg{width:20px;height:20px;stroke-width:1.85;transition:transform .18s}
+.mobile-nav button.active{background:linear-gradient(145deg,#2b3a25,#202c23);box-shadow:inset 0 0 0 1px #9bc96a55}
+.mobile-nav button.active svg{stroke-width:2.3;filter:drop-shadow(0 0 5px #c5f47735);transform:translateY(-1px)}
+.notification-trigger svg,.topbar-actions button svg{stroke-width:1.9}
+button>svg{flex:none}
+@media(max-width:760px){.mobile-brand svg{stroke-width:2.35}.mobile-nav button svg{width:19px;height:19px}}
