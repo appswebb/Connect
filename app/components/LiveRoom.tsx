@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Room, RoomEvent, Track, type Track as LiveTrack } from "livekit-client";
 import { supabase } from "../lib/supabase";
-import { Camera, CameraOff, Mic, MicOff, MonitorUp, PhoneOff, Radio, Wifi, RefreshCw, FlipHorizontal } from "lucide-react";
+import { Camera, CameraOff, Mic, MicOff, MonitorUp, PhoneOff, Radio, Wifi, RefreshCw, FlipHorizontal, Gift, Swords, Coins } from "lucide-react";
 
 type PublishedTrack = { key: string; track: LiveTrack; participant: string; local: boolean };
+type LiveGift = {id:string;name:string;emoji:string;price_coins:number};
 
 function AudioTrackPlayer({ track }: { track: LiveTrack }) {
   const audioRef = useRef<HTMLAudioElement|null>(null);
@@ -58,6 +59,15 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   const [guestRequests,setGuestRequests] = useState<any[]>([]);
   const [guestMode,setGuestMode] = useState<"video"|"audio">("video");
   const [requestState,setRequestState] = useState<"none"|"pending"|"accepted"|"declined">("none");
+  const [giftCatalog,setGiftCatalog]=useState<LiveGift[]>([]);
+  const [walletCoins,setWalletCoins]=useState(0);
+  const [giftBusy,setGiftBusy]=useState("");
+  const [giftMessage,setGiftMessage]=useState("");
+  const [battle,setBattle]=useState<any>(null);
+  const [battleScores,setBattleScores]=useState<Record<string,number>>({});
+  const [acceptedGuests,setAcceptedGuests]=useState<any[]>([]);
+  const [battleSeconds,setBattleSeconds]=useState(0);
+  const [giftTarget,setGiftTarget]=useState("");
 
   const addTrack = useCallback((track: LiveTrack, participant: string, local: boolean) => {
     const key = (local ? "local-" : participant+"-") + (track as any).sid;
@@ -128,6 +138,51 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
     const {error:e}=await supabase.from("live_guest_requests").update({status:accept?"accepted":"declined",updated_at:new Date().toISOString()}).eq("id",requestId);
     if(e){setError(e.message);return;}
     setGuestRequests(old=>old.filter(x=>x.id!==requestId));
+  }
+  useEffect(()=>{
+    let active=true;
+    const load=async()=>{
+      const {data:{user}}=await supabase.auth.getUser();if(!user)return;
+      const [g,w,b,guests]=await Promise.all([
+        supabase.from("gift_catalog").select("id,name,emoji,price_coins").eq("active",true).order("price_coins"),
+        supabase.from("user_wallets").select("coins").eq("user_id",user.id).maybeSingle(),
+        supabase.from("live_battles").select("*").eq("live_id",liveId).in("status",["pending","active"]).order("created_at",{ascending:false}).limit(1).maybeSingle(),
+        supabase.from("live_guest_requests").select("user_id,video_enabled").eq("live_id",liveId).eq("status","accepted")
+      ]);
+      if(!active)return;
+      if(g.data)setGiftCatalog(g.data as LiveGift[]);
+      setWalletCoins(Number(w.data?.coins||0));
+      setBattle(b.data||null);setAcceptedGuests(guests.data||[]);
+      if(b.data){const {data:sc}=await supabase.from("live_battle_scores").select("user_id,score").eq("battle_id",b.data.id);if(active)setBattleScores(Object.fromEntries((sc||[]).map((x:any)=>[x.user_id,Number(x.score)])));}
+      setGiftTarget(user.id);
+    };
+    void load();
+    const channel=supabase.channel("live-economy-"+liveId)
+      .on("postgres_changes",{event:"*",schema:"public",table:"live_battles",filter:"live_id=eq."+liveId},()=>void load())
+      .on("postgres_changes",{event:"*",schema:"public",table:"live_battle_scores"},()=>void load())
+      .on("postgres_changes",{event:"*",schema:"public",table:"live_gifts",filter:"live_id=eq."+liveId},()=>void load())
+      .subscribe();
+    return()=>{active=false;void supabase.removeChannel(channel);};
+  },[liveId]);
+  useEffect(()=>{
+    if(!battle||battle.status!=="active"||!battle.ends_at)return;
+    const tick=()=>{const left=Math.max(0,Math.ceil((new Date(battle.ends_at).getTime()-Date.now())/1000));setBattleSeconds(left);if(left===0){void supabase.from("live_battles").update({status:"ended",winner_user_id:(Number(battleScores[battle.host_user_id]||0)>=Number(battleScores[battle.challenger_user_id]||0)?battle.host_user_id:battle.challenger_user_id)}).eq("id",battle.id).eq("status","active");}};
+    tick();const timer=window.setInterval(tick,1000);return()=>window.clearInterval(timer);
+  },[battle?.id,battle?.status,battle?.ends_at,battleScores]);
+  async function sendGift(g:LiveGift){
+    setGiftBusy(g.id);setGiftMessage("");
+    const receiver=battle?.status==="active"?(giftTarget||battle.host_user_id):undefined;
+    const {data,error:e}=await supabase.rpc("send_live_gift",{p_live_id:liveId,p_gift_id:g.id,p_quantity:1,p_battle_id:battle?.status==="active"?battle.id:null,p_receiver_id:receiver||null});
+    if(e)setGiftMessage(e.message);else{setWalletCoins(Number(data?.balance||walletCoins));setGiftMessage(g.name+" enviado!");}
+    setGiftBusy("");
+  }
+  async function startBattle(challengerId:string){
+    const {data,error:e}=await supabase.rpc("create_live_battle",{p_live_id:liveId,p_challenger_user_id:challengerId,p_duration_seconds:300});
+    if(e)setError(e.message);else setGiftMessage("Convite de batalha enviado!");
+  }
+  async function answerBattle(accept:boolean){
+    if(!battle)return;const {data,error:e}=await supabase.rpc("respond_live_battle",{p_battle_id:battle.id,p_accept:accept});
+    if(e)setError(e.message);else setBattle((old:any)=>({...old,status:data,started_at:data==="active"?new Date().toISOString():old.started_at,ends_at:data==="active"?new Date(Date.now()+old.duration_seconds*1000).toISOString():null}));
   }
   const connectRef=useRef<()=>Promise<void>>(async()=>{});
   connectRef.current=connect;
@@ -203,8 +258,9 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   return <section className="live-stage">
     <header><div><span className="live-on"><i/> AO VIVO</span><strong>{isHost?"Sua transmissão":"Assistindo transmissão"}</strong></div><div className="live-header-actions"><span className="live-secure"><Wifi size={14}/> Conexão criptografada</span>{isHost&&<button type="button" className="live-header-end" onClick={()=>void leave()}><PhoneOff size={14}/> Encerrar live</button>}</div></header>
     {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, câmera frontal e microfone serão ativados. Depois você pode desligar a câmera, trocar para a traseira, espelhar a imagem ou compartilhar a tela.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button>{!isHost&&<div className="live-guest-request"><strong>Quer participar da live?</strong><p>Peça para subir com câmera ou somente com áudio.</p><div className="live-guest-choice"><button type="button" className={guestMode==="video"?"active":""} onClick={()=>setGuestMode("video")}><Camera size={15}/> Com câmera</button><button type="button" className={guestMode==="audio"?"active":""} onClick={()=>setGuestMode("audio")}><Mic size={15}/> Só áudio</button></div><button type="button" className="primary" disabled={requestState==="pending"||requestState==="accepted"} onClick={()=>void requestToJoin()}>{requestState==="pending"?"Pedido enviado":requestState==="accepted"?"Pedido aprovado":requestState==="declined"?"Solicitar novamente":"Solicitar para subir"}</button></div>}</div>:<>
-      {audioTracks.map(item=><AudioTrackPlayer key={item.key} track={item.track}/>)}{isHost&&guestRequests.length>0&&<div className="live-guest-requests"><strong>Pedidos para participar</strong>{guestRequests.map(req=><div key={req.id}><span>{req.user_id.slice(0,8)} · {req.video_enabled?"Com câmera":"Somente áudio"}</span><button type="button" onClick={()=>void decideGuest(req.id,true)}>Aceitar</button><button type="button" onClick={()=>void decideGuest(req.id,false)}>Recusar</button></div>)}</div>}<div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/>) }{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
-      {!isHost&&requestState!=="accepted"&&<div className="live-guest-request"><strong>Quer subir na live?</strong><div className="live-guest-choice"><button type="button" className={guestMode==="video"?"active":""} onClick={()=>setGuestMode("video")}><Camera size={15}/> Com câmera</button><button type="button" className={guestMode==="audio"?"active":""} onClick={()=>setGuestMode("audio")}><Mic size={15}/> Só áudio</button></div><button type="button" className="primary" disabled={requestState==="pending"} onClick={()=>void requestToJoin()}>{requestState==="pending"?"Pedido enviado":"Solicitar para subir"}</button></div>}<div className="live-controls">{(isHost||requestState==="accepted")&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}{!isHost&&<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> Sair da live</button>}</div>
+      {audioTracks.map(item=><AudioTrackPlayer key={item.key} track={item.track}/>)}{isHost&&guestRequests.length>0&&<div className="live-guest-requests"><strong>Pedidos para participar</strong>{guestRequests.map(req=><div key={req.id}><span>{req.user_id.slice(0,8)} · {req.video_enabled?"Com câmera":"Somente áudio"}</span><button type="button" onClick={()=>void decideGuest(req.id,true)}>Aceitar</button><button type="button" onClick={()=>void decideGuest(req.id,false)}>Recusar</button></div>)}</div>}{battle&&<section className="live-battle-panel"><div className="live-battle-title"><Swords/><strong>{battle.status==="pending"?"Convite para batalha":battle.status==="active"?"BATALHA AO VIVO":battle.status==="ended"?"Batalha encerrada":"Batalha"}</strong>{battle.status==="active"&&<b>{Math.floor(battleSeconds/60)}:{String(battleSeconds%60).padStart(2,"0")}</b>}</div>{battle.status==="pending"&&!isHost&&<div><button onClick={()=>void answerBattle(true)}>Aceitar batalha</button><button onClick={()=>void answerBattle(false)}>Recusar</button></div>}{battle.status==="active"&&<div className="live-battle-score"><span>Host · {battleScores[battle.host_user_id]||0}</span><b>VS</b><span>Desafiante · {battleScores[battle.challenger_user_id]||0}</span></div>}</section>}{isHost&&acceptedGuests.length>0&&!battle&&<div className="live-battle-invite"><Swords size={16}/> Batalhar com participante: {acceptedGuests.map((g:any)=><button key={g.user_id} onClick={()=>void startBattle(g.user_id)}>Desafiar {g.user_id.slice(0,6)}</button>)}</div>}
+      <div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/>) }{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
+      {!isHost&&requestState!=="accepted"&&<div className="live-guest-request"><strong>Quer subir na live?</strong><div className="live-guest-choice"><button type="button" className={guestMode==="video"?"active":""} onClick={()=>setGuestMode("video")}><Camera size={15}/> Com câmera</button><button type="button" className={guestMode==="audio"?"active":""} onClick={()=>setGuestMode("audio")}><Mic size={15}/> Só áudio</button></div><button type="button" className="primary" disabled={requestState==="pending"} onClick={()=>void requestToJoin()}>{requestState==="pending"?"Pedido enviado":"Solicitar para subir"}</button></div>}<section className="live-gift-panel"><div className="live-gift-head"><strong><Gift size={16}/> Presentes</strong><span><Coins size={15}/> {walletCoins} moedas</span></div>{battle?.status==="active"&&<div className="live-gift-target"><button className={giftTarget===battle.host_user_id?"active":""} onClick={()=>setGiftTarget(battle.host_user_id)}>Time do host</button><button className={giftTarget===battle.challenger_user_id?"active":""} onClick={()=>setGiftTarget(battle.challenger_user_id)}>Time desafiante</button></div>}<div className="live-gift-list">{giftCatalog.map(g=><button key={g.id} disabled={!!giftBusy} onClick={()=>void sendGift(g)}><span>{g.emoji}</span><small>{g.name}</small><b>{g.price_coins} 🪙</b></button>)}</div>{giftMessage&&<small>{giftMessage}</small>}</section><div className="live-controls">{(isHost||requestState==="accepted")&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}{!isHost&&<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> Sair da live</button>}</div>
     </>}
     {error&&<p className="live-error">{error}</p>}
   </section>;
