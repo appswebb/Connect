@@ -239,3 +239,25 @@ img,video{max-width:100%}
 .demo-link{border:0;background:transparent;color:#a7dc5a;font-size:10px;font-weight:800;padding:12px 4px;cursor:pointer}
 .demo-readonly-banner{display:flex;align-items:center;gap:8px;padding:10px 13px;margin:12px 0;border:1px solid #536d3a;border-radius:9px;background:#202d1b;color:#d5f0b5;font-size:9px;font-weight:900;letter-spacing:.8px}
 .demo-readonly-note{padding:12px 14px;border:1px dashed #455b39;border-radius:10px;background:#18231a;color:#b7cba5;font-size:10px;line-height:1.6;margin:12px 0}
+
+.profile-open-avatar{display:grid;place-items:center;flex:none;border:0;background:transparent;padding:0;cursor:pointer}
+.profile-open-name{border:0;background:transparent;color:inherit;font:inherit;font-weight:inherit;text-align:left;padding:0;cursor:pointer}
+.profile-open-name:hover{color:var(--lime)}
+.profile-view-backdrop{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:18px;background:#05080bdc;backdrop-filter:blur(12px)}
+.profile-view-card{width:min(100%,520px);max-height:min(88vh,760px);overflow:auto;border:1px solid #34414b;border-radius:17px;background:#11191f;box-shadow:0 24px 90px #000b}
+.profile-view-card>header{display:flex;align-items:center;justify-content:space-between;padding:14px 17px;border-bottom:1px solid #29343e;color:#9aa8ae;font-size:8px;letter-spacing:1.3px}
+.profile-view-card>header button{border:0;background:transparent;color:#a8b3b9}
+.profile-view-banner{height:auto;aspect-ratio:16/5;background:linear-gradient(120deg,#1d2b22,#1b2530 55%,#2b1f32);background-size:cover;background-position:center}
+.profile-view-body{padding:18px}
+.profile-view-identity{display:flex;align-items:center;gap:13px}
+.profile-view-identity h2{font:800 18px Manrope;margin:0 0 5px}
+.profile-view-identity span{font-size:10px;color:#8b98a1}
+.profile-view-bio{font-size:11px;line-height:1.75;color:#c6d0d5;margin:18px 0}
+.profile-view-facts{display:grid;gap:0;border:1px solid #2c3841;border-radius:10px;overflow:hidden}
+.profile-view-facts>div{display:grid;gap:5px;padding:11px 13px;border-bottom:1px solid #2c3841}
+.profile-view-facts>div:last-child{border-bottom:0}
+.profile-view-facts small{font-size:8px;letter-spacing:1px;color:#82909a;font-weight:800}
+.profile-view-facts strong{font-size:10px;line-height:1.5;color:#dbe2e5}
+.profile-view-body>footer{display:flex;gap:9px;margin-top:15px}
+.profile-view-body>footer button{display:flex;align-items:center;gap:7px}
+@media(max-width:480px){.profile-view-backdrop{padding:10px}.profile-view-card{max-height:92vh}.profile-view-body{padding:14px}}
