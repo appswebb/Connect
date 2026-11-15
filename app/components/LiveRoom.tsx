@@ -52,6 +52,9 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   const [tracks,setTracks] = useState<PublishedTrack[]>([]);
   const [audioTracks,setAudioTracks] = useState<PublishedTrack[]>([]);
   const [error,setError] = useState("");
+  const [guestRequests,setGuestRequests] = useState<any[]>([]);
+  const [guestMode,setGuestMode] = useState<"video"|"audio">("video");
+  const [requestState,setRequestState] = useState<"none"|"pending"|"accepted"|"declined">("none");
 
   const addTrack = useCallback((track: LiveTrack, participant: string, local: boolean) => {
     const key = (local ? "local-" : participant+"-") + (track as any).sid;
@@ -103,6 +106,33 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
     } catch(e:any) { setError(e?.message||"Não foi possível conectar à live."); }
     finally { setConnecting(false); }
   }
+  async function requestToJoin(){
+    try {
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user) throw new Error("Entre na sua conta para solicitar participação.");
+      const {error:e}=await supabase.from("live_guest_requests").upsert({live_id:liveId,user_id:user.id,video_enabled:guestMode==="video",status:"pending"},{onConflict:"live_id,user_id"});
+      if(e) throw e;
+      setRequestState("pending");
+    } catch(e:any){setError(e?.message||"Não foi possível enviar o pedido.");}
+  }
+  async function decideGuest(requestId:string, accept:boolean){
+    const {error:e}=await supabase.from("live_guest_requests").update({status:accept?"accepted":"declined",updated_at:new Date().toISOString()}).eq("id",requestId);
+    if(e){setError(e.message);return;}
+    setGuestRequests(old=>old.filter(x=>x.id!==requestId));
+  }
+  useEffect(()=>{
+    if(!connected)return;
+    const channel=supabase.channel("live-guests-"+liveId)
+      .on("postgres_changes",{event:"*",schema:"public",table:"live_guest_requests",filter:"live_id=eq."+liveId},payload=>{
+        const row=(payload.new||payload.old) as any;
+        if(!row)return;
+        if(row.user_id===undefined)return;
+        if(row.user_id && row.status==="pending" && isHost){setGuestRequests(old=>[...old.filter(x=>x.id!==row.id),row]);}
+        if(!isHost && row.user_id){setRequestState(row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none");}
+      }).subscribe();
+    if(isHost) void supabase.from("live_guest_requests").select("id,user_id,video_enabled,status").eq("live_id",liveId).eq("status","pending").then(({data})=>setGuestRequests(data||[]));
+    return ()=>{void supabase.removeChannel(channel);};
+  },[connected,liveId,isHost]);
   async function toggleCamera(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setCameraEnabled(!cameraOn,{facingMode:cameraFacing});setCameraOn(!cameraOn);}catch(e:any){setError(e?.message||"Não foi possível acessar a câmera.");}}
   async function flipCamera(){const r=roomRef.current;if(!r||!cameraOn)return;const next=cameraFacing==="user"?"environment":"user";try{const publication=r.localParticipant.getTrackPublication(Track.Source.Camera);if(!publication?.videoTrack)throw new Error("A câmera ainda não está disponível.");await publication.videoTrack.restartTrack({facingMode:next});setCameraFacing(next);}catch(e:any){setError(e?.message||"Este aparelho não conseguiu trocar a câmera.");}}
   async function toggleMic(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setMicrophoneEnabled(!micOn);setMicOn(!micOn);}catch(e:any){setError(e?.message||"Não foi possível acessar o microfone.");}}
@@ -112,9 +142,9 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
 
   return <section className="live-stage">
     <header><div><span className="live-on"><i/> AO VIVO</span><strong>{isHost?"Sua transmissão":"Assistindo transmissão"}</strong></div><div className="live-header-actions"><span className="live-secure"><Wifi size={14}/> Conexão criptografada</span>{isHost&&<button type="button" className="live-header-end" onClick={()=>void leave()}><PhoneOff size={14}/> Encerrar live</button>}</div></header>
-    {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, câmera frontal e microfone serão ativados. Depois você pode desligar a câmera, trocar para a traseira, espelhar a imagem ou compartilhar a tela.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button></div>:<>
-      {audioTracks.map(item=><AudioTrackPlayer key={item.key} track={item.track}/>)}<div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/>) }{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
-      <div className="live-controls">{isHost&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}{!isHost&&<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> Sair da live</button>}</div>
+    {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, câmera frontal e microfone serão ativados. Depois você pode desligar a câmera, trocar para a traseira, espelhar a imagem ou compartilhar a tela.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button>{!isHost&&<div className="live-guest-request"><strong>Quer participar da live?</strong><p>Peça para subir com câmera ou somente com áudio.</p><div className="live-guest-choice"><button type="button" className={guestMode==="video"?"active":""} onClick={()=>setGuestMode("video")}><Camera size={15}/> Com câmera</button><button type="button" className={guestMode==="audio"?"active":""} onClick={()=>setGuestMode("audio")}><Mic size={15}/> Só áudio</button></div><button type="button" className="primary" disabled={requestState==="pending"||requestState==="accepted"} onClick={()=>void requestToJoin()}>{requestState==="pending"?"Pedido enviado":requestState==="accepted"?"Pedido aprovado":requestState==="declined"?"Solicitar novamente":"Solicitar para subir"}</button></div>}</div>:<>
+      {audioTracks.map(item=><AudioTrackPlayer key={item.key} track={item.track}/>)}{isHost&&guestRequests.length>0&&<div className="live-guest-requests"><strong>Pedidos para participar</strong>{guestRequests.map(req=><div key={req.id}><span>{req.user_id.slice(0,8)} · {req.video_enabled?"Com câmera":"Somente áudio"}</span><button type="button" onClick={()=>void decideGuest(req.id,true)}>Aceitar</button><button type="button" onClick={()=>void decideGuest(req.id,false)}>Recusar</button></div>)}</div>}<div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/>) }{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
+      <div className="live-controls">{(isHost||requestState==="accepted")&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}{!isHost&&requestState!=="accepted"&&<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> Sair da live</button>}</div>
     </>}
     {error&&<p className="live-error">{error}</p>}
   </section>;
