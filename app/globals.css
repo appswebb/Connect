@@ -802,3 +802,53 @@ button>svg{flex:none}
 .nav-more-panel .logout-menu-item{margin-top:5px;border-top:1px solid #35404a!important;border-radius:0 0 8px 8px!important;color:#e5a2a2!important}
 .nav-more-panel .logout-menu-item:hover{background:#321d20!important;color:#ffd0d0!important}
 .nav-more-panel .logout-menu-item:disabled{opacity:.55;cursor:wait}
+
+
+/* Horizontal swipe for navigation and Brazilian state rooms when content overflows */
+.chat-mode-switch {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+.chat-mode-switch button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.rooms-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+.state-room-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 8px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+}
+.state-room-grid button {
+  flex: 0 0 76px;
+  min-width: 76px;
+  justify-content: center;
+  scroll-snap-align: start;
+}
+@media (max-width: 760px) {
+  .chat-mode-switch {
+    width: 100%;
+  }
+  .chat-mode-switch button {
+    flex: 0 0 auto;
+  }
+}
