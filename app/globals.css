@@ -602,3 +602,43 @@ button>svg{flex:none}
 
 /* Social follows and message request inbox */
 .social-profile-stats{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:18px 0;color:#9eaaa9;font-size:12px}.social-profile-stats strong{color:#f0f5ef;font-size:15px}.social-profile-stats>b{padding:5px 9px;border-radius:20px;background:#283b25;color:#c8f39a;font-size:9px;letter-spacing:.8px}.profile-view-body>footer{display:flex;gap:8px;flex-wrap:wrap}.chat-inbox-tabs{display:flex;gap:8px;margin:0 0 16px;padding:5px;border:1px solid #29363c;border-radius:13px;background:#111a20;width:max-content;max-width:100%}.chat-inbox-tabs button{display:flex;align-items:center;gap:7px;padding:9px 15px;border:0;border-radius:9px;background:transparent;color:#9eaaa9;font-weight:800}.chat-inbox-tabs button.active{background:#2b3b28;color:#d4f5ad}.chat-inbox-tabs b{display:grid;place-items:center;min-width:19px;height:19px;padding:0 5px;border-radius:20px;background:#b7ed7a;color:#18210f;font-size:10px}.message-requests{display:grid;gap:10px}.message-requests>article{display:flex;align-items:flex-start;gap:12px;padding:15px;border:1px solid #29383f;border-radius:15px;background:linear-gradient(145deg,#172229,#11191f)}.message-request-copy{flex:1;min-width:0}.message-request-copy>strong{display:block;color:#f0f5ef;font-size:13px}.message-request-copy>small{display:block;margin-top:3px;color:#8d9d9b;font-size:10px}.message-request-copy>p{margin:10px 0 0;color:#d3ddda;font-size:13px;line-height:1.5;overflow-wrap:anywhere}.message-request-actions{display:flex;gap:7px;flex-wrap:wrap}.message-request-actions button{padding:8px 11px;font-size:11px}.message-requests>.empty{grid-column:1/-1}@media(max-width:620px){.message-requests>article{flex-wrap:wrap}.message-request-copy{min-width:calc(100% - 56px)}.message-request-actions{width:100%;padding-left:48px}.profile-view-body>footer{display:grid;grid-template-columns:1fr 1fr}.chat-inbox-tabs{width:100%}.chat-inbox-tabs button{flex:1;justify-content:center}}
+
+
+/* CONNECT people directory responsive repair */
+.people-network-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px;padding:12px 14px;border:1px solid #2b3940;border-radius:14px;background:#11191f;color:#cbd5d1}
+.people-network-bar>div{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.people-network-bar strong{font-size:13px;white-space:nowrap}
+.people-network-bar small{font-size:11px;color:#8d9a9e}
+.people-network-bar>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;min-height:36px;padding:8px 12px;border:1px solid #394b42;border-radius:10px;background:#1b2921;color:#d8f4b2;font-size:12px;font-weight:700}
+.people-live-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#9be36a;box-shadow:0 0 0 4px #9be36a20}
+.people-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0}
+.people-filter-row button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:8px 12px;border:1px solid #34424a;border-radius:999px;background:#121b21;color:#aebbb9;font-size:12px;line-height:1.2;white-space:nowrap}
+.people-filter-row button.active{border-color:#9bc96a;background:#253322;color:#d7f5b0;box-shadow:inset 0 0 0 1px #9bc96a30}
+.people-directory-head{min-width:0}
+.people-directory-results{gap:10px;flex-wrap:wrap;line-height:1.5}
+.people-directory-card{width:100%;display:block;cursor:pointer}
+.people-card-cover{gap:8px;flex-wrap:wrap}
+.people-card-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.people-card-badges>b,.people-card-badges>i{white-space:nowrap}
+.people-card-badges>i{padding:5px 7px;border-radius:20px;background:#17221c;color:#d5edc0;font-size:7px;font-style:normal;font-weight:900;letter-spacing:.6px}
+.people-card-badges>.people-status-online{background:#263d24;color:#c9f28f}
+.people-card-badges>.people-status-offline{background:#17232b;color:#a9b7bd}
+.people-card-content>p{min-height:34px}
+@media(max-width:620px){
+ .people-network-bar{align-items:flex-start;padding:11px 12px}
+ .people-network-bar>div{flex:1 1 100%;gap:6px}
+ .people-network-bar>div small{flex-basis:100%;padding-left:14px}
+ .people-network-bar>button{min-height:34px}
+ .people-filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .people-filter-row button{width:100%;min-width:0;padding:9px 7px;font-size:11px;white-space:normal;text-align:center}
+ .people-directory-results{font-size:10px}
+ .people-directory-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .people-card-cover{height:76px}
+ .people-card-content{padding:0 14px 14px}
+ .people-card-content>.avatar{width:58px;height:58px;margin-top:-29px}
+ .people-card-identity strong{font-size:14px}
+ .people-card-identity small{font-size:11px}
+ .people-card-content>p{font-size:11px;min-height:36px}
+ .people-card-meta{font-size:10px}
+ .people-card-meta>i span{font-size:10px}
+}
