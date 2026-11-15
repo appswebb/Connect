@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Activity, ArrowRight, Ban, Camera, Check, Compass, Download, FileText, Flag, Heart, ImagePlus, LogOut, MapPin, MessageCircle, MessageSquare, Mic, Minus, Paperclip, Radio, Send, Settings, ShieldCheck, ShoppingBag, Sparkles, Square, Trash2, UserRound, Eye, Users, X } from "lucide-react";
+import { Activity, ArrowRight, Ban, Bell, Camera, Check, CheckCheck, Compass, Download, FileText, Flag, Heart, ImagePlus, LogOut, MapPin, MessageCircle, MessageSquare, Mic, Minus, Paperclip, Radio, Send, Settings, ShieldCheck, ShoppingBag, Sparkles, Square, Trash2, UserRound, Eye, Users, X } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import ImageCropper from "./components/ImageCropper";
 import LiveRoom from "./components/LiveRoom";
@@ -14,6 +14,7 @@ type Message = { id:string; match_id:string; sender_id:string; body:string; crea
 type ChatHistoryItem = { id:string; created_at:string; partner:Profile };
 type RoomMessage = {id:string;room_code:string;user_id:string;body:string;created_at:string;author:Profile};
 type LiveSessionRow = {id:string;host_user_id:string;title:string;room_name:string;status:string;created_at:string;host?:Profile};
+type NotificationItem = {id:string;recipient_id:string;actor_id:string|null;type:string;title:string;body:string;entity_type:string|null;entity_id:string|null;read_at:string|null;created_at:string;actor?:Profile|null};
 const genders:Record<string,string>={woman:"Mulher",man:"Homem",non_binary:"Pessoa não binária",self_described:"Outro gênero",prefer_not_to_say:"Prefiro não informar"};
 const preferences:Record<string,string>={woman:"Mulheres",man:"Homens",non_binary:"Pessoas não binárias",self_described:"Outros gêneros",prefer_not_to_say:"Pessoas que preferem não informar",any:"Qualquer gênero"};
 const brazilStates:Record<string,string>={AC:"Acre",AL:"Alagoas",AP:"Amapá",AM:"Amazonas",BA:"Bahia",CE:"Ceará",DF:"Distrito Federal",ES:"Espírito Santo",GO:"Goiás",MA:"Maranhão",MT:"Mato Grosso",MS:"Mato Grosso do Sul",MG:"Minas Gerais",PA:"Pará",PB:"Paraíba",PR:"Paraná",PE:"Pernambuco",PI:"Piauí",RJ:"Rio de Janeiro",RN:"Rio Grande do Norte",RS:"Rio Grande do Sul",RO:"Rondônia",RR:"Roraima",SC:"Santa Catarina",SP:"São Paulo",SE:"Sergipe",TO:"Tocantins"};
@@ -34,7 +35,54 @@ export default function Home(){
  const [chatMinimized,setChatMinimized]=useState(false),[recording,setRecording]=useState(false); const recorderRef=useRef<MediaRecorder|null>(null),audioChunksRef=useRef<Blob[]>([]),recordingStartedRef=useRef(0),chatFileRef=useRef<HTMLInputElement|null>(null);
  const [bio,setBio]=useState(""),[stateCode,setStateCode]=useState(""),[city,setCity]=useState(""),[locationVisible,setLocationVisible]=useState(false),[deletionDue,setDeletionDue]=useState(""); const [cropFile,setCropFile]=useState<File|null>(null),[cropTarget,setCropTarget]=useState<"post"|"avatar"|"banner"|"chat"|null>(null);
  const [reportTarget,setReportTarget]=useState(""),[reportCategory,setReportCategory]=useState("spam"),[reportDetails,setReportDetails]=useState(""),[blockedPeople,setBlockedPeople]=useState<Profile[]>([]); const [viewingProfile,setViewingProfile]=useState<Profile|null>(null);
+ const [notifications,setNotifications]=useState<NotificationItem[]>([]),[notificationsOpen,setNotificationsOpen]=useState(false),[browserNotificationPermission,setBrowserNotificationPermission]=useState("default");
  const fail=(s:string)=>{setError(s);setNotice("");};
+
+ async function loadNotifications(uid:string){
+  const r=await supabase.from("notifications").select("id,recipient_id,actor_id,type,title,body,entity_type,entity_id,read_at,created_at").eq("recipient_id",uid).order("created_at",{ascending:false}).limit(50);
+  if(r.error){fail("Não foi possível carregar suas notificações: "+r.error.message);return;}
+  const rows=(r.data||[]) as NotificationItem[];
+  const actorIds=[...new Set(rows.map(x=>x.actor_id).filter(Boolean) as string[])];
+  const people=actorIds.length?await supabase.from("profiles").select("*").in("id",actorIds):{data:[]};
+  const map=new Map((people.data||[]).map((x:any)=>[x.id,x as Profile]));
+  setNotifications(rows.map(x=>({...x,actor:x.actor_id?map.get(x.actor_id)||null:null})));
+ }
+ async function markNotificationRead(item:NotificationItem){
+  if(!session?.user.id||item.read_at)return;
+  const now=new Date().toISOString();
+  const r=await supabase.from("notifications").update({read_at:now}).eq("id",item.id).eq("recipient_id",session.user.id);
+  if(r.error){fail("Não foi possível marcar a notificação como lida: "+r.error.message);return;}
+  setNotifications(old=>old.map(x=>x.id===item.id?{...x,read_at:now}:x));
+ }
+ async function markAllNotificationsRead(){
+  if(!session?.user.id)return;
+  const r=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("recipient_id",session.user.id).is("read_at",null);
+  if(r.error){fail("Não foi possível marcar todas como lidas: "+r.error.message);return;}
+  await loadNotifications(session.user.id);
+ }
+ async function clearReadNotifications(){
+  if(!session?.user.id)return;
+  const r=await supabase.from("notifications").delete().eq("recipient_id",session.user.id).not("read_at","is",null);
+  if(r.error){fail("Não foi possível limpar notificações antigas: "+r.error.message);return;}
+  await loadNotifications(session.user.id);
+ }
+ async function openNotification(item:NotificationItem){
+  await markNotificationRead(item);
+  setNotificationsOpen(false);
+  if(item.type==="message"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setTab("chat");return;}
+  if(item.type==="match"&&item.entity_id){await loadPendingMatch(item.entity_id);setTab("chat");return;}
+  if(item.type==="match_accepted"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setQueue("matched");setTab("chat");return;}
+  if(item.type==="match_closed"){setTab("chat");return;}
+  if(item.type==="live"){setTab("lives");void loadLives();return;}
+  setTab("feed");
+  if(item.type==="comment"&&item.entity_id)void openComments(item.entity_id);
+ }
+ async function enableBrowserNotifications(){
+  if(!("Notification" in window)){setNotice("Este navegador não oferece notificações do sistema.");return;}
+  const permission=await Notification.requestPermission();
+  setBrowserNotificationPermission(permission);
+  setNotice(permission==="granted"?"Notificações do navegador ativadas.":"A permissão para notificações do navegador não foi concedida.");
+ }
  async function loadProfile(uid:string){const {data,error}=await supabase.from("profiles").select("*").eq("id",uid).maybeSingle();if(error){fail(error.message);return;}setProfile(data as Profile|null);setLookingForSetting(data?.looking_for?.[0]||"any");setBio(data?.bio||"");setStateCode(data?.state_code||"");setCity(data?.city||"");setLocationVisible(Boolean(data?.location_visible));setQueueStateFilter(old=>old||data?.state_code||"");setQueueCityFilter(old=>old||data?.city||"");const deletion=await supabase.from("account_deletion_requests").select("scheduled_for").eq("user_id",uid).maybeSingle();setDeletionDue(deletion.data?.scheduled_for||"");if(data){const q=await supabase.from("queue_entries").select("status,match_id").eq("user_id",uid).maybeSingle();if(q.data?.status==="waiting")setQueue("waiting");if(q.data?.status==="matched"&&q.data.match_id){const m=await supabase.from("matches").select("*").eq("id",q.data.match_id).maybeSingle();if(m.data?.match_status==="accepted"){setQueue("matched");setMatchId(q.data.match_id);}else if(m.data?.match_status==="pending"){setQueue("matched");setPendingMatchId(q.data.match_id);await loadPendingMatch(q.data.match_id);}}}await loadChatHistory(uid);}
  async function loadPendingMatch(id:string){const m=await supabase.from("matches").select("*").eq("id",id).maybeSingle();if(!m.data||m.data.match_status!=="pending")return;const other=m.data.user_one===session?.user.id?m.data.user_two:m.data.user_one;const p=await supabase.from("profiles").select("*").eq("id",other).maybeSingle();setPendingMatchId(id);setPendingPartner(p.data as Profile|null);setPendingExpiresAt(m.data.expires_at||new Date(Date.now()+180000).toISOString());setPendingSeconds(Math.max(0,Math.ceil((new Date(m.data.expires_at||Date.now()+180000).getTime()-Date.now())/1000)));setPendingAccepted(Boolean(m.data.user_one===session?.user.id?m.data.user_one_accepted_at:m.data.user_two_accepted_at));setPendingOtherAccepted(Boolean(m.data.user_one===session?.user.id?m.data.user_two_accepted_at:m.data.user_one_accepted_at));setQueue("matched");setTab("chat");}
  async function loadLives(){const r=await supabase.from("live_sessions").select("id,host_user_id,title,room_name,status,created_at").eq("status","live").order("created_at",{ascending:false}).limit(50);if(r.error){fail(r.error.message);return;}const rows=(r.data||[]) as LiveSessionRow[];const ids=[...new Set(rows.map(x=>x.host_user_id))];const people=ids.length?await supabase.from("profiles").select("*").in("id",ids):{data:[]};const map=new Map((people.data||[]).map((x:any)=>[x.id,x]));setLives(rows.map(x=>({...x,host:map.get(x.host_user_id) as Profile|undefined})));}
@@ -50,6 +98,26 @@ export default function Home(){
  useEffect(()=>{let alive=true;supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setLoading(false);}});const {data:listener}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);if(!s){setProfile(null);setPosts([]);setMatchId("");setQueue("idle");}});return()=>{alive=false;listener.subscription.unsubscribe();};},[]);
  useEffect(()=>{if(session?.user.id){void loadProfile(session.user.id);void loadFeed(session.user.id);}},[session]);
  useEffect(()=>{if(session?.user.id)void loadCommunityProfiles(session.user.id);},[session]);
+
+ useEffect(()=>{
+  if(!session?.user.id||!profile)return;
+  const uid=session.user.id;
+  void loadNotifications(uid);
+  if(typeof window!=="undefined"&&"Notification" in window)setBrowserNotificationPermission(Notification.permission);
+  const channel=supabase.channel("connect-notifications-"+uid)
+   .on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"recipient_id=eq."+uid},payload=>{
+    const item=payload.new as NotificationItem;
+    void loadNotifications(uid);
+    if(typeof window!=="undefined"&&"Notification" in window&&Notification.permission==="granted"&&document.visibilityState!=="visible"){
+     try{new Notification(item.title,{body:item.body,tag:item.id});}catch{}
+    }else if(document.visibilityState==="visible"){
+     setNotice(item.title+" · "+item.body);
+    }
+   })
+   .subscribe();
+  return()=>{void supabase.removeChannel(channel);};
+ },[session,profile]);
+
  useEffect(()=>{if(new URLSearchParams(window.location.search).get("demo")==="1")setAuthScreen("demo");},[]);
  useEffect(()=>{if(!session?.user.id||!profile)return;const c=supabase.channel("connect-social-live").on("postgres_changes",{event:"*",schema:"public",table:"posts"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"post_likes"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"comments"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"queue_entries",filter:"user_id=eq."+session.user.id},(p)=>{if(p.eventType==="DELETE"){setQueue("idle");setPendingMatchId("");setPendingPartner(null);setPendingExpiresAt("");}else{const r=p.new as any;if(r.status==="matched"&&r.match_id){setQueue("matched");setPendingMatchId(r.match_id);void loadPendingMatch(r.match_id);}else if(r.status==="waiting")setQueue("waiting");}}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"matches"},(p)=>{const m=p.new as any;if(m.user_one!==session.user.id&&m.user_two!==session.user.id)return;if(m.match_status==="accepted"&&m.ended_at){setChatReadOnly(true);setQueue("idle");void loadChatHistory(session.user.id);setNotice("Conversa encerrada. O histórico continua salvo.");}else if(m.match_status==="accepted"){setPendingMatchId("");setPendingPartner(null);setPendingExpiresAt("");setPendingAccepted(false);setPendingOtherAccepted(false);setMatchId(m.id);setChatReadOnly(false);setQueue("matched");setTab("chat");void loadChatHistory(session.user.id);setNotice("Match confirmado! A conversa foi salva no seu histórico.");}else if(m.match_status==="pending"){setPendingOtherAccepted(Boolean(m.user_one===session.user.id?m.user_two_accepted_at:m.user_one_accepted_at));}else if(m.match_status==="declined"||m.match_status==="expired"){setPendingMatchId("");setPendingPartner(null);setPendingExpiresAt("");setPendingAccepted(false);setPendingOtherAccepted(false);setQueue("idle");setNotice(m.match_status==="declined"?"A outra pessoa não aceitou. Você já pode procurar alguém novo.":"O tempo da conexão acabou. Procure outra pessoa.");}}).subscribe();return()=>{void supabase.removeChannel(c);};},[session,profile]);
  useEffect(()=>{if(tab==="settings")void loadBlockedPeople();},[tab,session]);
@@ -104,7 +172,7 @@ export default function Home(){
  if(!profile)return <main className="loading">Preparando seu perfil... <button onClick={logout}>Sair</button></main>;
  return <main className="app">
   <aside className="sidebar"><a className="brand"><span className="brand-icon"><Activity/></span>connect<span>.</span></a><small className="side-label">SEU ESPAÇO</small><nav>{items.map(([id,label,Icon])=><button key={id} className={tab===id?"selected":""} onClick={()=>setTab(id)}><Icon size={18}/>{label}{id==="queue"&&queue==="waiting"&&<i/>}</button>)}</nav><div className="sidebar-bottom"><div className="side-promo"><Sparkles/><strong>Conexões de verdade.</strong><p>Encontre pessoas que estão online e abertas a conversar.</p><button onClick={()=>setTab("queue")}>Encontrar alguém <ArrowRight size={14}/></button></div><div className="side-user"><Avatar p={profile}/><div><strong>{profile.display_name}</strong><span>@{profile.username}</span></div><button onClick={logout} title="Sair"><LogOut size={16}/></button></div></div></aside>
-  <section className="main"><header className="topbar"><div className="mobile-brand"><Activity/> connect<span>.</span></div><small><i/> UM LUGAR PARA SE CONECTAR</small><div><button title="Loja CONNECT" onClick={()=>setTab("store")}><ShoppingBag/></button></div></header>
+  <section className="main"><header className="topbar"><div className="mobile-brand"><Activity/> connect<span>.</span></div><small><i/> UM LUGAR PARA SE CONECTAR</small><div className="topbar-actions"><div className="notification-area"><button type="button" className={"notification-trigger"+(notificationsOpen?" is-open":"")} title="Notificações" aria-label={"Notificações, "+notifications.filter(x=>!x.read_at).length+" não lidas"} aria-expanded={notificationsOpen} onClick={()=>setNotificationsOpen(x=>!x)}><Bell size={19}/>{notifications.some(x=>!x.read_at)&&<i className="notification-count">{notifications.filter(x=>!x.read_at).length>99?"99+":notifications.filter(x=>!x.read_at).length}</i>}</button>{notificationsOpen&&<section className="notification-panel" aria-label="Central de notificações"><header><div><strong>Notificações</strong><small>{notifications.filter(x=>!x.read_at).length} não lidas · últimas 50</small></div><button type="button" className="notification-close" onClick={()=>setNotificationsOpen(false)} aria-label="Fechar notificações"><X size={17}/></button></header><div className="notification-tools">{notifications.some(x=>!x.read_at)&&<button type="button" onClick={()=>void markAllNotificationsRead()}><CheckCheck size={14}/> Marcar todas como lidas</button>}{notifications.some(x=>x.read_at)&&<button type="button" onClick={()=>void clearReadNotifications()}><Trash2 size={14}/> Limpar lidas</button>}</div><div className="notification-list">{notifications.map(item=><button type="button" key={item.id} className={"notification-item"+(!item.read_at?" unread":"")} onClick={()=>void openNotification(item)}>{item.actor?<Avatar p={item.actor} size="small"/>:<span className="notification-symbol">{item.type==="live"?<Radio size={17}/>:item.type==="message"?<MessageCircle size={17}/>:item.type==="match"||item.type==="match_accepted"?<Heart size={17}/>:<Bell size={17}/>}</span>}<span className="notification-copy"><strong>{item.title}</strong><small>{item.body}</small><time>{new Date(item.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}</time></span>{!item.read_at&&<i className="notification-unread-dot"/>}</button>)}{!notifications.length&&<div className="notification-empty"><Bell size={22}/><strong>Tudo em dia por aqui.</strong><span>Quando algo importante acontecer, você verá nesta central.</span></div>}</div><footer>{browserNotificationPermission==="granted"?<span><Check size={13}/> Alertas do navegador ativados</span>:<button type="button" onClick={()=>void enableBrowserNotifications()}><Bell size={14}/> Ativar alertas do navegador</button>}</footer></section>}</div><button title="Loja CONNECT" onClick={()=>setTab("store")}><ShoppingBag/></button></div></header>
   {(error||notice)&&<div className={error?"flash error":"flash success"}>{error||notice}<button onClick={()=>{setError("");setNotice("");}}><X size={14}/></button></div>}{isDemo&&<div className="demo-readonly-banner"><Eye size={15}/> MODO DE DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO</div>}
   {viewingProfile&&<div className="profile-view-backdrop" role="dialog" aria-modal="true" aria-label={"Perfil de "+viewingProfile.display_name} onClick={()=>setViewingProfile(null)}><section className="profile-view-card" onClick={e=>e.stopPropagation()}><header><strong>PERFIL CONNECT</strong><button type="button" onClick={()=>setViewingProfile(null)} aria-label="Fechar perfil"><X/></button></header><div className="profile-view-banner" style={viewingProfile.banner_url?{backgroundImage:"url("+viewingProfile.banner_url+")"}:{}}/><div className="profile-view-body"><div className="profile-view-identity"><Avatar p={viewingProfile} size="large"/><div><h2>{viewingProfile.display_name}</h2><span>@{viewingProfile.username}</span></div></div><p className="profile-view-bio">{viewingProfile.bio||"Esta pessoa ainda não adicionou uma descrição."}</p><div className="profile-view-facts"><div><small>GÊNERO</small><strong>{genders[viewingProfile.gender]||viewingProfile.gender}{viewingProfile.gender_description?" · "+viewingProfile.gender_description:""}</strong></div><div><small>QUER CONHECER</small><strong>{(viewingProfile.looking_for||[]).map(x=>preferences[x]||x).join(", ")||"Não informado"}</strong></div><div><small>LOCALIZAÇÃO</small><strong>{viewingProfile.location_visible&&viewingProfile.city&&viewingProfile.state_code?viewingProfile.city+" · "+viewingProfile.state_code:"Não exibida"}</strong></div></div>{!isDemo&&<footer><button type="button" className="secondary" onClick={()=>{openReport(viewingProfile.id);setViewingProfile(null);}}><Flag size={15}/> Denunciar</button><button type="button" className="danger-button" onClick={()=>{const id=viewingProfile.id;setViewingProfile(null);void blockUser(id);}}><Ban size={15}/> Bloquear</button></footer>}</div></section></div>}
   {!isDemo&&reportTarget&&<div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Denunciar pessoa"><form className="report-dialog" onSubmit={submitReport}><header><div><small>SEGURANÇA DA COMUNIDADE</small><h2>Denunciar perfil</h2></div><button type="button" onClick={()=>setReportTarget("")}><X/></button></header><label>Motivo<select value={reportCategory} onChange={e=>setReportCategory(e.target.value)}><option value="spam">Spam ou golpe</option><option value="harassment">Assédio ou intimidação</option><option value="hate">Discurso de ódio</option><option value="nudity">Nudez ou conteúdo sexual</option><option value="impersonation">Falsidade ideológica</option><option value="underage">Possível menor de idade</option><option value="other">Outro</option></select></label><label>Detalhes (opcional)<textarea value={reportDetails} onChange={e=>setReportDetails(e.target.value)} maxLength={2000} placeholder="Conte o que aconteceu."/></label><footer><button type="button" className="secondary" onClick={()=>setReportTarget("")}>Cancelar</button><button className="primary">Enviar denúncia <Flag size={15}/></button></footer></form></div>}
