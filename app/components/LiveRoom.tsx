@@ -128,7 +128,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
         if(!row)return;
         if(row.user_id===undefined)return;
         if(row.user_id && row.status==="pending" && isHost){setGuestRequests(old=>[...old.filter(x=>x.id!==row.id),row]);}
-        if(!isHost && row.user_id){setRequestState(row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none");}
+        if(!isHost && row.user_id){const next=row.status==="accepted"?"accepted":row.status==="declined"?"declined":row.status==="pending"?"pending":"none";setRequestState(next);if(next==="accepted"&&roomRef.current){void (async()=>{await roomRef.current?.disconnect();roomRef.current=null;setConnected(false);setTracks([]);setAudioTracks([]);await connect();})();}}
       }).subscribe();
     if(isHost) void supabase.from("live_guest_requests").select("id,user_id,video_enabled,status").eq("live_id",liveId).eq("status","pending").then(({data})=>setGuestRequests(data||[]));
     return ()=>{void supabase.removeChannel(channel);};
