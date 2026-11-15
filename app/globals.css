@@ -1488,3 +1488,11 @@ button>svg{flex:none}
   height: 26px;
   object-fit: contain;
 }
+
+
+/* Pessoas: etiquetas com respiro acima do nome */
+.people-card-identity{display:flex;flex-direction:column;align-items:flex-start;gap:5px!important;min-width:0}
+.people-card-identity .people-card-badges{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 3px;min-height:22px}
+.people-card-identity .people-card-badges>b,.people-card-identity .people-card-badges>i{display:inline-flex;align-items:center;min-height:20px;padding:4px 8px;border-radius:999px;font-size:8px;line-height:1;font-weight:800;letter-spacing:.55px}
+.people-card-identity strong{display:block;max-width:100%;margin:0;line-height:1.35}
+.people-card-identity small{display:block;line-height:1.3}
