@@ -927,3 +927,113 @@ button>svg{flex:none}
     font-size: 10px;
   }
 }
+
+
+/* People directory refinement: larger, easier-to-scan profile cards */
+.people-directory-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.people-directory-card {
+  min-height: 238px;
+  border-radius: 18px;
+}
+.people-card-cover {
+  height: 96px;
+  padding: 12px;
+}
+.people-card-cover > span {
+  font-size: 8px;
+  padding: 6px 9px;
+}
+.people-card-content {
+  grid-template-columns: 58px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 0 15px 15px;
+}
+.people-card-content > .avatar {
+  width: 58px;
+  height: 58px;
+  margin-top: -25px;
+  font-size: 16px;
+}
+.people-card-identity {
+  gap: 5px;
+}
+.people-card-identity strong {
+  font-size: 14px;
+}
+.people-card-identity small {
+  font-size: 11px;
+}
+.people-card-content > p {
+  max-height: 44px;
+  margin: 11px 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.people-card-meta {
+  padding-top: 10px;
+  font-size: 10px;
+}
+.people-card-badges > b,
+.people-card-badges > i {
+  font-size: 8px;
+}
+@media (max-width: 620px) {
+  .people-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .people-directory-card {
+    min-height: 220px;
+  }
+  .people-card-cover {
+    height: 78px;
+    padding: 8px;
+  }
+  .people-card-content {
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: 8px;
+    padding: 0 9px 11px;
+  }
+  .people-card-content > .avatar {
+    width: 48px;
+    height: 48px;
+    margin-top: -21px;
+    font-size: 13px;
+  }
+  .people-card-identity strong {
+    font-size: 11px;
+  }
+  .people-card-identity small {
+    font-size: 9px;
+  }
+  .people-card-content > p {
+    max-height: 42px;
+    font-size: 9px;
+    margin: 9px 0;
+  }
+  .people-card-meta {
+    font-size: 8px;
+    gap: 5px;
+  }
+}
+@media (max-width: 360px) {
+  .people-directory-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .people-directory-card {
+    min-height: 0;
+  }
+  .people-card-cover {
+    height: 86px;
+  }
+  .people-card-content {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+  .people-card-content > .avatar {
+    width: 54px;
+    height: 54px;
+  }
+}
