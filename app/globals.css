@@ -1604,3 +1604,48 @@ button>svg{flex:none}
 }
 @media(max-width:390px){.public-home{padding:0 15px}.public-header button{padding:0 9px}.public-hero-copy h1{font-size:43px}.public-feature-grid{gap:7px}.public-feature-card{padding:13px 11px}.public-feature-card p{font-size:9px}.public-actions button{font-size:8px}}
 @media(prefers-reduced-motion:reduce){.public-feature-card{transition:none}.public-feature-card:hover{transform:none}}
+
+
+/* Live camera frame: keep the video stage full-width on phones and prevent grid shrink. */
+@media(max-width:760px){
+  .live-stage,
+  .live-stage>.live-grid{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  .live-stage>.live-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-rows:auto!important;
+    align-items:stretch!important;
+    padding:8px!important;
+    overflow:visible!important;
+  }
+  .live-stage>.live-grid>.live-tile{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:clamp(250px,56vw,430px)!important;
+    max-height:none!important;
+    aspect-ratio:auto!important;
+    box-sizing:border-box!important;
+  }
+  .live-stage>.live-grid>.live-tile>.live-media-holder{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:0!important;
+  }
+  .live-stage>.live-grid>.live-tile .live-media{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    max-height:100%!important;
+    object-fit:cover!important;
+  }
+}
