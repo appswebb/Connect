@@ -1210,3 +1210,51 @@ button>svg{flex:none}
  .people-directory-grid{grid-template-columns:1fr}
  .people-card-cover{height:62px}
 }
+
+
+/* Hero da comunidade: manter o bloco de presença, com escala equilibrada */
+.people-page-hero{
+ display:grid;grid-template-columns:minmax(0,1fr) 116px;align-items:center;gap:12px;
+ min-height:0;margin:8px 0 16px;padding:17px 18px;border-radius:16px;
+}
+.people-hero-copy{max-width:none;min-width:0}
+.people-hero-copy>small{gap:6px;font-size:8px;letter-spacing:1px}
+.people-hero-copy h1{margin:8px 0 5px;font-size:clamp(20px,3vw,26px);line-height:1.15;letter-spacing:-.7px}
+.people-hero-copy>p{max-width:390px;font-size:10px;line-height:1.45}
+.people-hero-stats{display:flex;flex-wrap:wrap;gap:18px;margin-top:13px}
+.people-hero-stats>span{gap:2px}
+.people-hero-stats strong{font-size:17px;line-height:1.15}
+.people-hero-stats small{font-size:7px;letter-spacing:.8px}
+.people-hero-art{width:112px;height:112px;transform:scale(.9);transform-origin:center}
+.people-hero-core{width:54px;height:54px;border-radius:18px}
+.people-hero-avatar{width:32px;height:32px;border-radius:11px}
+.people-hero-avatar.p1{top:5px;left:42px}
+.people-hero-avatar.p2{right:0;bottom:24px}
+.people-hero-avatar.p3{left:0;bottom:24px}
+@media(max-width:620px){
+ .people-page-hero{grid-template-columns:minmax(0,1fr) 78px;gap:5px;margin:5px 0 13px;padding:13px 12px;border-radius:13px}
+ .people-hero-copy>small{font-size:7px;letter-spacing:.7px}
+ .people-hero-copy h1{font-size:19px;line-height:1.2;margin:6px 0 4px}
+ .people-hero-copy>p{max-width:230px;font-size:9px;line-height:1.35}
+ .people-hero-stats{gap:11px;margin-top:10px}
+ .people-hero-stats strong{font-size:15px}
+ .people-hero-stats small{font-size:6px;letter-spacing:.45px}
+ .people-hero-art{position:relative;right:auto;bottom:auto;width:78px;height:78px;opacity:.9;transform:none}
+ .people-hero-art:before{inset:3px}
+ .people-hero-art:after{inset:12px}
+ .people-hero-core{width:39px;height:39px;border-radius:13px}
+ .people-hero-core svg{width:20px;height:20px}
+ .people-hero-avatar{width:24px;height:24px;border-radius:8px}
+ .people-hero-avatar svg{width:13px;height:13px}
+ .people-hero-avatar.p1{top:0;left:27px}
+ .people-hero-avatar.p2{right:-1px;bottom:15px}
+ .people-hero-avatar.p3{left:-1px;bottom:15px}
+}
+@media(max-width:360px){
+ .people-page-hero{grid-template-columns:minmax(0,1fr) 62px;padding:11px 10px}
+ .people-hero-copy h1{font-size:17px}
+ .people-hero-copy>p{font-size:8px}
+ .people-hero-stats{gap:8px}
+ .people-hero-stats strong{font-size:13px}
+ .people-hero-art{width:62px;height:62px}
+}
