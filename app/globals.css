@@ -49,3 +49,14 @@
 .chat-close-mini{width:34px;height:34px;display:grid;place-items:center;border:1px solid #35404a;border-radius:9px;background:#1a2229;color:#aab5bd}
 @keyframes record-pulse{50%{box-shadow:0 0 0 5px #a34a5b33}}
 @media(max-width:760px){.chat-minimized{flex-wrap:wrap}.chat-minimized>div{flex-basis:100%}.chat-minimized .secondary{flex:1}.chat-attachment{max-width:70vw}}
+
+
+/* Mutual match consent and saved conversations */
+.match-offer{margin-top:22px;padding:20px;border:1px solid #a6e85a55;border-radius:18px;background:linear-gradient(145deg,#a6e85a12,#a855f712);display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.match-person{display:flex;align-items:center;gap:12px}.match-person>div:last-child{display:grid;gap:4px}.match-person span,.match-clock span{font-size:12px;color:var(--muted,#9ca3af)}
+.match-clock{text-align:right;display:grid;gap:3px}.match-clock strong{font-size:30px;font-variant-numeric:tabular-nums;color:#b8f36b;letter-spacing:1px}
+.match-offer>p{grid-column:1/-1;margin:0;color:var(--muted,#a1a1aa);font-size:13px;line-height:1.5}
+.match-actions{grid-column:1/-1;display:flex;gap:10px}.match-actions button{flex:1;justify-content:center}
+.chat-history{display:grid;gap:10px;margin:0 0 20px}.chat-history h2{font-size:16px;margin:0 0 4px}.chat-history>button{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border,#262b35);border-radius:14px;background:var(--surface,#11151c);color:inherit;text-align:left;cursor:pointer}.chat-history>button>span{display:grid;gap:4px;flex:1}.chat-history>button small{font-size:12px;color:var(--muted,#9ca3af)}.chat-history>button>svg{width:18px;color:#b8f36b}
+.chat-archived-note{padding:14px;text-align:center;font-size:13px;color:var(--muted,#9ca3af);border-top:1px solid var(--border,#262b35)}
+@media(max-width:600px){.match-offer{padding:15px;gap:12px}.match-clock strong{font-size:25px}.match-actions{flex-direction:column}.chat-history>button{padding:12px}}
