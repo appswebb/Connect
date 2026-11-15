@@ -714,3 +714,65 @@ button>svg{flex:none}
 .own-social-people>article small{font-size:10px;color:#89969f}
 .own-social-people>article>button{display:flex;align-items:center;gap:6px;padding:8px 10px;font-size:10px}
 @media(max-width:520px){.topbar-actions{gap:7px}.topbar-store{width:38px;flex-basis:38px}.own-social-stats{padding:13px;gap:8px}.own-social-stats button{flex:1;justify-content:center;padding:10px 7px;gap:6px}.own-social-stats button span{font-size:10px}}
+
+
+/* CONNECT Live stability patch: keep camera inside the page layout on every screen. */
+.live-stage{
+  position:relative!important;inset:auto!important;z-index:1!important;
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;min-width:0!important;height:auto!important;
+  min-height:0!important;max-height:none!important;margin:0 0 22px!important;
+  overflow:hidden!important;border:1px solid #2d3b43!important;
+  border-radius:16px!important;background:#080e12!important;color:#f7f8fa;
+}
+.live-stage>header{position:relative!important;inset:auto!important;z-index:2;flex:none!important;min-height:58px;padding:10px 14px!important;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;border-radius:0!important;background:#111a20}
+.live-stage>header>div:first-child{display:flex;align-items:center;gap:10px;min-width:0}
+.live-stage>header strong{font-size:12px}
+.live-stage .live-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
+.live-stage .live-secure{white-space:nowrap}
+.live-stage .live-grid{
+  position:relative!important;inset:auto!important;display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-rows:minmax(260px, min(42vw,440px))!important;
+  flex:none!important;width:100%!important;height:auto!important;
+  min-height:0!important;max-height:none!important;gap:10px!important;
+  padding:10px!important;overflow:hidden!important;
+}
+.live-stage .live-grid>.live-tile{
+  position:relative!important;display:block!important;flex:none!important;
+  width:100%!important;height:100%!important;min-width:0!important;
+  min-height:0!important;max-width:100%!important;max-height:440px!important;
+  aspect-ratio:auto!important;overflow:hidden!important;border:1px solid #34434c!important;
+  border-radius:12px!important;background:#101820!important;
+}
+.live-stage .live-grid>.live-tile .live-media-holder{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important}
+.live-stage .live-grid>.live-tile .live-media{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+}
+.live-stage .live-grid>.live-tile>span{z-index:2;left:10px;bottom:10px}
+.live-stage .live-connect{position:relative!important;min-width:0;min-height:260px;max-height:65vh;overflow:auto;padding:26px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center}
+.live-stage .live-connect p{max-width:440px;line-height:1.6}
+.live-stage .live-controls{position:relative!important;inset:auto!important;display:flex;flex:none!important;flex-wrap:wrap!important;justify-content:center;gap:8px;max-width:100%;height:auto!important;max-height:none!important;padding:12px!important;overflow:visible!important;border-top:1px solid #26343c;background:#10171d}
+.live-stage .live-controls button{flex:none;min-height:40px;white-space:nowrap}
+.live-stage .live-battle-panel,.live-stage .live-gift-launcher,.live-stage .live-guest-requests,.live-stage .live-guest-request{position:relative!important;flex:none!important;min-width:0;max-height:none!important;overflow:visible}
+.live-stage .live-gift-launcher{justify-content:flex-end}
+.live-stage .live-error{position:relative!important;flex:none!important;max-width:calc(100% - 20px);overflow-wrap:anywhere}
+@media(max-width:760px){
+  .live-stage{position:relative!important;inset:auto!important;z-index:1!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;border-radius:14px!important;padding:0!important;margin:0 0 18px!important}
+  .live-stage>header{min-height:54px;padding:9px 10px!important;gap:6px}
+  .live-stage>header>div:first-child{gap:7px;flex-wrap:wrap}
+  .live-stage>header strong{font-size:10px}
+  .live-stage .live-header-actions{gap:5px}
+  .live-stage .live-secure{display:none}
+  .live-stage .live-grid{grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:minmax(260px,min(58vh,430px))!important;gap:7px!important;padding:8px!important;overflow:hidden!important}
+  .live-stage .live-grid>.live-tile{width:100%!important;height:100%!important;max-height:430px!important;min-height:0!important;aspect-ratio:auto!important}
+  .live-stage .live-grid>.live-tile .live-media{object-fit:contain!important}
+  .live-stage .live-controls{justify-content:flex-start;flex-wrap:wrap!important;gap:6px;padding:9px!important}
+  .live-stage .live-controls button{min-height:38px;padding:8px 10px;font-size:10px}
+  .live-stage .live-guest-requests,.live-stage .live-guest-request{max-height:32vh;overflow:auto;padding:9px 10px;margin:6px 8px}
+  .live-stage .live-battle-panel{margin:6px 8px;padding:9px}
+  .live-stage .live-gift-launcher{padding:7px 9px}
+  .live-stage .live-gift-launcher>button{padding:9px 12px}
+}
+@media(max-width:380px){.live-stage .live-header-end{padding:7px!important;font-size:9px}.live-stage .live-on{font-size:8px}}
