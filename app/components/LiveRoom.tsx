@@ -35,10 +35,18 @@ function TrackTile({ item, mirrorCamera }: { item: PublishedTrack; mirrorCamera:
     if (!holder.current) return;
     const media = item.track.attach();
     media.autoplay = true;
-    if (media instanceof HTMLVideoElement) media.playsInline = true;
+    if (media instanceof HTMLVideoElement) {
+      media.playsInline = true;
+      media.setAttribute("playsinline", "");
+      // Local camera previews must be muted or mobile Chrome may block autoplay.
+      media.muted = item.local;
+      media.setAttribute("webkit-playsinline", "true");
+    }
     const mirrored = mirrorCamera && item.local && item.track.kind === Track.Kind.Video && item.track.source === Track.Source.Camera;
     media.className = "live-media" + (mirrored ? " live-media-mirrored" : "");
     holder.current.replaceChildren(media);
+    // Explicitly start playback after attaching; this is important on Android Chrome.
+    void media.play().catch(() => {});
     return () => { item.track.detach(media); media.remove(); };
   }, [item.track, mirrorCamera, item.local]);
   return <div className="live-tile"><div ref={holder} className="live-media-holder"/><span>{item.local ? "Você" : item.participant.slice(0,8)}</span></div>;
@@ -117,14 +125,38 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
         }
       }
       if(isHost){
-        await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});
-        await room.localParticipant.setMicrophoneEnabled(true,{echoCancellation:true,noiseSuppression:true,autoGainControl:true});
-        setCameraOn(true);setMicOn(true);
+        // Start camera and microphone independently: a camera permission/device error
+        // must not prevent the host from entering the live with working audio.
+        try {
+          await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});
+          setCameraOn(true);
+        } catch(cameraError:any) {
+          try {
+            // Some Android devices reject the facingMode constraint; retry with defaults.
+            await room.localParticipant.setCameraEnabled(true);
+            setCameraOn(true);
+          } catch(retryError:any) {
+            setCameraOn(false);
+            setError(retryError?.message||cameraError?.message||"Não foi possível iniciar a câmera. Verifique a permissão de câmera do Chrome.");
+          }
+        }
+        try {
+          await room.localParticipant.setMicrophoneEnabled(true,{echoCancellation:true,noiseSuppression:true,autoGainControl:true});
+          setMicOn(true);
+        } catch(micError:any) {
+          setMicOn(false);
+          setError(micError?.message||"Não foi possível iniciar o microfone.");
+        }
       } else if(data.can_publish){
-        await room.localParticipant.setMicrophoneEnabled(true);
-        setMicOn(true);
+        try {
+          await room.localParticipant.setMicrophoneEnabled(true);
+          setMicOn(true);
+        } catch(micError:any) { setError(micError?.message||"Não foi possível iniciar o microfone."); }
         const {data:guest}=await supabase.from("live_guest_requests").select("video_enabled").eq("live_id",liveId).eq("user_id",(await supabase.auth.getUser()).data.user?.id||"").eq("status","accepted").maybeSingle();
-        if(guest?.video_enabled){await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});setCameraOn(true);}
+        if(guest?.video_enabled){
+          try { await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});setCameraOn(true); }
+          catch(cameraError:any) { setError(cameraError?.message||"Não foi possível iniciar a câmera."); }
+        }
         setRequestState("accepted");
       }
     } catch(e:any) { setError(e?.message||"Não foi possível conectar à live."); }
