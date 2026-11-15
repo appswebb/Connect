@@ -596,3 +596,6 @@ img,video{max-width:100%}
 .notification-trigger svg,.topbar-actions button svg{stroke-width:1.9}
 button>svg{flex:none}
 @media(max-width:760px){.mobile-brand svg{stroke-width:2.35}.mobile-nav button svg{width:19px;height:19px}}
+
+/* People directory: status labels and clear profile action */
+.people-card-badges{display:flex;align-items:center;gap:6px}.people-card-badges>b{padding:5px 7px;border-radius:20px;background:#b7ed7a;color:#17220f;font-size:7px;font-weight:900;letter-spacing:.6px}.people-card-meta>i{width:auto;min-width:26px;padding:0 7px;display:flex;align-items:center;justify-content:center;gap:4px}.people-card-meta>i span{font-size:9px;font-weight:800;white-space:nowrap}
