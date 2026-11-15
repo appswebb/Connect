@@ -306,3 +306,8 @@ img,video{max-width:100%}
 .notification-panel>footer{display:flex;align-items:center;justify-content:center;min-height:43px;padding:10px;border-top:1px solid #2a3740}
 .notification-panel>footer span{display:flex;align-items:center;gap:6px;color:#a7d978;font-size:9px}
 @media(max-width:520px){.notification-panel{right:-48px;width:min(390px,calc(100vw - 20px));max-height:calc(100dvh - 90px)}.notification-trigger{width:38px;height:38px}}
+
+
+/* Ajustes visuais do perfil: banner ligeiramente mais alto e avatares circulares. */
+.banner,.profile-view-banner{aspect-ratio:16/5.3}
+.avatar,.avatar img{border-radius:50%}
