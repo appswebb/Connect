@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 
@@ -195,8 +195,6 @@ export default function Home() {
       void supabase.removeChannel(channel);
     };
   }, [matchId, session]);
-
-  const isConfigured = useMemo(() => Boolean(supabase), []);
 
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
