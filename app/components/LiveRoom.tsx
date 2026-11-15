@@ -3,18 +3,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Room, RoomEvent, Track, type Track as LiveTrack } from "livekit-client";
 import { supabase } from "../lib/supabase";
-import { Camera, CameraOff, Mic, MicOff, MonitorUp, PhoneOff, Radio, Wifi } from "lucide-react";
+import { Camera, CameraOff, Mic, MicOff, MonitorUp, PhoneOff, Radio, Wifi, RefreshCw, FlipHorizontal } from "lucide-react";
 
 type PublishedTrack = { key: string; track: LiveTrack; participant: string; local: boolean };
 
-function TrackTile({ item }: { item: PublishedTrack }) {
+function TrackTile({ item, mirrorCamera }: { item: PublishedTrack; mirrorCamera: boolean }) {
   const holder = useRef<HTMLDivElement|null>(null);
   useEffect(() => {
     if (!holder.current) return;
     const media = item.track.attach();
     media.autoplay = true;
     if (media instanceof HTMLVideoElement) media.playsInline = true;
-    media.className = "live-media";
+    const mirrored = mirrorCamera && item.local && item.track.kind === Track.Kind.Video && item.track.source === Track.Source.Camera;
+    media.className = "live-media" + (mirrored ? " live-media-mirrored" : "");
     holder.current.replaceChildren(media);
     return () => { item.track.detach(media); media.remove(); };
   }, [item.track]);
@@ -28,6 +29,8 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   const [cameraOn,setCameraOn] = useState(false);
   const [micOn,setMicOn] = useState(false);
   const [screenOn,setScreenOn] = useState(false);
+  const [cameraFacing,setCameraFacing] = useState<"user"|"environment">("user");
+  const [mirrorCamera,setMirrorCamera] = useState(true);
   const [tracks,setTracks] = useState<PublishedTrack[]>([]);
   const [error,setError] = useState("");
 
@@ -60,24 +63,25 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
         }
       }
       if(isHost){
-        await room.localParticipant.setCameraEnabled(true);
+        await room.localParticipant.setCameraEnabled(true,{facingMode:"user"});
         await room.localParticipant.setMicrophoneEnabled(true);
         setCameraOn(true);setMicOn(true);
       }
     } catch(e:any) { setError(e?.message||"Não foi possível conectar à live."); }
     finally { setConnecting(false); }
   }
-  async function toggleCamera(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setCameraEnabled(!cameraOn);setCameraOn(!cameraOn);}catch(e:any){setError(e?.message||"Não foi possível acessar a câmera.");}}
+  async function toggleCamera(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setCameraEnabled(!cameraOn,{facingMode:cameraFacing});setCameraOn(!cameraOn);}catch(e:any){setError(e?.message||"Não foi possível acessar a câmera.");}}
+  async function flipCamera(){const r=roomRef.current;if(!r||!cameraOn)return;const next=cameraFacing==="user"?"environment":"user";try{const publication=r.localParticipant.getTrackPublication(Track.Source.Camera);if(!publication?.videoTrack)throw new Error("A câmera ainda não está disponível.");await publication.videoTrack.restartTrack({facingMode:next});setCameraFacing(next);}catch(e:any){setError(e?.message||"Este aparelho não conseguiu trocar a câmera.");}}
   async function toggleMic(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setMicrophoneEnabled(!micOn);setMicOn(!micOn);}catch(e:any){setError(e?.message||"Não foi possível acessar o microfone.");}}
-  async function toggleScreen(){const r=roomRef.current;if(!r)return;try{await r.localParticipant.setScreenShareEnabled(!screenOn);setScreenOn(!screenOn);}catch(e:any){setError(e?.message||"O compartilhamento de tela não foi permitido ou não é compatível neste navegador.");}}
+  async function toggleScreen(){const r=roomRef.current;if(!r)return;if(!screenOn&&typeof navigator!=="undefined"&&(!navigator.mediaDevices||typeof navigator.mediaDevices.getDisplayMedia!=="function")){setError("Este navegador não oferece compartilhamento da tela. Tente no Chrome atualizado ou em um computador; alguns navegadores móveis, especialmente iPhone/iPad, não permitem essa função.");return;}try{await r.localParticipant.setScreenShareEnabled(!screenOn);setScreenOn(!screenOn);setError("");}catch(e:any){setError(e?.message||"O sistema ou navegador não permitiu compartilhar a tela. Verifique a compatibilidade e a permissão.");}}
   async function leave(){try{await roomRef.current?.disconnect();}finally{roomRef.current=null;setConnected(false);setTracks([]);onLeave();}}
   useEffect(()=>()=>{void roomRef.current?.disconnect();},[]);
 
   return <section className="live-stage">
     <header><div><span className="live-on"><i/> AO VIVO</span><strong>{isHost?"Sua transmissão":"Assistindo transmissão"}</strong></div><span className="live-secure"><Wifi size={14}/> Conexão criptografada</span></header>
-    {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, sua câmera e seu microfone serão ativados. Você poderá compartilhar a tela também.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button></div>:<>
-      <div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item}/>)}{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
-      <div className="live-controls">{isHost&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> {isHost?"Encerrar transmissão":"Sair da live"}</button></div>
+    {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, câmera frontal e microfone serão ativados. Depois você pode desligar a câmera, trocar para a traseira, espelhar a imagem ou compartilhar a tela.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button></div>:<>
+      <div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/ >)}{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
+      <div className="live-controls">{isHost&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> {isHost?"Encerrar transmissão":"Sair da live"}</button></div>
     </>}
     {error&&<p className="live-error">{error}</p>}
   </section>;
