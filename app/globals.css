@@ -657,3 +657,13 @@ button>svg{flex:none}
 .chat>header>.chat-person-info>span{display:block;max-width:100%;font-size:11px;line-height:1.35;color:#8d9aa3;overflow-wrap:anywhere}
 .chat>header>button:not(.profile-open-avatar){flex:0 0 40px;width:40px;height:40px;padding:0;display:grid;place-items:center;border:1px solid #303b45;border-radius:11px;background:#182128;color:#aab5bd}
 @media(max-width:560px){.chat>header{gap:9px;padding:12px}.chat>header>.profile-open-avatar,.chat>header>.profile-open-avatar .avatar{flex-basis:44px;width:44px;height:44px;min-width:44px}.chat>header>.chat-person-info .profile-open-name{font-size:14px}.chat>header>.chat-person-info>span{font-size:10px}.chat>header>button:not(.profile-open-avatar){flex-basis:36px;width:36px;height:36px}}
+
+
+/* Original artwork for live gifts */
+.live-gift-sheet-grid button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;min-width:0;padding:12px 8px}
+.live-gift-sheet-grid .live-gift-card-art{display:grid;place-items:center;width:100%;height:104px;overflow:hidden}
+.live-gift-sheet-grid .live-gift-card-art img{display:block;width:100%;height:100%;object-fit:contain}
+.live-gift-sheet-grid button strong{text-align:center;line-height:1.25}
+.live-gift-toast-art{display:grid;place-items:center;flex:0 0 64px;width:64px;height:64px;overflow:hidden}
+.live-gift-toast-art img{display:block;width:100%;height:100%;object-fit:contain}
+@media(max-width:560px){.live-gift-sheet-grid .live-gift-card-art{height:84px}.live-gift-toast-art{flex-basis:54px;width:54px;height:54px}}
