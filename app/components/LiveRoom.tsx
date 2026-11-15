@@ -80,6 +80,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       if(tokenError) throw tokenError;
       if(!data?.token||!data?.server_url) throw new Error(data?.error||"O serviço de lives ainda não está configurado.");
       const room=new Room({adaptiveStream:true,dynacast:true});
+      room.on(RoomEvent.TrackPublished,(publication,participant)=>{ if(participant.identity!==room.localParticipant.identity) void publication.setSubscribed(true); });
       room.on(RoomEvent.TrackSubscribed,(track,_publication,participant)=>addTrack(track,participant.identity,false));
       room.on(RoomEvent.TrackUnsubscribed,(track,_publication,participant)=>removeTrack(track,participant.identity,false));
       room.on(RoomEvent.LocalTrackPublished,(publication)=>{if(publication.track)addTrack(publication.track,"Você",true);});
@@ -89,7 +90,9 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       roomRef.current=room;setConnected(true);
       for(const participant of room.remoteParticipants.values()){
         for(const publication of participant.trackPublications.values()){
-          if(publication.track&&publication.isSubscribed)addTrack(publication.track,participant.identity,false);
+          // Força a inscrição nas faixas já publicadas antes da entrada deste espectador.
+          await publication.setSubscribed(true);
+          if(publication.track)addTrack(publication.track,participant.identity,false);
         }
       }
       if(isHost){
