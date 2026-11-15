@@ -778,3 +778,9 @@ button>svg{flex:none}
 @media(max-width:380px){.live-stage .live-header-end{padding:7px!important;font-size:9px}.live-stage .live-on{font-size:8px}}
 
 .topbar-logout{display:grid;place-items:center;width:40px;height:40px;border:1px solid #493638;border-radius:11px;background:#211719;color:#f0b4b4;cursor:pointer;transition:.18s;flex:0 0 40px;order:3}.topbar-logout:hover{border-color:#d97878;background:#321d20;color:#ffd0d0}.topbar-logout:disabled{opacity:.55;cursor:wait}@media(max-width:520px){.topbar-logout{width:38px;height:38px;flex-basis:38px}}
+
+/* Store gift cards use the same original artwork as live gifts. */
+.gift-store-art{display:grid;place-items:center;width:100%;height:112px;overflow:hidden}
+.gift-store-art img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 9px #0007)}
+.gift-store-emoji{font-size:34px}
+@media(max-width:560px){.gift-store-art{height:96px}}
