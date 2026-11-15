@@ -81,7 +81,23 @@ export default function Home(){
   if(!("Notification" in window)){setNotice("Este navegador não oferece notificações do sistema.");return;}
   const permission=await Notification.requestPermission();
   setBrowserNotificationPermission(permission);
+  if(permission==="granted"&&"serviceWorker" in navigator){
+   try{await navigator.serviceWorker.register("/Connect/sw.js",{scope:"/Connect/"});}
+   catch{setNotice("Permissão ativada, mas não foi possível preparar os alertas em segundo plano.");return;}
+  }
   setNotice(permission==="granted"?"Notificações do navegador ativadas.":"A permissão para notificações do navegador não foi concedida.");
+ }
+ async function showBrowserNotification(item:NotificationItem){
+  if(!("Notification" in window)||Notification.permission!=="granted")return;
+  if("serviceWorker" in navigator){
+   try{
+    const registration=await navigator.serviceWorker.register("/Connect/sw.js",{scope:"/Connect/"});
+    await navigator.serviceWorker.ready;
+    await registration.showNotification(item.title,{body:item.body,tag:item.id});
+    return;
+   }catch{}
+  }
+  try{new Notification(item.title,{body:item.body,tag:item.id});}catch{}
  }
  async function loadProfile(uid:string){const {data,error}=await supabase.from("profiles").select("*").eq("id",uid).maybeSingle();if(error){fail(error.message);return;}setProfile(data as Profile|null);setLookingForSetting(data?.looking_for?.[0]||"any");setBio(data?.bio||"");setStateCode(data?.state_code||"");setCity(data?.city||"");setLocationVisible(Boolean(data?.location_visible));setQueueStateFilter(old=>old||data?.state_code||"");setQueueCityFilter(old=>old||data?.city||"");const deletion=await supabase.from("account_deletion_requests").select("scheduled_for").eq("user_id",uid).maybeSingle();setDeletionDue(deletion.data?.scheduled_for||"");if(data){const q=await supabase.from("queue_entries").select("status,match_id").eq("user_id",uid).maybeSingle();if(q.data?.status==="waiting")setQueue("waiting");if(q.data?.status==="matched"&&q.data.match_id){const m=await supabase.from("matches").select("*").eq("id",q.data.match_id).maybeSingle();if(m.data?.match_status==="accepted"){setQueue("matched");setMatchId(q.data.match_id);}else if(m.data?.match_status==="pending"){setQueue("matched");setPendingMatchId(q.data.match_id);await loadPendingMatch(q.data.match_id);}}}await loadChatHistory(uid);}
  async function loadPendingMatch(id:string){const m=await supabase.from("matches").select("*").eq("id",id).maybeSingle();if(!m.data||m.data.match_status!=="pending")return;const other=m.data.user_one===session?.user.id?m.data.user_two:m.data.user_one;const p=await supabase.from("profiles").select("*").eq("id",other).maybeSingle();setPendingMatchId(id);setPendingPartner(p.data as Profile|null);setPendingExpiresAt(m.data.expires_at||new Date(Date.now()+180000).toISOString());setPendingSeconds(Math.max(0,Math.ceil((new Date(m.data.expires_at||Date.now()+180000).getTime()-Date.now())/1000)));setPendingAccepted(Boolean(m.data.user_one===session?.user.id?m.data.user_one_accepted_at:m.data.user_two_accepted_at));setPendingOtherAccepted(Boolean(m.data.user_one===session?.user.id?m.data.user_two_accepted_at:m.data.user_one_accepted_at));setQueue("matched");setTab("chat");}
@@ -109,7 +125,7 @@ export default function Home(){
     const item=payload.new as NotificationItem;
     void loadNotifications(uid);
     if(typeof window!=="undefined"&&"Notification" in window&&Notification.permission==="granted"&&document.visibilityState!=="visible"){
-     try{new Notification(item.title,{body:item.body,tag:item.id});}catch{}
+     void showBrowserNotification(item);
     }else if(document.visibilityState==="visible"){
      setNotice(item.title+" · "+item.body);
     }
