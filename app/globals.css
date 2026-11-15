@@ -1258,3 +1258,35 @@ button>svg{flex:none}
  .people-hero-stats strong{font-size:13px}
  .people-hero-art{width:62px;height:62px}
 }
+
+
+/* Salas regionais em Pessoas: área própria, fácil de encontrar */
+.people-state-rooms{
+ display:grid;gap:14px;margin:22px 0 0;padding:17px;
+ border:1px solid #30413b;border-radius:16px;
+ background:linear-gradient(145deg,#17231f,#111a20);
+}
+.people-state-rooms-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.people-state-rooms-heading>div{display:grid;gap:4px;min-width:0}
+.people-state-rooms-heading small{color:var(--lime);font-size:8px;font-weight:850;letter-spacing:1.1px}
+.people-state-rooms-heading h2{margin:0;font-size:19px;line-height:1.2}
+.people-state-rooms-heading p{margin:0;color:#9aa9aa;font-size:10px;line-height:1.4}
+.people-state-rooms-heading>span{display:flex;align-items:center;gap:6px;flex:none;padding:7px 9px;border:1px solid #35463e;border-radius:9px;color:#d7edc5;font-size:9px}
+.people-state-rooms .rooms-panel{margin:0;padding:0;border:0;background:transparent}
+.people-state-rooms .room-select{margin-bottom:9px}
+.people-state-rooms .state-room-grid{gap:7px}
+.people-state-rooms .state-room-grid button{min-width:52px;min-height:54px;border-radius:10px}
+.people-state-rooms .room-title{margin-top:10px}
+.people-state-rooms .room-message-list{max-height:320px}
+.people-state-rooms .room-compose{margin-top:10px}
+@media(max-width:620px){
+ .people-state-rooms{gap:11px;margin-top:16px;padding:12px;border-radius:13px}
+ .people-state-rooms-heading h2{font-size:16px}
+ .people-state-rooms-heading p{max-width:230px;font-size:9px}
+ .people-state-rooms-heading>span{padding:6px 7px;font-size:8px}
+ .people-state-rooms .state-room-grid{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:2px 1px 7px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ .people-state-rooms .state-room-grid::-webkit-scrollbar{display:none}
+ .people-state-rooms .state-room-grid button{flex:0 0 48px;min-width:48px;min-height:49px}
+ .people-state-rooms .room-title{gap:8px}
+ .people-state-rooms .room-message-list{max-height:280px}
+}
