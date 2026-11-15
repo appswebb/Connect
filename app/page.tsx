@@ -305,6 +305,8 @@ export default function Home() {
   }
 
   async function signOut() {
+    if (queueStatus === "waiting") await supabase.rpc("leave_queue");
+    if (matchId) await supabase.rpc("end_match", { p_match_id: matchId });
     await supabase.auth.signOut();
     setProfile(null);
     setQueueStatus("idle");
@@ -367,7 +369,7 @@ export default function Home() {
         <div className="connect-profile-card"><div><span className="connect-kicker">SEU PERFIL</span><h2>{profile.display_name} <small>@{profile.username}</small></h2><p>Você se identifica como: {genderLabels[profile.gender]}{profile.gender_description ? " — " + profile.gender_description : ""}</p><p>Quer conhecer: {profile.looking_for.map((item) => preferenceLabels[item] || item).join(", ")}</p></div><span className="connect-live-dot">PERFIL SALVO</span></div>
         {matchId && partner ? (
           <section className="connect-chat">
-            <div className="connect-chat-head"><div><span className="connect-kicker">VOCÊS FORAM CONECTADOS</span><h2>{partner.display_name} <small>@{partner.username}</small></h2></div><button onClick={() => { setMatchId(null); setPartner(null); setMessages([]); setQueueStatus("idle"); }}>Fechar conversa</button></div>
+            <div className="connect-chat-head"><div><span className="connect-kicker">VOCÊS FORAM CONECTADOS</span><h2>{partner.display_name} <small>@{partner.username}</small></h2></div><button onClick={async () => { const { error: closeError } = await supabase.rpc("end_match", { p_match_id: matchId }); if (closeError) { setError("Não foi possível encerrar a conversa. " + closeError.message); return; } setMatchId(null); setPartner(null); setMessages([]); setQueueStatus("idle"); setNotice("Conversa encerrada."); }}>Encerrar conversa</button></div>
             <div className="connect-messages">{messages.map((message) => <div key={message.id} className={"connect-message " + (message.sender_id === session.user.id ? "mine" : "theirs")}><p>{message.body}</p><time>{new Date(message.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</time></div>)}{messages.length === 0 && <p className="connect-empty">Conversa iniciada. Dê oi!</p>}</div>
             <form className="connect-send" onSubmit={sendMessage}><input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Escreva sua mensagem..." maxLength={4000} /><button disabled={!draft.trim()}>Enviar ↗</button></form>
           </section>
