@@ -2,386 +2,66 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { Activity, ArrowRight, Bell, Camera, Check, Compass, Heart, ImagePlus, LogOut, MessageCircle, MessageSquare, PenLine, Radio, Send, ShieldCheck, Sparkles, Trash2, UserRound, Users, X } from "lucide-react";
 import { supabase } from "./lib/supabase";
 
-type Profile = {
-  id: string;
-  display_name: string;
-  username: string;
-  gender: string;
-  gender_description: string | null;
-  looking_for: string[];
-};
-type Message = {
-  id: string;
-  match_id: string;
-  sender_id: string;
-  body: string;
-  created_at: string;
-};
+type Profile = { id:string; display_name:string; username:string; gender:string; gender_description:string|null; looking_for:string[]; avatar_url:string|null; banner_url:string|null; bio:string };
+type Post = { id:string; user_id:string; body:string; media_url:string|null; media_type:string|null; created_at:string; author:Profile; likes:number; comments:number; liked:boolean };
+type Comment = { id:string; post_id:string; user_id:string; body:string; created_at:string; author:Profile };
+type Message = { id:string; match_id:string; sender_id:string; body:string; created_at:string };
+const genders:Record<string,string>={woman:"Mulher",man:"Homem",non_binary:"Pessoa não binária",self_described:"Outro gênero",prefer_not_to_say:"Prefiro não informar"};
+const preferences:Record<string,string>={woman:"Mulheres",man:"Homens",non_binary:"Pessoas não binárias",self_described:"Outros gêneros",prefer_not_to_say:"Pessoas que preferem não informar",any:"Qualquer gênero"};
+const initials=(s:string)=>s.split(" ").slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
+const ago=(d:string)=>{const n=Math.max(0,Date.now()-new Date(d).getTime());return n<60000?"agora":n<3600000?Math.floor(n/60000)+" min":n<86400000?Math.floor(n/3600000)+" h":Math.floor(n/86400000)+" d";};
 
-const genderLabels: Record<string, string> = {
-  woman: "Mulher",
-  man: "Homem",
-  non_binary: "Pessoa não binária",
-  self_described: "Outro gênero",
-  prefer_not_to_say: "Prefiro não informar",
-};
-const preferenceLabels: Record<string, string> = {
-  woman: "Mulheres",
-  man: "Homens",
-  non_binary: "Pessoas não binárias",
-  self_described: "Outros gêneros",
-  prefer_not_to_say: "Pessoas que preferem não informar",
-  any: "Qualquer gênero",
-};
-
-export default function Home() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState<"signup" | "signin">("signup");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [username, setUsername] = useState("");
-  const [gender, setGender] = useState("woman");
-  const [genderDescription, setGenderDescription] = useState("");
-  const [lookingFor, setLookingFor] = useState<string[]>(["any"]);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [queueStatus, setQueueStatus] = useState<"idle" | "waiting" | "matched">("idle");
-  const [matchId, setMatchId] = useState<string | null>(null);
-  const [partner, setPartner] = useState<Profile | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    let active = true;
-    supabase.auth.getSession().then(({ data, error: sessionError }) => {
-      if (!active) return;
-      if (sessionError) setError(sessionError.message);
-      setSession(data.session);
-      setLoading(false);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setError("");
-      setNotice("");
-    });
-    return () => {
-      active = false;
-      listener.subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    let active = true;
-    async function loadProfile() {
-      if (!session?.user) {
-        setProfile(null);
-        setQueueStatus("idle");
-        setMatchId(null);
-        return;
-      }
-      const { data, error: profileError } = await supabase
-        .from("profiles")
-        .select("id,display_name,username,gender,gender_description,looking_for")
-        .eq("id", session.user.id)
-        .maybeSingle();
-      if (!active) return;
-      if (profileError) {
-        setError("Não foi possível carregar seu perfil. " + profileError.message);
-        return;
-      }
-      setProfile(data as Profile | null);
-      if (data) {
-        const { data: queue, error: queueError } = await supabase
-          .from("queue_entries")
-          .select("status,match_id")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-        if (!active) return;
-        if (queueError) {
-          setError("Não foi possível verificar sua fila. " + queueError.message);
-          return;
-        }
-        if (queue?.status === "waiting") setQueueStatus("waiting");
-        if (queue?.status === "matched" && queue.match_id) {
-          setQueueStatus("matched");
-          setMatchId(queue.match_id);
-        }
-      }
-    }
-    loadProfile();
-    return () => { active = false; };
-  }, [session]);
-
-  useEffect(() => {
-    if (!session?.user.id || !profile) return;
-    const channel = supabase
-      .channel("connect-queue-" + session.user.id)
-      .on("postgres_changes", {
-        event: "*", schema: "public", table: "queue_entries",
-        filter: "user_id=eq." + session.user.id,
-      }, (payload) => {
-        if (payload.eventType === "DELETE") {
-          setQueueStatus("idle");
-          setMatchId(null);
-          return;
-        }
-        const row = payload.new as { status?: string; match_id?: string | null };
-        if (row.status === "matched" && row.match_id) {
-          setQueueStatus("matched");
-          setMatchId(row.match_id);
-        } else if (row.status === "waiting") {
-          setQueueStatus("waiting");
-        }
-      })
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
-  }, [session, profile]);
-
-  useEffect(() => {
-    if (queueStatus !== "waiting") return;
-    const heartbeat = window.setInterval(() => {
-      void supabase.rpc("queue_heartbeat");
-    }, 25000);
-    return () => window.clearInterval(heartbeat);
-  }, [queueStatus]);
-
-  useEffect(() => {
-    let active = true;
-    async function loadMatch() {
-      if (!matchId || !session?.user.id) {
-        setPartner(null);
-        setMessages([]);
-        return;
-      }
-      const { data: match, error: matchError } = await supabase
-        .from("matches")
-        .select("id,user_one,user_two")
-        .eq("id", matchId)
-        .single();
-      if (matchError) {
-        setError("Não foi possível abrir a conversa. " + matchError.message);
-        return;
-      }
-      const partnerId = match.user_one === session.user.id ? match.user_two : match.user_one;
-      const [{ data: other }, { data: history, error: historyError }] = await Promise.all([
-        supabase.from("profiles").select("id,display_name,username,gender,gender_description,looking_for").eq("id", partnerId).single(),
-        supabase.from("messages").select("id,match_id,sender_id,body,created_at").eq("match_id", matchId).order("created_at", { ascending: true }),
-      ]);
-      if (!active) return;
-      if (historyError) setError("Não foi possível carregar as mensagens. " + historyError.message);
-      setPartner(other as Profile | null);
-      setMessages((history || []) as Message[]);
-    }
-    loadMatch();
-    if (!matchId) return () => { active = false; };
-    const channel = supabase
-      .channel("connect-chat-" + matchId)
-      .on("postgres_changes", {
-        event: "INSERT", schema: "public", table: "messages",
-        filter: "match_id=eq." + matchId,
-      }, (payload) => {
-        const incoming = payload.new as Message;
-        setMessages((current) => current.some((item) => item.id === incoming.id) ? current : [...current, incoming]);
-      })
-      .subscribe();
-    return () => {
-      active = false;
-      void supabase.removeChannel(channel);
-    };
-  }, [matchId, session]);
-
-  async function submitAuth(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    setNotice("");
-    setBusy(true);
-    try {
-      if (mode === "signin") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        if (signInError) throw signInError;
-      } else {
-        if (displayName.trim().length < 2) throw new Error("Informe um nome com pelo menos 2 caracteres.");
-        const cleanUsername = username.trim().replace(/^@/, "").toLowerCase();
-        if (!/^[a-z0-9_]{3,20}$/.test(cleanUsername)) {
-          throw new Error("O @ deve ter de 3 a 20 caracteres: letras sem acento, números ou _.");
-        }
-        if (password.length < 8) throw new Error("Sua senha precisa ter pelo menos 8 caracteres.");
-        if (lookingFor.length === 0) throw new Error("Escolha quem você quer encontrar.");
-        if (gender === "self_described" && !genderDescription.trim()) {
-          throw new Error("Descreva seu gênero para continuar.");
-        }
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: {
-            emailRedirectTo: "https://appswebb.github.io/Connect/",
-            data: {
-              display_name: displayName.trim(),
-              username: cleanUsername,
-              gender,
-              gender_description: gender === "self_described" ? genderDescription.trim() : null,
-              looking_for: lookingFor,
-            },
-          },
-        });
-        if (signUpError) throw signUpError;
-        if (!data.session) {
-          setNotice("Cadastro iniciado. Confira seu e-mail para confirmar a conta. Depois de confirmar, entre com seu e-mail e senha.");
-        } else {
-          setNotice("Conta criada. Seu perfil já está salvo.");
-        }
-      }
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Não foi possível concluir. Tente novamente.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function togglePreference(value: string) {
-    setLookingFor((current) => {
-      if (value === "any") return ["any"];
-      const withoutAny = current.filter((item) => item !== "any");
-      const next = withoutAny.includes(value) ? withoutAny.filter((item) => item !== value) : [...withoutAny, value];
-      return next;
-    });
-  }
-
-  async function enterQueue() {
-    if (!profile) return;
-    setError("");
-    setNotice("");
-    setBusy(true);
-    const { data, error: queueError } = await supabase.rpc("enter_queue");
-    setBusy(false);
-    if (queueError) {
-      setError("Não foi possível entrar na fila. " + queueError.message);
-      return;
-    }
-    const result = Array.isArray(data) ? data[0] : data;
-    if (result?.matched && result.match_id) {
-      setQueueStatus("matched");
-      setMatchId(result.match_id);
-    } else {
-      setQueueStatus("waiting");
-      setNotice("Você entrou na fila real. Vamos conectar você quando alguém compatível estiver disponível.");
-    }
-  }
-
-  async function leaveQueue() {
-    setBusy(true);
-    const { error: leaveError } = await supabase.rpc("leave_queue");
-    setBusy(false);
-    if (leaveError) {
-      setError("Não foi possível sair da fila. " + leaveError.message);
-      return;
-    }
-    setQueueStatus("idle");
-    setNotice("Você saiu da fila.");
-  }
-
-  async function sendMessage(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!matchId || !session?.user.id || !draft.trim()) return;
-    const body = draft.trim();
-    setDraft("");
-    const { data, error: sendError } = await supabase
-      .from("messages")
-      .insert({ match_id: matchId, sender_id: session.user.id, body })
-      .select("id,match_id,sender_id,body,created_at")
-      .single();
-    if (sendError) {
-      setDraft(body);
-      setError("Não foi possível enviar a mensagem. " + sendError.message);
-      return;
-    }
-    const sent = data as Message;
-    setMessages((current) => current.some((item) => item.id === sent.id) ? current : [...current, sent]);
-  }
-
-  async function signOut() {
-    if (queueStatus === "waiting") await supabase.rpc("leave_queue");
-    if (matchId) await supabase.rpc("end_match", { p_match_id: matchId });
-    await supabase.auth.signOut();
-    setProfile(null);
-    setQueueStatus("idle");
-    setMatchId(null);
-  }
-
-  if (loading) {
-    return <main className="connect-screen"><div className="connect-card"><span className="connect-logo">c</span><p>Conectando ao CONNECT...</p></div></main>;
-  }
-
-  if (!session) {
-    return (
-      <main className="connect-screen">
-        <section className="connect-auth">
-          <div className="connect-brand"><span className="connect-logo">c</span><span>connect<span className="connect-dot">.</span></span></div>
-          <p className="connect-kicker">CONEXÕES DE VERDADE</p>
-          <h1>{mode === "signup" ? "Encontre sua próxima conexão." : "Que bom ter você de volta."}</h1>
-          <p className="connect-subtitle">Crie seu perfil, escolha quem deseja conhecer e converse com pessoas reais que estiverem online.</p>
-          <div className="connect-switch">
-            <button className={mode === "signup" ? "active" : ""} onClick={() => { setMode("signup"); setError(""); }}>Criar conta</button>
-            <button className={mode === "signin" ? "active" : ""} onClick={() => { setMode("signin"); setError(""); }}>Entrar</button>
-          </div>
-          <form onSubmit={submitAuth} className="connect-form">
-            {mode === "signup" && <>
-              <label>Como podemos chamar você?<input required minLength={2} maxLength={40} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Seu nome" /></label>
-              <label>Escolha seu @ exclusivo<div className="connect-handle"><span>@</span><input required minLength={3} maxLength={20} value={username} onChange={(e) => setUsername(e.target.value.replace(/^@/, ""))} placeholder="seuusuario" /></div><small>De 3 a 20 caracteres. Não pode ser igual ao de outra pessoa.</small></label>
-              <label>Como você se identifica?<select value={gender} onChange={(e) => setGender(e.target.value)}>{Object.entries(genderLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-              {gender === "self_described" && <label>Como você descreve seu gênero?<input required maxLength={40} value={genderDescription} onChange={(e) => setGenderDescription(e.target.value)} placeholder="Escreva aqui" /></label>}
-              <fieldset><legend>Quem você quer encontrar?</legend><div className="connect-options">{Object.entries(preferenceLabels).map(([value, label]) => <label key={value} className="connect-check"><input type="checkbox" checked={lookingFor.includes(value)} onChange={() => togglePreference(value)} />{label}</label>)}</div></fieldset>
-            </>}
-            <label>E-mail<input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" /></label>
-            <label>Senha<input type="password" autoComplete={mode === "signup" ? "new-password" : "current-password"} required minLength={mode === "signup" ? 8 : 1} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "signup" ? "Mínimo de 8 caracteres" : "Sua senha"} /></label>
-            {error && <p className="connect-error">{error}</p>}
-            {notice && <p className="connect-notice">{notice}</p>}
-            <button className="connect-submit" disabled={busy}>{busy ? "Aguarde..." : mode === "signup" ? "Criar minha conta" : "Entrar no CONNECT"} <span>↗</span></button>
-          </form>
-          <p className="connect-legal">Ao continuar, você concorda em usar o CONNECT com respeito e responsabilidade.</p>
-          <p className="connect-foot">Login com Google será adicionado em uma próxima etapa.</p>
-        </section>
-        <aside className="connect-visual">
-          <div className="connect-glow" />
-          <div className="connect-visual-copy"><span>MENOS DISTÂNCIA. MAIS CONEXÃO.</span><h2>Uma conversa pode mudar seu dia.</h2><p>Conheça pessoas novas no seu tempo, do seu jeito.</p></div>
-          <div className="connect-orbit orbit-one" /><div className="connect-orbit orbit-two" /><div className="connect-orbit orbit-three" />
-        </aside>
-      </main>
-    );
-  }
-
-  if (!profile) {
-    return <main className="connect-screen"><section className="connect-auth"><div className="connect-brand"><span className="connect-logo">c</span><span>connect<span className="connect-dot">.</span></span></div><h1>Preparando seu perfil.</h1><p className="connect-subtitle">Se você acabou de criar sua conta, confirme seu e-mail e entre novamente. Se o problema continuar, confira se o banco está acessível.</p>{error && <p className="connect-error">{error}</p>}<button className="connect-submit" onClick={signOut}>Sair da conta</button></section></main>;
-  }
-
-  return (
-    <main className="connect-app">
-      <header className="connect-header"><div className="connect-brand"><span className="connect-logo">c</span><span>connect<span className="connect-dot">.</span></span></div><div className="connect-account"><span>@{profile.username}</span><button onClick={signOut}>Sair</button></div></header>
-      <section className="connect-dashboard">
-        <div className="connect-welcome"><p className="connect-kicker">SEU ESPAÇO, SUAS CONEXÕES</p><h1>Olá, {profile.display_name}.</h1><p>Seu perfil está ativo. Quando você entrar na fila, vamos procurar alguém real que também esteja disponível.</p></div>
-        {error && <p className="connect-error">{error}</p>}
-        {notice && <p className="connect-notice">{notice}</p>}
-        <div className="connect-profile-card"><div><span className="connect-kicker">SEU PERFIL</span><h2>{profile.display_name} <small>@{profile.username}</small></h2><p>Você se identifica como: {genderLabels[profile.gender]}{profile.gender_description ? " — " + profile.gender_description : ""}</p><p>Quer conhecer: {profile.looking_for.map((item) => preferenceLabels[item] || item).join(", ")}</p></div><span className="connect-live-dot">PERFIL SALVO</span></div>
-        {matchId && partner ? (
-          <section className="connect-chat">
-            <div className="connect-chat-head"><div><span className="connect-kicker">VOCÊS FORAM CONECTADOS</span><h2>{partner.display_name} <small>@{partner.username}</small></h2></div><button onClick={async () => { const { error: closeError } = await supabase.rpc("end_match", { p_match_id: matchId }); if (closeError) { setError("Não foi possível encerrar a conversa. " + closeError.message); return; } setMatchId(null); setPartner(null); setMessages([]); setQueueStatus("idle"); setNotice("Conversa encerrada."); }}>Encerrar conversa</button></div>
-            <div className="connect-messages">{messages.map((message) => <div key={message.id} className={"connect-message " + (message.sender_id === session.user.id ? "mine" : "theirs")}><p>{message.body}</p><time>{new Date(message.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</time></div>)}{messages.length === 0 && <p className="connect-empty">Conversa iniciada. Dê oi!</p>}</div>
-            <form className="connect-send" onSubmit={sendMessage}><input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Escreva sua mensagem..." maxLength={4000} /><button disabled={!draft.trim()}>Enviar ↗</button></form>
-          </section>
-        ) : queueStatus === "matched" ? (
-          <section className="connect-queue-card"><h2>Conexão encontrada!</h2><p>Abrindo sua conversa...</p></section>
-        ) : queueStatus === "waiting" ? (
-          <section className="connect-queue-card"><span className="connect-spinner" /><span className="connect-kicker">FILA DE CONEXÃO ATIVA</span><h2>Procurando alguém para conversar.</h2><p>Você está na fila. A conexão acontece quando uma pessoa online com preferências compatíveis também estiver procurando.</p><button className="connect-secondary" disabled={busy} onClick={leaveQueue}>Sair da fila</button></section>
-        ) : (
-          <section className="connect-queue-card"><span className="connect-kicker">CONVERSA POR FILA</span><h2>Conheça alguém novo.</h2><p>Vamos procurar pessoas que estejam online agora e cujas preferências combinem com as suas. Nada de perfis ou conversas inventadas.</p><button className="connect-submit" disabled={busy} onClick={enterQueue}>{busy ? "Entrando..." : "Entrar na fila real"} <span>↗</span></button></section>
-        )}
-      </section>
-    </main>
-  );
+export default function Home(){
+ const [session,setSession]=useState<Session|null>(null),[profile,setProfile]=useState<Profile|null>(null),[loading,setLoading]=useState(true);
+ const [mode,setMode]=useState<"signup"|"signin">("signup"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[name,setName]=useState(""),[username,setUsername]=useState(""),[gender,setGender]=useState("woman"),[description,setDescription]=useState(""),[looking,setLooking]=useState("any");
+ const [tab,setTab]=useState("feed"),[error,setError]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
+ const [posts,setPosts]=useState<Post[]>([]),[body,setBody]=useState(""),[file,setFile]=useState<File|null>(null),[comments,setComments]=useState<Comment[]>([]),[commentPost,setCommentPost]=useState(""),[commentText,setCommentText]=useState("");
+ const [queue,setQueue]=useState("idle"),[matchId,setMatchId]=useState(""),[partner,setPartner]=useState<Profile|null>(null),[messages,setMessages]=useState<Message[]>([]),[draft,setDraft]=useState("");
+ const [bio,setBio]=useState(""); const [avatarFile,setAvatarFile]=useState<File|null>(null),[bannerFile,setBannerFile]=useState<File|null>(null);
+ const fail=(s:string)=>{setError(s);setNotice("");};
+ async function loadProfile(uid:string){const {data,error}=await supabase.from("profiles").select("*").eq("id",uid).maybeSingle();if(error){fail(error.message);return;}setProfile(data as Profile|null);setBio(data?.bio||"");if(data){const q=await supabase.from("queue_entries").select("status,match_id").eq("user_id",uid).maybeSingle();if(q.data?.status==="waiting")setQueue("waiting");if(q.data?.status==="matched"&&q.data.match_id){setQueue("matched");setMatchId(q.data.match_id);}}}
+ async function loadFeed(uid:string){const {data,error}=await supabase.from("posts").select("*").order("created_at",{ascending:false}).limit(50);if(error){fail(error.message);return;}const rows=data||[];if(!rows.length){setPosts([]);return;}const ids=[...new Set(rows.map((p:any)=>p.user_id))],postIds=rows.map((p:any)=>p.id);const [people,likes,comments]=await Promise.all([supabase.from("profiles").select("*").in("id",ids),supabase.from("post_likes").select("post_id,user_id").in("post_id",postIds),supabase.from("comments").select("post_id").in("post_id",postIds)]);const map=new Map((people.data||[]).map((p:any)=>[p.id,p]));setPosts(rows.flatMap((p:any)=>{const author=map.get(p.user_id) as Profile|undefined;if(!author)return[];const liked=(likes.data||[]).some((l:any)=>l.post_id===p.id&&l.user_id===uid);return[{...p,author,likes:(likes.data||[]).filter((l:any)=>l.post_id===p.id).length,comments:(comments.data||[]).filter((c:any)=>c.post_id===p.id).length,liked}];}));}
+ useEffect(()=>{let alive=true;supabase.auth.getSession().then(({data})=>{if(alive){setSession(data.session);setLoading(false);}});const {data:listener}=supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);if(!s){setProfile(null);setPosts([]);setMatchId("");setQueue("idle");}});return()=>{alive=false;listener.subscription.unsubscribe();};},[]);
+ useEffect(()=>{if(session?.user.id){void loadProfile(session.user.id);void loadFeed(session.user.id);}},[session]);
+ useEffect(()=>{if(!session?.user.id||!profile)return;const c=supabase.channel("connect-social-live").on("postgres_changes",{event:"*",schema:"public",table:"posts"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"post_likes"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"comments"},()=>void loadFeed(session.user.id)).on("postgres_changes",{event:"*",schema:"public",table:"queue_entries",filter:"user_id=eq."+session.user.id},(p)=>{if(p.eventType==="DELETE"){setQueue("idle");setMatchId("");}else{const r=p.new as any;if(r.status==="matched"&&r.match_id){setQueue("matched");setMatchId(r.match_id);setTab("chat");}else if(r.status==="waiting")setQueue("waiting");}}).subscribe();return()=>{void supabase.removeChannel(c);};},[session,profile]);
+ useEffect(()=>{if(queue!=="waiting")return;const t=window.setInterval(()=>void supabase.rpc("queue_heartbeat"),25000);return()=>window.clearInterval(t);},[queue]);
+ useEffect(()=>{let alive=true;async function getChat(){if(!matchId||!session?.user.id){setPartner(null);setMessages([]);return;}const {data:m,error}=await supabase.from("matches").select("*").eq("id",matchId).single();if(error){fail(error.message);return;}if(m.ended_at){setMatchId("");setQueue("idle");return;}const otherId=m.user_one===session.user.id?m.user_two:m.user_one;const [p,h]=await Promise.all([supabase.from("profiles").select("*").eq("id",otherId).single(),supabase.from("messages").select("*").eq("match_id",matchId).order("created_at")]);if(!alive)return;setPartner(p.data as Profile|null);setMessages((h.data||[]) as Message[]);}void getChat();if(!matchId)return()=>{alive=false;};const c=supabase.channel("chat-"+matchId).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"match_id=eq."+matchId},p=>{const m=p.new as Message;setMessages(old=>old.some(x=>x.id===m.id)?old:[...old,m]);}).subscribe();return()=>{alive=false;void supabase.removeChannel(c);};},[matchId,session]);
+ async function auth(e:FormEvent){e.preventDefault();setBusy(true);fail("");try{if(mode==="signin"){const r=await supabase.auth.signInWithPassword({email:email.trim(),password});if(r.error)throw r.error;}else{const handle=username.trim().replace(/^@/,"").toLowerCase();if(!/^[a-z0-9_]{3,20}$/.test(handle))throw new Error("O @ deve ter 3 a 20 caracteres: letras, números ou _.");if(password.length<8)throw new Error("Use uma senha com pelo menos 8 caracteres.");if(gender==="self_described"&&!description.trim())throw new Error("Descreva seu gênero.");const r=await supabase.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:"https://appswebb.github.io/Connect/",data:{display_name:name.trim(),username:handle,gender,gender_description:gender==="self_described"?description.trim():null,looking_for:[looking]}}});if(r.error)throw r.error;if(!r.data.session)setNotice("Confirme seu e-mail para ativar a conta e depois entre.");}}catch(x){fail(x instanceof Error?x.message:"Não foi possível continuar.");}finally{setBusy(false);}}
+ async function upload(f:File,folder:string){if(!session?.user.id)throw new Error("Entre na conta.");if(!f.type.startsWith("image/")&&!(folder==="posts"&&f.type.startsWith("video/")))throw new Error("Formato não permitido.");const max=folder==="posts"&&f.type.startsWith("video/")?10*1024*1024:5*1024*1024;if(f.size>max)throw new Error("Arquivo muito grande.");const ext=f.name.split(".").pop()||"jpg",path=session.user.id+"/"+folder+"/"+crypto.randomUUID()+"."+ext;const r=await supabase.storage.from("connect-media").upload(path,f,{upsert:false,contentType:f.type,cacheControl:"31536000"});if(r.error)throw r.error;return supabase.storage.from("connect-media").getPublicUrl(path).data.publicUrl;}
+ async function publish(e:FormEvent){e.preventDefault();if(!session?.user.id||(!body.trim()&&!file))return;setBusy(true);try{let url:string|null=null,type:string|null=null;if(file){url=await upload(file,"posts");type=file.type.startsWith("video/")?"video":"image";}const r=await supabase.from("posts").insert({user_id:session.user.id,body:body.trim(),media_url:url,media_type:type});if(r.error)throw r.error;setBody("");setFile(null);await loadFeed(session.user.id);setNotice("Publicação enviada.");}catch(x){fail(x instanceof Error?x.message:"Falha ao publicar.");}finally{setBusy(false);}}
+ async function like(p:Post){if(!session?.user.id)return;const r=p.liked?await supabase.from("post_likes").delete().eq("post_id",p.id).eq("user_id",session.user.id):await supabase.from("post_likes").insert({post_id:p.id,user_id:session.user.id});if(r.error){fail(r.error.message);return;}setPosts(old=>old.map(x=>x.id===p.id?{...x,liked:!p.liked,likes:x.likes+(p.liked?-1:1)}:x));}
+ async function removePost(id:string){if(!window.confirm("Apagar esta publicação?"))return;const r=await supabase.from("posts").delete().eq("id",id);if(r.error){fail(r.error.message);return;}setPosts(old=>old.filter(x=>x.id!==id));}
+ async function openComments(id:string){if(commentPost===id){setCommentPost("");return;}setCommentPost(id);const r=await supabase.from("comments").select("*").eq("post_id",id).order("created_at");if(r.error){fail(r.error.message);return;}const ids=[...new Set((r.data||[]).map((x:any)=>x.user_id))];const people=ids.length?await supabase.from("profiles").select("*").in("id",ids):{data:[]};const map=new Map((people.data||[]).map((p:any)=>[p.id,p]));setComments((r.data||[]).flatMap((x:any)=>map.has(x.user_id)?[{...x,author:map.get(x.user_id)}]:[]) as Comment[]);}
+ async function comment(e:FormEvent,id:string){e.preventDefault();if(!session?.user.id||!commentText.trim())return;const r=await supabase.from("comments").insert({post_id:id,user_id:session.user.id,body:commentText.trim()});if(r.error){fail(r.error.message);return;}setCommentText("");await openComments(id);await loadFeed(session.user.id);}
+ async function saveBio(e:FormEvent){e.preventDefault();if(!session?.user.id)return;const r=await supabase.from("profiles").update({bio}).eq("id",session.user.id);if(r.error){fail(r.error.message);return;}await loadProfile(session.user.id);setNotice("Perfil atualizado.");}
+ async function updateImage(f:File,field:"avatar_url"|"banner_url"){if(!session?.user.id)return;setBusy(true);try{const url=await upload(f,field==="avatar_url"?"avatars":"banners");const r=await supabase.from("profiles").update({[field]:url}).eq("id",session.user.id);if(r.error)throw r.error;await loadProfile(session.user.id);setNotice("Imagem atualizada.");}catch(x){fail(x instanceof Error?x.message:"Falha no envio.");}finally{setBusy(false);}}
+ async function enterQueue(){setBusy(true);const r=await supabase.rpc("enter_queue");setBusy(false);if(r.error){fail(r.error.message);return;}const x=Array.isArray(r.data)?r.data[0]:r.data;if(x?.matched&&x.match_id){setMatchId(x.match_id);setQueue("matched");setTab("chat");}else setQueue("waiting");}
+ async function leaveQueue(){const r=await supabase.rpc("leave_queue");if(r.error){fail(r.error.message);return;}setQueue("idle");}
+ async function send(e:FormEvent){e.preventDefault();if(!matchId||!session?.user.id||!draft.trim())return;const text=draft.trim();setDraft("");const r=await supabase.from("messages").insert({match_id:matchId,sender_id:session.user.id,body:text}).select("*").single();if(r.error){setDraft(text);fail(r.error.message);return;}setMessages(old=>old.some(x=>x.id===r.data.id)?old:[...old,r.data as Message]);}
+ async function endChat(){if(!matchId)return;const r=await supabase.rpc("end_match",{p_match_id:matchId});if(r.error){fail(r.error.message);return;}setMatchId("");setPartner(null);setQueue("idle");setTab("queue");}
+ async function logout(){if(queue==="waiting")await supabase.rpc("leave_queue");if(matchId)await supabase.rpc("end_match",{p_match_id:matchId});await supabase.auth.signOut();}
+ const Avatar=({p,size=""}:{p:Profile;size?:string})=><div className={"avatar "+size}>{p.avatar_url?<img src={p.avatar_url} alt={p.display_name}/>:initials(p.display_name)}</div>;
+ const items=[["feed","Explorar",Compass],["queue","Conexão rápida",Radio],["chat","Mensagens",MessageCircle],["profile","Meu perfil",UserRound]] as const;
+ if(loading)return <main className="loading"><Activity/><span>Preparando o CONNECT...</span></main>;
+ if(!session)return <main className="auth-page"><section className="auth-intro"><a className="brand"><span className="brand-icon"><Activity/></span>connect<span>.</span></a><div className="intro-copy"><small>CONEXÕES REAIS, MOMENTOS REAIS</small><h1>O mundo fica menor quando <em>nos conectamos.</em></h1><p>Conheça pessoas, compartilhe momentos e transforme encontros em boas histórias.</p></div><footer>CONNECT © 2026 · PRIVACIDADE · RESPEITO · CONEXÃO</footer></section><section className="auth-side"><div className="auth-card"><div className="brand-icon"><Users/></div><small>{mode==="signup"?"COMECE POR AQUI":"BEM-VINDO DE VOLTA"}</small><h2>{mode==="signup"?"Sua próxima conexão começa agora.":"Entre no seu CONNECT."}</h2><p>Crie seu perfil e encontre pessoas que combinam com você.</p><div className="auth-tabs"><button className={mode==="signup"?"active":""} onClick={()=>setMode("signup")}>Criar conta</button><button className={mode==="signin"?"active":""} onClick={()=>setMode("signin")}>Entrar</button></div><form onSubmit={auth}>{mode==="signup"&&<><label>Seu nome<input required minLength={2} maxLength={40} value={name} onChange={e=>setName(e.target.value)} placeholder="Como quer ser chamado(a)"/></label><label>Seu @ exclusivo<input required minLength={3} maxLength={20} value={username} onChange={e=>setUsername(e.target.value.replace(/^@/,""))} placeholder="seuusuario"/></label><div className="form-grid"><label>Como se identifica?<select value={gender} onChange={e=>setGender(e.target.value)}>{Object.entries(genders).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label><label>Quer conhecer?<select value={looking} onChange={e=>setLooking(e.target.value)}>{Object.entries(preferences).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label></div>{gender==="self_described"&&<label>Descreva seu gênero<input required value={description} onChange={e=>setDescription(e.target.value)}/></label>}</>}<label>E-mail<input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com"/></label><label>Senha<input required type="password" minLength={mode==="signup"?8:1} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Sua senha"/></label>{error&&<p className="error">{error}</p>}{notice&&<p className="success">{notice}</p>}<button className="primary" disabled={busy}>{busy?"Aguarde...":mode==="signup"?"Criar minha conta":"Entrar"}<ArrowRight size={17}/></button></form><p className="terms">Login com Google será adicionado em uma próxima etapa.</p></div></section></main>;
+ if(!profile)return <main className="loading">Preparando seu perfil... <button onClick={logout}>Sair</button></main>;
+ return <main className="app">
+  <aside className="sidebar"><a className="brand"><span className="brand-icon"><Activity/></span>connect<span>.</span></a><small className="side-label">SEU ESPAÇO</small><nav>{items.map(([id,label,Icon])=><button key={id} className={tab===id?"selected":""} onClick={()=>setTab(id)}><Icon size={18}/>{label}{id==="queue"&&queue==="waiting"&&<i/>}</button>)}</nav><div className="sidebar-bottom"><div className="side-promo"><Sparkles/><strong>Conexões de verdade.</strong><p>Encontre pessoas que estão online e abertas a conversar.</p><button onClick={()=>setTab("queue")}>Encontrar alguém <ArrowRight size={14}/></button></div><div className="side-user"><Avatar p={profile}/><div><strong>{profile.display_name}</strong><span>@{profile.username}</span></div><button onClick={logout} title="Sair"><LogOut size={16}/></button></div></div></aside>
+  <section className="main"><header className="topbar"><div className="mobile-brand"><Activity/> connect<span>.</span></div><small><i/> UM LUGAR PARA SE CONECTAR</small><div><button title="Notificações"><Bell/></button><button className="mobile-avatar" onClick={()=>setTab("profile")}><Avatar p={profile} size="small"/></button></div></header>
+  {(error||notice)&&<div className={error?"flash error":"flash success"}>{error||notice}<button onClick={()=>{setError("");setNotice("");}}><X size={14}/></button></div>}
+  {tab==="feed"&&<><div className="heading"><div><small>SUA REDE, SEU MOMENTO</small><h1>O que está <em>acontecendo.</em></h1><p>Ideias, momentos e pessoas que fazem a diferença.</p></div><button className="primary" onClick={()=>document.getElementById("composer")?.scrollIntoView({behavior:"smooth"})}><PenLine size={16}/> Criar publicação</button></div>
+   <form className="composer" id="composer" onSubmit={publish}><div className="compose-row"><Avatar p={profile}/><textarea value={body} onChange={e=>setBody(e.target.value)} placeholder={"Compartilhe algo com a comunidade, "+profile.display_name.split(" ")[0]+"..."} maxLength={5000}/></div>{file&&<div className="file-name">{file.name}<button type="button" onClick={()=>setFile(null)}><X size={14}/></button></div>}<div className="compose-footer"><label className="upload-label"><ImagePlus size={17}/> Foto ou vídeo<input type="file" hidden accept="image/*,video/mp4,video/webm" onChange={e=>setFile(e.target.files?.[0]||null)}/></label><button className="primary" disabled={busy||(!body.trim()&&!file)}>{busy?"Publicando...":"Publicar"}<ArrowRight size={15}/></button></div></form>
+   <div className="section-heading"><div><strong>Feed da comunidade</strong><span>Publicações reais de pessoas do CONNECT</span></div><small>MAIS RECENTES</small></div>
+   <div className="feed">{posts.map(p=><article className="post" key={p.id}><header><Avatar p={p.author}/><div><strong>{p.author.display_name}</strong><span>@{p.author.username} · {ago(p.created_at)}</span></div>{p.user_id===profile.id&&<button className="delete" title="Apagar publicação" onClick={()=>void removePost(p.id)}><Trash2 size={16}/></button>}</header>{p.body&&<p className="post-body">{p.body}</p>}{p.media_url&&<div className="post-media">{p.media_type==="video"?<video src={p.media_url} controls/>:<img src={p.media_url} alt="Imagem da publicação"/>}</div>}<div className="post-stats"><span>{p.likes} curtidas</span><span>{p.comments} comentários</span></div><div className="post-actions"><button className={p.liked?"liked":""} onClick={()=>void like(p)}><Heart size={18} fill={p.liked?"currentColor":"none"}/> Curtir</button><button onClick={()=>void openComments(p.id)}><MessageSquare size={18}/> Comentar</button><button onClick={()=>void openComments(p.id)}><MessageCircle size={18}/> Conversa</button></div>{commentPost===p.id&&<div className="comments">{comments.map(c=><div className="comment" key={c.id}><Avatar p={c.author} size="small"/><div><strong>{c.author.display_name}</strong><p>{c.body}</p><small>{ago(c.created_at)}</small></div></div>)}{!comments.length&&<p className="no-comments">Ainda não há comentários. Comece a conversa.</p>}<form onSubmit={e=>void comment(e,p.id)}><Avatar p={profile} size="small"/><input value={commentText} onChange={e=>setCommentText(e.target.value)} placeholder="Escreva um comentário..." maxLength={1500}/><button disabled={!commentText.trim()}><Send size={16}/></button></form></div>}</article>)}{!posts.length&&<div className="empty"><MessageSquare/><h3>Seu feed começa aqui.</h3><p>Quando você e outras pessoas publicarem, as novidades aparecerão neste espaço.</p></div>}</div>
+  </>}
+  {tab==="queue"&&<><div className="heading"><div><small>CONEXÃO EM TEMPO REAL</small><h1>Uma conversa pode <em>começar agora.</em></h1><p>Encontre alguém online com preferências compatíveis.</p></div></div><section className="queue-card"><div className="connection-art"><div className="ring r1"/><div className="ring r2"/><div className="ring r3"/><div className="core"><Activity size={30}/></div><Users className="people-icon"/></div><div><small>MATCHING POR PREFERÊNCIAS</small><h2>{queue==="waiting"?"Estamos procurando sua conexão.":"Conheça alguém novo, sem complicação."}</h2><p>{queue==="waiting"?"Você está na fila. Assim que alguém compatível estiver disponível, a conversa será aberta automaticamente.":"O CONNECT procura pessoas online que também escolheram conhecer alguém com seu perfil."}</p><ul><li><Check/> Pessoas reais</li><li><Check/> Preferências respeitadas</li><li><Check/> Chat em tempo real</li></ul>{queue==="waiting"?<button className="secondary" onClick={()=>void leaveQueue()}>Sair da fila</button>:<button className="primary" disabled={busy} onClick={()=>void enterQueue()}><Radio/> {busy?"Conectando...":"Entrar na fila"} <ArrowRight/></button>}</div></section></>}
+  {tab==="chat"&&<><div className="heading"><div><small>CONVERSAS</small><h1>Suas <em>conexões.</em></h1><p>Conversas que começaram aqui.</p></div></div>{matchId&&partner?<section className="chat"><header><Avatar p={partner}/><div><strong>{partner.display_name}</strong><span>@{partner.username} · conexão por fila</span></div><button onClick={()=>void endChat()} title="Encerrar conversa"><X/></button></header><div className="messages">{messages.map(m=><div key={m.id} className={"bubble "+(m.sender_id===session.user.id?"mine":"")}>{m.body}<small>{new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</small></div>)}{!messages.length&&<p className="chat-empty">Vocês foram conectados! Que tal começar com um oi?</p>}</div><form onSubmit={send}><input value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Escreva sua mensagem..." maxLength={4000}/><button disabled={!draft.trim()}><Send/></button></form></section>:<div className="empty"><MessageCircle/><h3>Nenhuma conversa ativa.</h3><p>Entre na fila para encontrar alguém que também esteja online.</p><button className="primary" onClick={()=>setTab("queue")}>Encontrar alguém <ArrowRight/></button></div>}</>}
+  {tab==="profile"&&<><div className="heading"><div><small>SUA IDENTIDADE NO CONNECT</small><h1>Seu espaço, <em>sua história.</em></h1><p>Cuide da forma como as pessoas conhecem você.</p></div></div><section className="profile-card"><div className="banner" style={profile.banner_url?{backgroundImage:"linear-gradient(0deg,#090c10aa,transparent),url("+profile.banner_url+")"}:{}}><label><Camera size={15}/> Alterar banner<input type="file" hidden accept="image/*" onChange={e=>{const f=e.target.files?.[0];if(f)void updateImage(f,"banner_url");}}/></label></div><div className="profile-ident"><div className="profile-avatar"><Avatar p={profile} size="large"/><label><Camera size={14}/><input type="file" hidden accept="image/*" onChange={e=>{const f=e.target.files?.[0];if(f)void updateImage(f,"avatar_url");}}/></label></div><div><h2>{profile.display_name}</h2><span>@{profile.username}</span></div><span className="profile-active"><ShieldCheck size={14}/> PERFIL ATIVO</span></div><form className="bio-form" onSubmit={saveBio}><label>Sobre você</label><textarea value={bio} onChange={e=>setBio(e.target.value)} maxLength={300} placeholder="Conte um pouco sobre você..."/><button className="primary">Salvar alterações <Check size={15}/></button></form><div className="profile-facts"><div><small>IDENTIFICADOR</small><strong>@{profile.username}</strong></div><div><small>GÊNERO</small><strong>{genders[profile.gender]||profile.gender}{profile.gender_description?" · "+profile.gender_description:""}</strong></div><div><small>QUER CONHECER</small><strong>{profile.looking_for.map(x=>preferences[x]||x).join(", ")}</strong></div><div><small>PUBLICAÇÕES</small><strong>{posts.filter(p=>p.user_id===profile.id).length}</strong></div></div></section><p className="profile-hint"><ShieldCheck size={16}/> Seu @ é exclusivo e não pode ser usado por outra pessoa.</p></>}
+  </section>
+  <aside className="right"><div className="rail-title"><small>CONNECT · AO SEU LADO</small><Activity/></div><section className="rail-card"><small>ENCONTROS EM TEMPO REAL</small><h2>Tem alguém esperando por <em>uma boa conversa.</em></h2><p>Entre na fila e conheça pessoas que também estão online.</p><button onClick={()=>setTab("queue")}>Encontrar conexão <ArrowRight size={14}/></button><div className="rail-orbits"><i/><i/><i/></div></section><section className="rail-me"><small>SEU PERFIL <button onClick={()=>setTab("profile")}>Editar <ArrowRight size={12}/></button></small><div><Avatar p={profile}/><strong>{profile.display_name}<span>@{profile.username}</span></strong><ShieldCheck/></div><p>{profile.bio||"Adicione uma descrição para que as pessoas conheçam você."}</p></section><section className="rail-tip"><small><Sparkles size={14}/> DICA DO CONNECT</small><p>Uma boa conversa começa com curiosidade e respeito. Seja você mesmo.</p></section><footer>CONNECT © 2026 <span>FEITO PARA APROXIMAR</span></footer></aside>
+  <nav className="mobile-nav">{items.map(([id,label,Icon])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id)}><Icon/><span>{({feed:"Início",queue:"Conectar",chat:"Chat",profile:"Perfil"} as Record<string,string>)[id]}</span></button>)}</nav>
+ </main>;
 }
