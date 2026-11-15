@@ -39,8 +39,9 @@ Deno.serve(async (req: Request) => {
   const { data: authData, error: authError } = await supabase.auth.getUser(tokenValue);
   if (authError || !authData.user) return json({ error: "Invalid session" }, 401);
 
-  let body: { live_id?: string };
+  let body: { action?: string; live_id?: string };
   try { body = await req.json(); } catch { return json({ error: "Invalid JSON" }, 400); }
+  if (body.action === "check") return json({ ready: true });
   if (!body.live_id || !/^[0-9a-f-]{36}$/i.test(body.live_id)) return json({ error: "Invalid live_id" }, 400);
 
   const { data: live, error: liveError } = await supabase
