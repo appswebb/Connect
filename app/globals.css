@@ -72,3 +72,26 @@
 .match-live-actions{display:flex;gap:10px}.match-live-actions button{flex:1;justify-content:center;min-height:42px}
 .queue-pending-note{font-size:13px;color:#c4ff83;padding:12px;border-radius:12px;background:#a8ed5a12}
 @media(max-width:600px){.match-live-overlay{top:auto;bottom:82px;padding:15px}.match-live-timer{font-size:27px}.match-live-label{font-size:9px}}
+
+
+/* Universal image crop editor */
+.crop-backdrop{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:16px;background:#05080bdc;backdrop-filter:blur(12px)}
+.crop-dialog{width:min(560px,100%);max-height:min(92vh,850px);overflow:auto;padding:20px;border:1px solid #39464f;border-radius:20px;background:#11191f;box-shadow:0 25px 90px #000b;color:#f4f7f3}
+.crop-dialog>header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.crop-dialog>header small{font-size:9px;letter-spacing:1.5px;color:#b7ed6b;font-weight:800}
+.crop-dialog>header h2{font-size:19px;margin:5px 0 0}
+.crop-dialog>header button{width:36px;height:36px;border:1px solid #35404a;border-radius:10px;background:#1b252d;color:#dce4e7}
+.crop-preview-wrap{display:grid;justify-items:center;gap:9px}
+.crop-preview{position:relative;width:min(100%,480px);max-height:48vh;overflow:hidden;border-radius:13px;background:#080d11;box-shadow:inset 0 0 0 1px #ffffff22}
+.crop-preview img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .08s linear}
+.crop-preview-wrap>p{font-size:11px;color:#9ba8ad;margin:0;text-align:center}
+.crop-circle-guide{position:absolute;inset:0;margin:auto;width:min(76%,auto);height:76%;aspect-ratio:1;border:1px dashed #fff9;border-radius:50%;box-shadow:0 0 0 999px #0002;pointer-events:none}
+.crop-controls{display:grid;gap:13px;margin:19px 0}
+.crop-controls label{display:grid;gap:7px;font-size:11px;color:#b8c2c5}
+.crop-controls label>input,.crop-controls label>div{width:100%}
+.crop-controls label>div{display:flex;align-items:center;gap:10px}
+.crop-controls input[type=range]{accent-color:#b8f36b;min-width:0;flex:1}
+.crop-dialog>footer{display:flex;justify-content:space-between;gap:10px;padding-top:13px;border-top:1px solid #29343d}
+.crop-dialog>footer button{min-height:42px}
+.brand{gap:0}.brand-icon{margin-right:10px}
+.mobile-brand{gap:2px}.mobile-brand svg{margin-right:5px}
