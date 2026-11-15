@@ -18,7 +18,7 @@ function TrackTile({ item, mirrorCamera }: { item: PublishedTrack; mirrorCamera:
     media.className = "live-media" + (mirrored ? " live-media-mirrored" : "");
     holder.current.replaceChildren(media);
     return () => { item.track.detach(media); media.remove(); };
-  }, [item.track]);
+  }, [item.track, mirrorCamera, item.local]);
   return <div className="live-tile"><div ref={holder} className="live-media-holder"/><span>{item.local ? "Você" : item.participant.slice(0,8)}</span></div>;
 }
 
@@ -53,7 +53,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
       room.on(RoomEvent.TrackSubscribed,(track,_publication,participant)=>addTrack(track,participant.identity,false));
       room.on(RoomEvent.TrackUnsubscribed,(track,_publication,participant)=>removeTrack(track,participant.identity,false));
       room.on(RoomEvent.LocalTrackPublished,(publication)=>{if(publication.track)addTrack(publication.track,"Você",true);});
-      room.on(RoomEvent.LocalTrackUnpublished,(publication)=>{if(publication.track)removeTrack(publication.track,"Você",true);});
+      room.on(RoomEvent.LocalTrackUnpublished,(publication)=>{if(publication.track){removeTrack(publication.track,"Você",true);if(publication.track.source===Track.Source.ScreenShare)setScreenOn(false);if(publication.track.source===Track.Source.Camera)setCameraOn(false);if(publication.track.source===Track.Source.Microphone)setMicOn(false);}});
       room.on(RoomEvent.Disconnected,()=>{setConnected(false);setTracks([]);});
       await room.connect(data.server_url,data.token);
       roomRef.current=room;setConnected(true);
@@ -80,7 +80,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   return <section className="live-stage">
     <header><div><span className="live-on"><i/> AO VIVO</span><strong>{isHost?"Sua transmissão":"Assistindo transmissão"}</strong></div><span className="live-secure"><Wifi size={14}/> Conexão criptografada</span></header>
     {!connected?<div className="live-connect"><Radio size={34}/><h3>Pronto para entrar na transmissão?</h3><p>{isHost?"Ao conectar, câmera frontal e microfone serão ativados. Depois você pode desligar a câmera, trocar para a traseira, espelhar a imagem ou compartilhar a tela.":"Conecte para assistir à transmissão ao vivo."}</p><button className="primary" disabled={connecting} onClick={()=>void connect()}>{connecting?"Conectando...":"Conectar à live"}</button></div>:<>
-      <div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/ >)}{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
+      <div className="live-grid">{tracks.map(item=><TrackTile key={item.key} item={item} mirrorCamera={mirrorCamera}/>)}{!tracks.length&&<div className="live-wait">Aguardando vídeo da transmissão...</div>}</div>
       <div className="live-controls">{isHost&&<><button className={cameraOn?"active":""} onClick={()=>void toggleCamera()}>{cameraOn?<Camera/>:<CameraOff/>} Câmera</button><button className={cameraOn?"":"disabled"} disabled={!cameraOn} onClick={()=>void flipCamera()}><RefreshCw/> {cameraFacing==="user"?"Câmera traseira":"Câmera frontal"}</button><button className={mirrorCamera?"active":""} disabled={!cameraOn||cameraFacing!=="user"} onClick={()=>setMirrorCamera(v=>!v)}><FlipHorizontal/> {mirrorCamera?"Espelhada":"Espelhar frontal"}</button><button className={micOn?"active":""} onClick={()=>void toggleMic()}>{micOn?<Mic/>:<MicOff/>} Microfone</button><button className={screenOn?"active":""} onClick={()=>void toggleScreen()}><MonitorUp/> {screenOn?"Parar tela":"Compartilhar tela"}</button></>}<button className="live-leave" onClick={()=>void leave()}><PhoneOff/> {isHost?"Encerrar transmissão":"Sair da live"}</button></div>
     </>}
     {error&&<p className="live-error">{error}</p>}
