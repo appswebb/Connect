@@ -2,7 +2,7 @@
 -- Likes/comments are deliberately not pushed to the notification center.
 alter table public.notifications drop constraint if exists notifications_type_check;
 alter table public.notifications add constraint notifications_type_check
-  check (type in ('like','comment','message','match','match_accepted','match_closed','live','post','site_update'));
+  check (type in ('like','comment','message','message_request','message_request_accepted','new_follower','match','match_accepted','match_closed','live','post','site_update'));
 
 drop trigger if exists notify_post_like on public.post_likes;
 drop trigger if exists notify_post_comment on public.comments;
