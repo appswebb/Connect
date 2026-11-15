@@ -83,5 +83,9 @@ create trigger notify_post_published
   for each row execute function public.notify_followers_of_post();
 
 create trigger notify_live_started
-  after insert or update of status on public.live_sessions
+  after insert on public.live_sessions
+  for each row execute function public.notify_followers_of_live();
+
+create trigger notify_live_restarted
+  after update of status on public.live_sessions
   for each row execute function public.notify_followers_of_live();
