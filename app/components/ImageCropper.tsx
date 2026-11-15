@@ -55,7 +55,7 @@ export default function ImageCropper({ file, aspectRatio, title, onCancel, onApp
         <header><div><small>AJUSTE SUA IMAGEM</small><h2>{title}</h2></div><button type="button" onClick={onCancel} aria-label="Fechar"><X/></button></header>
         <div className="crop-preview-wrap">
           <div className="crop-preview" style={{aspectRatio}}>
-            {source && <img ref={imageRef} src={source} alt="Prévia do corte" style={{objectPosition: `${50 + x}% ${50 + y}%`, transform: `scale(${zoom})`}}/>}
+            {source && <img ref={imageRef} src={source} alt="Prévia do corte" style={{objectPosition: `${50 - x}% ${50 - y}%`, transform: `scale(${zoom})`}}/>}
             {aspectRatio === 1 && <i className="crop-circle-guide"/>}
           </div>
           <p>Arraste os controles para enquadrar a imagem do seu jeito.</p>
