@@ -81,6 +81,7 @@ Deno.serve(async (req) => {
     const { data: gift, error: giftError } = await admin.from("subscription_gifts").insert({
       sender_id: user.id, recipient_id: body.recipientId, plan_id: plan.id,
       duration_days: plan.billing_interval === "year" ? 365 : 30,
+      billing_interval: plan.billing_interval,
       amount_brl: amount, provider: "mercadopago", status: "pending",
     }).select("id").single();
     if (giftError || !gift) return json({ error: "Não foi possível registrar o presente." }, 500);
