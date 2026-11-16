@@ -80,15 +80,15 @@ export default function SubscriptionPlans() {
   const active = subscription && (["pending", "authorized", "paused", "past_due"].includes(subscription.status) || (subscription.status === "cancelled" && Boolean(subscription.current_period_end) && new Date(subscription.current_period_end!).getTime() > Date.now()));
   return (
     <section style={{ display: "grid", gap: 18 }}>
-      <div style={{ borderRadius: 20, padding: 24, color: "#f7f8fb", background: "linear-gradient(135deg,#151b2d,#25204a 65%,#173b45)", border: "1px solid #ffffff1c" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#c7baff", fontSize: 12, fontWeight: 800, letterSpacing: 1.4 }}>
+      <div style={{ borderRadius: 20, padding: 24, color: "#252941", background: "linear-gradient(135deg,#f0efff,#e9eaff 65%,#eff8f1)", border: "1px solid #ffffff1c" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#5b5cf0", fontSize: 12, fontWeight: 800, letterSpacing: 1.4 }}>
           <Sparkles size={17}/> PACOTE CONNECT
         </div>
         <h2 style={{ margin: "12px 0 8px", fontSize: 26 }}>Buscas ilimitadas</h2>
-        <p style={{ margin: 0, maxWidth: 620, color: "#d2d5e2", lineHeight: 1.6 }}>
+        <p style={{ margin: 0, maxWidth: 620, color: "#777c91", lineHeight: 1.6 }}>
           Continue encontrando pessoas sem o limite diário de 20 buscas. Escolha o pacote mensal ou anual para sua conta, ou compre um deles para presentear um amigo.
         </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 18, color: "#d9f6e8", fontSize: 13 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 18, color: "#4d946b", fontSize: 13 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Check size={15}/> Buscas ilimitadas enquanto a assinatura estiver válida</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><ShieldCheck size={15}/> Pagamento processado pelo Mercado Pago</span>
         </div>
@@ -124,44 +124,44 @@ export default function SubscriptionPlans() {
         </div>
       )}
 
-      {message && <div role="status" style={{ padding: 13, borderRadius: 12, background: "#3a2b18", border: "1px solid #8b642c", color: "#ffe0a6", fontSize: 14, lineHeight: 1.55 }}>{message}</div>}
+      {message && <div role="status" style={{ padding: 13, borderRadius: 12, background: "#fff7e8", border: "1px solid #f0dfbd", color: "#916c36", fontSize: 14, lineHeight: 1.55 }}>{message}</div>}
 
       {active && subscription && (
-        <div style={{ border: "1px solid #426b4d", background: "linear-gradient(145deg,#17291e,#14221b)", borderRadius: 16, padding: 18, color: "#e3f7e8" }}>
+        <div style={{ border: "1px solid #d5e8da", background: "#eff8f1", borderRadius: 16, padding: 18, color: "#3c6849" }}>
           <strong style={{ display: "flex", alignItems: "center", gap: 8 }}><Crown size={18}/> Você tem uma assinatura CONNECT</strong>
           <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : subscription.status === "cancelled" ? "renovação cancelada" : subscription.status === "past_due" ? "pagamento pendente" : "aguardando pagamento"}.</p>
           {subscription.current_period_end && <p style={{ margin: "6px 0", fontSize: 13 }}>Período atual até {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}.</p>}
-          {subscription.status === "pending" && <><p role="status" style={{ margin: "10px 0 0", color: "#d8e7dc", fontSize: 13 }}>Seu pagamento ainda não foi concluído. Continue pelo checkout seguro dentro do CONNECT.</p><button type="button" onClick={() => { const plan = plans.find(item => item.id === subscription.plan_id); if (plan) { setMessage(""); setSelectedPlan(plan); } else setMessage("Não foi possível localizar o plano desta assinatura. Atualize a página."); }} style={{ marginTop: 10, border: 0, borderRadius: 10, padding: "11px 15px", background: "#7666f2", color: "#fff", fontWeight: 850, cursor: "pointer" }}>Continuar pagamento no CONNECT</button></>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #547b60", borderRadius: 10, padding: "10px 14px", background: "#1c3024", color: "#e3f7e8", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
+          {subscription.status === "pending" && <><p role="status" style={{ margin: "10px 0 0", color: "#557b60", fontSize: 13 }}>Seu pagamento ainda não foi concluído. Continue pelo checkout seguro dentro do CONNECT.</p><button type="button" onClick={() => { const plan = plans.find(item => item.id === subscription.plan_id); if (plan) { setMessage(""); setSelectedPlan(plan); } else setMessage("Não foi possível localizar o plano desta assinatura. Atualize a página."); }} style={{ marginTop: 10, border: 0, borderRadius: 10, padding: "11px 15px", background: "#5b5cf0", color: "#fff", fontWeight: 850, cursor: "pointer" }}>Continuar pagamento no CONNECT</button></>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #d5e8da", borderRadius: 10, padding: "10px 14px", background: "#f6fbf7", color: "#3c6849", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
         </div>
       )}
 
       {loading ? <div style={{ display: "flex", alignItems: "center", gap: 9, padding: 24 }}><LoaderCircle size={18}/> Carregando planos...</div> :
         plans.length ? <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
-          {plans.map(plan => <article key={plan.id} style={{ border: "1px solid #34483e", borderRadius: 16, padding: 20, background: "linear-gradient(145deg,#18221f,#121a1b)", display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#7771b9" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
-            <h3 style={{ margin: 0, fontSize: 20, color: "#f4f8f5" }}>{plan.name}</h3>
-            <strong style={{ fontSize: 27, color: "#f4f8f5" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#aebbb4" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
-            <p style={{ margin: 0, minHeight: 42, color: "#aebbb4", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
-            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
+          {plans.map(plan => <article key={plan.id} style={{ border: "1px solid #e7e8ef", borderRadius: 16, padding: 20, background: "#ffffff", display: "flex", flexDirection: "column", gap: 12 }}>
+            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#5b5cf0" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
+            <h3 style={{ margin: 0, fontSize: 20, color: "#252941" }}>{plan.name}</h3>
+            <strong style={{ fontSize: 27, color: "#252941" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#85899b" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
+            <p style={{ margin: 0, minHeight: 42, color: "#85899b", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
+            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#5b5cf0", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
               {plan.active ? "Ver pagamento" : "Pagamento em validação"}
             </button>
-            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #405148", borderRadius: 10, padding: 12, background: "transparent", color: "#e8f0eb", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #e5e6ef", borderRadius: 10, padding: 12, background: "transparent", color: "#555a70", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <Gift size={16}/> {plan.active ? "Presentear um amigo" : "Presente em validação"}
             </button>
           </article>)}
         </div>
-        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "#aebbb4", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
+        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "#85899b", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
         </> :
-          <div style={{ border: "1px dashed #52645a", borderRadius: 16, padding: 22 }}>
-            <strong style={{ color: "#f2f7f3" }}>Planos em configuração</strong>
-            <p style={{ margin: "8px 0 0", color: "#aebbb4", lineHeight: 1.6 }}>
+          <div style={{ border: "1px dashed #dfe1ea", borderRadius: 16, padding: 22 }}>
+            <strong style={{ color: "#555a70" }}>Planos em configuração</strong>
+            <p style={{ margin: "8px 0 0", color: "#85899b", lineHeight: 1.6 }}>
               Os dois pacotes e seus valores já estão cadastrados. A compra e o envio de presente serão liberados assim que a validação final do checkout do Mercado Pago terminar.
             </p>
           </div>
       }
       {giftPlan && <SubscriptionGift plan={giftPlan} onClose={() => setGiftPlan(null)}/>}
-      <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid #405148", borderRadius: 10, padding: "9px 12px", background: "#18221f", color: "#e8f0eb", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
+      <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid #e5e6ef", borderRadius: 10, padding: "9px 12px", background: "#f7f7fb", color: "#555a70", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
       <small style={{ color: "var(--muted,#777)", lineHeight: 1.5 }}>A confirmação do pagamento é feita pelo servidor após validação da notificação do Mercado Pago. Não liberamos benefícios apenas pelo retorno do checkout.</small>
     </section>
   );
