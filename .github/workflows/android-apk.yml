@@ -1,0 +1,103 @@
+name: Build CONNECT Android APK
+
+on:
+  workflow_run:
+    workflows: ["Deploy CONNECT to GitHub Pages"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: connect-android-release
+  cancel-in-progress: false
+
+jobs:
+  build-apk:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Android signing key
+        id: signing
+        env:
+          KEYSTORE: ${{ secrets.CONNECT_ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.CONNECT_ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.CONNECT_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.CONNECT_ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::APK não publicado: configure os quatro segredos de assinatura Android do CONNECT."
+          fi
+
+      - name: Checkout latest CONNECT
+        if: steps.signing.outputs.ready == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        if: steps.signing.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        if: steps.signing.outputs.ready == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies and export web app
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          npm install
+          npm run build
+
+      - name: Generate Android project
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          npx cap add android
+          npx cap sync android
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          sed -i 's/versionName "1.0"/versionName "0.2.${{ github.run_number }}"/' android/app/build.gradle
+
+      - name: Build Android release
+        if: steps.signing.outputs.ready == 'true'
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Sign and verify APK
+        if: steps.signing.outputs.ready == 'true'
+        env:
+          KEYSTORE: ${{ secrets.CONNECT_ANDROID_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.CONNECT_ANDROID_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.CONNECT_ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.CONNECT_ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/connect-release.jks"
+          APK="android/app/build/outputs/apk/release/app-release-unsigned.apk"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$BUILD_TOOLS/zipalign" -v 4 "$APK" "$RUNNER_TEMP/CONNECT-aligned.apk"
+          "$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/connect-release.jks" --ks-key-alias "$KEY_ALIAS" --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD --out CONNECT.apk "$RUNNER_TEMP/CONNECT-aligned.apk"
+          "$BUILD_TOOLS/apksigner" verify --verbose CONNECT.apk
+
+      - name: Publish APK and update notes
+        if: steps.signing.outputs.ready == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: app-v0.2.${{ github.run_number }}
+          name: CONNECT v0.2.${{ github.run_number }}
+          body: |
+            Atualização automática do aplicativo CONNECT.
+
+            Alteração publicada no site: ${{ github.event.workflow_run.head_commit.message }}
+
+            O aplicativo usa a versão oficial do site e recebe as mudanças do sistema assim que são publicadas.
+          files: CONNECT.apk
+          make_latest: true
