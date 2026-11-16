@@ -1848,13 +1848,7 @@ button>svg{flex:none}
 @media(max-width:600px){.user-menu-trigger{width:39px!important;height:39px!important}.location-trigger,.notification-trigger{width:39px;height:39px}.user-menu-panel{right:0}.topbar-actions{gap:7px}}
 
 
-/* Navegação reorganizada: a Loja fica como destino secundário no fim do menu. */
-.sidebar nav>button:nth-of-type(7){
-  margin-top:10px;
-  padding-top:10px;
-  border-top:1px solid #ffffff16;
-  border-radius:0 0 10px 10px;
-}
+/* A navegação mantém todos os destinos na mesma hierarquia visual. */
 .location-trigger,.notification-trigger{
   width:44px;
   height:44px;
@@ -1883,7 +1877,6 @@ button>svg{flex:none}
   box-shadow:0 5px 18px #0005;
 }
 @media(max-width:700px){
-  .sidebar nav>button:nth-of-type(7){margin-top:3px;padding-top:0;border-top:0;border-radius:10px}
   .topbar-actions{gap:7px}
   .location-trigger,.notification-trigger{width:40px;height:40px}
   .user-menu-trigger{width:42px!important;height:42px!important}
@@ -1942,3 +1935,20 @@ button>svg{flex:none}
 .app-release a:hover{text-decoration:underline}
 .app-download-card .primary{display:inline-flex;text-decoration:none}
 @media(max-width:600px){.download-page{padding:0 15px 35px}.download-page-header .brand{font-size:18px}.download-page-header .secondary{padding:10px 12px}}
+
+
+/* Ordem fixa do cabeçalho: notificações, localização e perfil à direita. */
+.topbar-actions{
+  margin-left:auto;
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:9px;
+}
+.topbar-actions>.notification-area{order:1}
+.topbar-actions>.location-area{order:2}
+.topbar-actions>.user-menu-area{order:3}
+@media(max-width:700px){
+  .topbar-actions{margin-left:auto;gap:7px}
+}
