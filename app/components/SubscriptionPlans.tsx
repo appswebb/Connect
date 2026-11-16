@@ -108,14 +108,14 @@ export default function SubscriptionPlans() {
             alignItems: "flex-start",
             justifyContent: "center",
             padding: "clamp(10px, 3vw, 28px)",
-            background: "rgba(5,8,15,.96)",
+            background: "rgba(32,36,58,.28)",
             backdropFilter: "blur(14px)",
           }}
         >
           <div style={{ width: "100%", maxWidth: 1100, margin: "auto" }}>
             <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-              <button type="button" onClick={()=>setPaymentMethod("card")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #ffffff25",background:paymentMethod==="card"?"#6554d8":"#151b2d",color:"#fff",fontWeight:800}}>Cartão · recorrente</button>
-              <button type="button" onClick={()=>setPaymentMethod("pix")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #ffffff25",background:paymentMethod==="pix"?"#16845f":"#151b2d",color:"#fff",fontWeight:800}}>Pix · pagamento único</button>
+              <button type="button" onClick={()=>setPaymentMethod("card")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="card"?"#5b5cf0":"#f7f7fb",color:"#fff",fontWeight:800}}>Cartão · recorrente</button>
+              <button type="button" onClick={()=>setPaymentMethod("pix")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="pix"?"#5b5cf0":"#f7f7fb",color:"#fff",fontWeight:800}}>Pix · pagamento único</button>
             </div>
             {paymentMethod === "pix" ?
               <ConnectPixCheckout plan={selectedPlan} onBack={() => setSelectedPlan(null)} onComplete={() => { setSelectedPlan(null); void load(); }} /> :
