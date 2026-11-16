@@ -35,11 +35,13 @@ const statusMap: Record<string, string> = {
   cancelled: "cancelled", canceled: "cancelled", expired: "expired",
 };
 async function syncEntitlement(admin: ReturnType<typeof createClient>, userId: string) {
-  const { data } = await admin.from("connect_subscriptions")
+  const { data: paid } = await admin.from("connect_payments").select("id")
+    .eq("user_id", userId).eq("status", "approved").limit(1).maybeSingle();
+  const { data } = paid ? await admin.from("connect_subscriptions")
     .select("status,current_period_end").eq("user_id", userId)
     .in("status", ["authorized", "cancelled"]).not("current_period_end", "is", null)
     .gt("current_period_end", new Date().toISOString())
-    .order("current_period_end", { ascending: false }).limit(1).maybeSingle();
+    .order("current_period_end", { ascending: false }).limit(1).maybeSingle() : { data: null };
   const until = data?.current_period_end || new Date().toISOString();
   await admin.from("queue_entitlements").upsert({
     user_id: userId, unlimited_until: until, updated_at: new Date().toISOString(),
@@ -72,7 +74,12 @@ Deno.serve(async (req) => {
     if (!sub) return response(200);
     const mapped = statusMap[String(mp.status || "").toLowerCase()] || "past_due";
     const plan = await admin.from("connect_plans").select("billing_interval").eq("id", sub.plan_id).maybeSingle();
-    const periodEnd = mp.next_payment_date || sub.current_period_end || null;
+    const periodEnd = mp.next_payment_date || sub.current_period_end || (() => {
+      const base = new Date(mp.auto_recurring?.start_date || mp.date_created || Date.now());
+      if (plan.data?.billing_interval === "year") base.setFullYear(base.getFullYear() + 1);
+      else base.setMonth(base.getMonth() + 1);
+      return base.toISOString();
+    })();
     const periodStart = mp.auto_recurring?.start_date || mp.date_created || new Date().toISOString();
     const { error } = await admin.from("connect_subscriptions").update({
       provider_subscription_id: String(mp.id), checkout_url: mp.init_point || null,
