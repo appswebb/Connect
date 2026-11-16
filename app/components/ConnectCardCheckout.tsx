@@ -168,6 +168,35 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
         .connect-pay-foot{display:flex;justify-content:center;align-items:center;gap:7px;color:#8491aa;font-size:10px;margin-top:16px;text-align:center}
         @media(max-width:720px){.connect-pay-shell{max-width:100%;margin:0 auto 18px}.connect-pay-layout{grid-template-columns:minmax(0,1fr);gap:10px}.connect-pay-main{padding:15px}.connect-pay-panel{border-radius:17px}.connect-pay-summary{order:1;padding:13px;border-radius:16px}.connect-pay-top{align-items:center;flex-wrap:nowrap;margin-bottom:10px}.connect-pay-brand{font-size:14px}.connect-pay-brandmark{width:30px;height:30px}.connect-pay-back{padding:8px 10px;font-size:11px}.connect-pay-trust{width:100%;box-sizing:border-box;padding:9px 11px;font-size:10px;border-radius:11px}.connect-pay-plan{margin:9px 0;padding:12px}.connect-pay-price{font-size:25px}.connect-pay-benefit{font-size:10px;margin:8px 0}.connect-pay-security{margin-top:12px;padding-top:12px}.connect-pay-heading{font-size:21px}.connect-pay-sub{font-size:11px;margin:6px 0 12px}.connect-pay-steps{font-size:9px;gap:6px;margin-bottom:13px}.connect-pay-stepnum{width:20px;height:20px}.connect-pay-fieldgroup{gap:5px;margin-bottom:9px}.connect-pay-label{font-size:10px;margin-bottom:0}.connect-pay-field,.connect-pay-mpfield{min-height:40px;padding:8px 10px;border-radius:10px;font-size:16px}.connect-pay-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.connect-pay-main form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:9px}.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(1),.connect-pay-main form>.connect-pay-grid2,.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(2),.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(3),.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(4),.connect-pay-main form>progress,.connect-pay-main form>.connect-pay-error,.connect-pay-main form>.connect-pay-submit{grid-column:1/-1}.connect-pay-submit{min-height:44px;padding:11px;font-size:12px;border-radius:11px}.connect-pay-foot{font-size:9px;margin-top:11px}.connect-pay-summary>div:first-child{font-size:9px!important}.connect-pay-plan>div:first-child span:first-child{font-size:12px!important}}
         @media(max-width:390px){.connect-pay-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.connect-pay-steps{font-size:8px;gap:4px}.connect-pay-step{gap:4px}.connect-pay-stepnum{width:18px;height:18px}.connect-pay-main{padding:13px}.connect-pay-field,.connect-pay-mpfield{min-height:38px;padding:7px 9px}.connect-pay-shell{margin-bottom:12px}}
+
+        .connect-pay-main{min-width:0}
+        .connect-pay-main form{min-width:0}
+        .connect-pay-fieldgroup,.connect-pay-grid2{min-width:0}
+        .connect-pay-mpfield{height:46px;min-height:46px;max-height:46px;overflow:hidden;padding:0 10px;display:flex;align-items:center}
+        .connect-pay-mpfield iframe{display:block;width:100%!important;height:44px!important;min-height:44px!important;max-height:44px!important;border:0!important}
+        .connect-pay-field,.connect-pay-mpfield{font-size:16px;line-height:1.2}
+        @media(max-width:720px){
+          .connect-pay-shell{margin:0 auto 12px}
+          .connect-pay-top{margin-bottom:8px}
+          .connect-pay-layout{gap:8px}
+          .connect-pay-main{padding:13px}
+          .connect-pay-panel{border-radius:15px}
+          .connect-pay-trust{gap:7px;padding:8px 10px;font-size:10px}
+          .connect-pay-mpfield{height:40px;min-height:40px;max-height:40px;padding:0 8px}
+          .connect-pay-mpfield iframe{height:38px!important;min-height:38px!important;max-height:38px!important}
+          .connect-pay-field{height:40px;min-height:40px}
+          .connect-pay-summary{padding:12px}
+          .connect-pay-plan{padding:11px}
+          .connect-pay-security{margin-top:10px;padding-top:10px}
+          .connect-pay-foot{margin-top:9px}
+        }
+        @media(max-width:380px){
+          .connect-pay-main{padding:11px}
+          .connect-pay-steps{letter-spacing:0}
+          .connect-pay-mpfield{height:38px;min-height:38px;max-height:38px}
+          .connect-pay-mpfield iframe{height:36px!important;min-height:36px!important;max-height:36px!important}
+        }
+
       `}</style>
 
       <div className="connect-pay-top">
