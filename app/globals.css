@@ -1815,3 +1815,7 @@ button>svg{flex:none}
 .location-manual>.secondary{width:100%;justify-content:center;min-height:39px}
 .location-privacy-note{display:block;margin-top:12px;line-height:1.5}
 @media(max-width:600px){.location-panel{right:-48px;width:min(340px,calc(100vw - 20px));}.location-trigger{width:36px;height:36px}}
+
+.location-profile-visibility{display:flex;align-items:center;gap:8px;color:#b6c4ba;font-size:10px;line-height:1.4;cursor:pointer}
+.location-profile-visibility input{accent-color:var(--lime);width:14px;height:14px;flex:none}
+.queue-filters>span{display:block;margin:5px 0;color:#e5eee8;font-size:12px;font-weight:700}
