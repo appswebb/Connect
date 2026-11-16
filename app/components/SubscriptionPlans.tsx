@@ -33,6 +33,7 @@ export default function SubscriptionPlans() {
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
   const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -106,6 +107,45 @@ export default function SubscriptionPlans() {
         </div>
       </div>
 
+      {selectedPlan && (
+        <div role="dialog" aria-modal="true" aria-labelledby="connect-checkout-title" style={{ position: "fixed", inset: 0, zIndex: 10000, overflowY: "auto", display: "grid", placeItems: "center", padding: 18, background: "rgba(5,8,15,.94)", backdropFilter: "blur(12px)" }}>
+          <div style={{ width: "100%", maxWidth: 480, borderRadius: 26, overflow: "hidden", border: "1px solid #ffffff24", background: "linear-gradient(160deg,#171d32 0%,#17172b 58%,#102a2b 100%)", boxShadow: "0 24px 90px #0009", color: "#f7f8ff" }}>
+            <div style={{ padding: "24px 24px 20px", background: "linear-gradient(120deg,#6c5ce7,#344b80 58%,#147b78)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 2, color: "#e6e1ff" }}>CONNECT</div>
+                <h2 id="connect-checkout-title" style={{ margin: "8px 0 0", fontSize: 25, lineHeight: 1.15 }}>Finalizar assinatura</h2>
+              </div>
+              <div style={{ width: 48, height: 48, borderRadius: 16, display: "grid", placeItems: "center", background: "#ffffff20", border: "1px solid #ffffff35" }}><Crown size={25}/></div>
+            </div>
+            <div style={{ padding: 24 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#bdb4ff", fontSize: 11, fontWeight: 850, letterSpacing: 1.3 }}><ShieldCheck size={15}/> RESUMO DO PEDIDO</div>
+              <div style={{ marginTop: 16, padding: 18, borderRadius: 18, background: "#ffffff0a", border: "1px solid #ffffff18" }}>
+                <div style={{ fontSize: 13, color: "#b9bfd3" }}>Pacote selecionado</div>
+                <div style={{ marginTop: 5, fontSize: 20, fontWeight: 850 }}>{selectedPlan.name}</div>
+                <div style={{ marginTop: 5, color: "#b9bfd3", fontSize: 13 }}>{selectedPlan.billing_interval === "month" ? "Cobrança recorrente mensal" : "Cobrança recorrente anual"}</div>
+                <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid #ffffff1c", display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
+                  <span style={{ color: "#c5c9d8", fontSize: 14 }}>Total de hoje</span>
+                  <strong style={{ fontSize: 28, letterSpacing: -.6 }}>{money(Number(selectedPlan.price_brl))}</strong>
+                </div>
+              </div>
+              <div style={{ display: "grid", gap: 12, margin: "18px 0", color: "#d7dbea", fontSize: 13, lineHeight: 1.5 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><Check size={17} color="#b9ed70"/> Buscas ilimitadas durante o período da assinatura</div>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><ShieldCheck size={17} color="#b9ed70"/> Pagamento processado com segurança pelo Mercado Pago</div>
+              </div>
+              <div style={{ padding: 12, borderRadius: 12, background: "#ffffff0a", color: "#aeb6cb", fontSize: 12, lineHeight: 1.5 }}>
+                Na próxima etapa, você será direcionado ao ambiente seguro do Mercado Pago para escolher ou confirmar a forma de pagamento. A cobrança será recorrente conforme o plano escolhido.
+              </div>
+              {message && <div role="alert" style={{ marginTop: 14, padding: 12, borderRadius: 12, background: "#492b2b", border: "1px solid #a45b5b", color: "#ffe0e0", fontSize: 13 }}>{message}</div>}
+              <button type="button" disabled={Boolean(busy)} onClick={() => void subscribe(selectedPlan)} style={{ width: "100%", marginTop: 18, border: 0, borderRadius: 14, padding: 15, background: "linear-gradient(100deg,#7666f2,#5c52d8)", color: "white", fontSize: 15, fontWeight: 900, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 24px #5d51d84d", display: "flex", alignItems: "center", justifyContent: "center", gap: 9 }}>
+                {busy === selectedPlan.id ? <><LoaderCircle size={18}/> Conectando ao pagamento...</> : <>Continuar para pagamento seguro <ShieldCheck size={18}/></>}
+              </button>
+              <button type="button" disabled={Boolean(busy)} onClick={() => setSelectedPlan(null)} style={{ width: "100%", marginTop: 10, border: "1px solid #ffffff26", borderRadius: 14, padding: 13, background: "transparent", color: "#d8dbea", fontWeight: 750, cursor: "pointer" }}>Voltar aos planos</button>
+              <div style={{ marginTop: 18, textAlign: "center", color: "#8992aa", fontSize: 11 }}>CONNECT · Pagamento protegido pelo Mercado Pago</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {message && <div role="status" style={{ padding: 13, borderRadius: 12, background: "#3a2b18", border: "1px solid #8b642c", color: "#ffe0a6", fontSize: 14, lineHeight: 1.55 }}>{message}</div>}
 
       {active && subscription && (
@@ -125,8 +165,8 @@ export default function SubscriptionPlans() {
             <h3 style={{ margin: 0, fontSize: 20, color: "#f4f8f5" }}>{plan.name}</h3>
             <strong style={{ fontSize: 27, color: "#f4f8f5" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#aebbb4" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
             <p style={{ margin: 0, minHeight: 42, color: "#aebbb4", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
-            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => void subscribe(plan)} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
-              {busy === plan.id ? "Abrindo checkout..." : plan.active ? "Comprar para minha conta" : "Pagamento em validação"}
+            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
+              {plan.active ? "Ver pagamento" : "Pagamento em validação"}
             </button>
             <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #405148", borderRadius: 10, padding: 12, background: "transparent", color: "#e8f0eb", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <Gift size={16}/> {plan.active ? "Presentear um amigo" : "Presente em validação"}
