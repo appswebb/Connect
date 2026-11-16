@@ -23,9 +23,10 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Método não permitido." }, 405);
 
   const accessToken = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
+  const publicKey = Deno.env.get("MERCADOPAGO_PUBLIC_KEY");
   const key = secretKey();
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  if (!accessToken || !key || !supabaseUrl) return json({ error: "Integração ainda não configurada: faltam secrets do Mercado Pago ou Supabase." }, 503);
+  if (!key || !supabaseUrl) return json({ error: "Integração do Supabase não configurada." }, 503);
 
   const auth = req.headers.get("Authorization") || "";
   const jwt = auth.startsWith("Bearer ") ? auth.slice(7) : "";
@@ -36,8 +37,14 @@ Deno.serve(async (req) => {
   const user = userData.user;
   if (userError || !user) return json({ error: "Sessão inválida. Entre novamente." }, 401);
 
-  let body: { action?: string; planId?: string; subscriptionId?: string; recipientId?: string };
+  let body: { action?: string; planId?: string; subscriptionId?: string; recipientId?: string; cardTokenId?: string };
   try { body = await req.json(); } catch { return json({ error: "Corpo da requisição inválido." }, 400); }
+
+  if (body.action === "public_key") {
+    if (!publicKey) return json({ error: "Chave pública do Mercado Pago não configurada no servidor." }, 503);
+    return json({ public_key: publicKey });
+  }
+  if (!accessToken) return json({ error: "Integração do Mercado Pago não configurada no servidor." }, 503);
 
   if (body.action === "cancel") {
     if (!body.subscriptionId) return json({ error: "Assinatura não informada." }, 400);
@@ -118,13 +125,19 @@ Deno.serve(async (req) => {
   }
 
   if (body.action !== "create" || !body.planId) return json({ error: "Ação ou plano inválido." }, 400);
+  if (typeof body.cardTokenId !== "string" || body.cardTokenId.length < 8) {
+    return json({ error: "Não foi possível validar o cartão. Confira os dados e tente novamente." }, 400);
+  }
   const { data: current } = await admin.from("connect_subscriptions")
-    .select("id,status,checkout_url").eq("user_id", user.id)
+    .select("id,status,provider_subscription_id").eq("user_id", user.id)
     .in("status", ["pending", "authorized", "paused", "past_due"])
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (current?.status === "authorized") return json({ error: "Você já possui uma assinatura ativa. Cancele a renovação antes de contratar outro plano." }, 409);
-  if (current?.status === "pending" && current.checkout_url) return json({ init_point: current.checkout_url, subscription_id: current.id });
-  if (current) return json({ error: "Você já possui uma assinatura em andamento. Consulte o status antes de contratar outro plano." }, 409);
+  if (current?.status === "pending" && !current.provider_subscription_id) {
+    await admin.from("connect_subscriptions").delete().eq("id", current.id).eq("user_id", user.id);
+  } else if (current) {
+    return json({ error: "Você já possui uma assinatura em andamento. Consulte o status antes de contratar outro plano." }, 409);
+  }
 
   const { data: plan, error: planError } = await admin.from("connect_plans")
     .select("id,name,description,billing_interval,price_brl,active")
@@ -136,7 +149,6 @@ Deno.serve(async (req) => {
 
   const siteUrl = Deno.env.get("CONNECT_SITE_URL") || "https://appswebb.github.io/Connect";
   const backUrl = siteUrl.replace(/\/$/, "") + "/?payment=return";
-  const externalReference = crypto.randomUUID();
   const { data: pending, error: insertError } = await admin.from("connect_subscriptions").insert({
     user_id: user.id, plan_id: plan.id, provider: "mercadopago", status: "pending",
   }).select("id").single();
@@ -147,24 +159,27 @@ Deno.serve(async (req) => {
     method: "POST",
     headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json", "X-Idempotency-Key": pending.id },
     body: JSON.stringify({
-      reason: plan.name || "Pacote CONNECT - buscas ilimitadas",
+      reason: plan.name || "Assinatura CONNECT Premium",
       external_reference: pending.id,
       payer_email: user.email,
+      card_token_id: body.cardTokenId,
       auto_recurring: { frequency, frequency_type: "months", transaction_amount: amount, currency_id: "BRL" },
       back_url: backUrl,
+      status: "authorized",
     }),
   });
   const mpData = await mpResponse.json().catch(() => ({}));
-  if (!mpResponse.ok || !mpData.id || !mpData.init_point) {
+  if (!mpResponse.ok || !mpData.id) {
     await admin.from("connect_subscriptions").delete().eq("id", pending.id);
-    return json({ error: mpData.message || "O Mercado Pago recusou a criação da assinatura." }, 502);
+    return json({ error: mpData.message || mpData.cause?.[0]?.description || "O Mercado Pago não autorizou a assinatura. Confira os dados do cartão." }, 502);
   }
+  const mappedStatus = String(mpData.status || "").toLowerCase() === "authorized" ? "authorized" : "pending";
   const { error: saveError } = await admin.from("connect_subscriptions").update({
     provider_subscription_id: String(mpData.id),
-    checkout_url: mpData.init_point,
-    status: mpData.status === "authorized" ? "authorized" : "pending",
+    checkout_url: null,
+    status: mappedStatus,
     updated_at: new Date().toISOString(),
   }).eq("id", pending.id);
-  if (saveError) return json({ error: "Checkout criado, mas não foi possível salvar a referência no CONNECT." }, 500);
-  return json({ init_point: mpData.init_point, subscription_id: pending.id });
+  if (saveError) return json({ error: "A assinatura foi enviada ao Mercado Pago, mas não foi possível salvar sua referência no CONNECT. Contate o suporte." }, 500);
+  return json({ success: true, status: mappedStatus, subscription_id: pending.id });
 });
