@@ -77,7 +77,7 @@ export default function Home(){
   if(item.type==="match"&&item.entity_id){await loadPendingMatch(item.entity_id);setTab("queue");return;}
   if(item.type==="match_accepted"&&item.entity_id){setMatchId(item.entity_id);setChatReadOnly(false);setQueue("matched");setTab("chat");return;}
   if(item.type==="match_closed"){setTab("chat");return;}
-  if(item.type==="live"){setTab("lives");void loadLives();return;}if(item.type==="site_update"){setTab("feed");return;}
+  if(item.type==="subscription_gift_received"){setTab("store");return;}if(item.type==="live"){setTab("lives");void loadLives();return;}if(item.type==="site_update"){setTab("feed");return;}
   setTab("feed");
   if(item.type==="comment"&&item.entity_id)void openComments(item.entity_id);
  }
