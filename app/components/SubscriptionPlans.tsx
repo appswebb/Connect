@@ -60,7 +60,7 @@ export default function SubscriptionPlans() {
       const { data, error } = await supabase.functions.invoke("mercadopago-subscriptions", {
         body: { action: "create", planId: plan.id },
       });
-      if (error) throw error;
+      if (error) throw new Error(data?.error || error.message || "Não foi possível conectar ao Mercado Pago.");
       if (!data?.init_point) throw new Error(data?.error || "O Mercado Pago não retornou o link de checkout.");
       window.location.assign(data.init_point);
     } catch (error) {
@@ -78,7 +78,7 @@ export default function SubscriptionPlans() {
       const { data, error } = await supabase.functions.invoke("mercadopago-subscriptions", {
         body: { action: "cancel", subscriptionId: subscription.id },
       });
-      if (error) throw error;
+      if (error) throw new Error(data?.error || error.message || "Não foi possível cancelar.");
       if (!data?.success) throw new Error(data?.error || "Não foi possível cancelar.");
       setMessage("Renovação cancelada. O acesso permanece até o fim do período já pago, quando essa data estiver disponível.");
       await load();
@@ -106,44 +106,44 @@ export default function SubscriptionPlans() {
         </div>
       </div>
 
-      {message && <div role="status" style={{ padding: 13, borderRadius: 12, background: "#fff4df", color: "#744b08", fontSize: 14 }}>{message}</div>}
+      {message && <div role="status" style={{ padding: 13, borderRadius: 12, background: "#3a2b18", border: "1px solid #8b642c", color: "#ffe0a6", fontSize: 14, lineHeight: 1.55 }}>{message}</div>}
 
       {active && subscription && (
-        <div style={{ border: "1px solid #a9dfc1", background: "#effaf3", borderRadius: 16, padding: 18, color: "#174b30" }}>
+        <div style={{ border: "1px solid #426b4d", background: "linear-gradient(145deg,#17291e,#14221b)", borderRadius: 16, padding: 18, color: "#e3f7e8" }}>
           <strong style={{ display: "flex", alignItems: "center", gap: 8 }}><Crown size={18}/> Você tem uma assinatura CONNECT</strong>
           <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : subscription.status === "cancelled" ? "renovação cancelada" : subscription.status === "past_due" ? "pagamento pendente" : "aguardando pagamento"}.</p>
           {subscription.current_period_end && <p style={{ margin: "6px 0", fontSize: 13 }}>Período atual até {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}.</p>}
-          {subscription.status === "pending" && subscription.checkout_url && <button type="button" onClick={() => window.location.assign(subscription.checkout_url!)} style={{ marginTop: 8, border: 0, borderRadius: 10, padding: "10px 14px", background: "#6c5ce7", color: "white", fontWeight: 700, cursor: "pointer" }}>Continuar pagamento</button>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #8bbda0", borderRadius: 10, padding: "10px 14px", background: "white", color: "#174b30", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
+          {subscription.status === "pending" && subscription.checkout_url && <button type="button" onClick={() => window.location.assign(subscription.checkout_url!)} style={{ marginTop: 8, border: 0, borderRadius: 10, padding: "10px 14px", background: "#b9ed70", color: "#15200d", fontWeight: 800, cursor: "pointer" }}>Continuar pagamento</button>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #547b60", borderRadius: 10, padding: "10px 14px", background: "#1c3024", color: "#e3f7e8", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
         </div>
       )}
 
       {loading ? <div style={{ display: "flex", alignItems: "center", gap: 9, padding: 24 }}><LoaderCircle size={18}/> Carregando planos...</div> :
         plans.length ? <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
-          {plans.map(plan => <article key={plan.id} style={{ border: "1px solid var(--border, #dedfe5)", borderRadius: 16, padding: 20, background: "var(--card, #fff)", display: "flex", flexDirection: "column", gap: 12 }}>
+          {plans.map(plan => <article key={plan.id} style={{ border: "1px solid #34483e", borderRadius: 16, padding: 20, background: "linear-gradient(145deg,#18221f,#121a1b)", display: "flex", flexDirection: "column", gap: 12 }}>
             <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#7771b9" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
-            <h3 style={{ margin: 0, fontSize: 20 }}>{plan.name}</h3>
-            <strong style={{ fontSize: 27 }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "var(--muted,#777)" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
-            <p style={{ margin: 0, minHeight: 42, color: "var(--muted,#777)", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
+            <h3 style={{ margin: 0, fontSize: 20, color: "#f4f8f5" }}>{plan.name}</h3>
+            <strong style={{ fontSize: 27, color: "#f4f8f5" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#aebbb4" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
+            <p style={{ margin: 0, minHeight: 42, color: "#aebbb4", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
             <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => void subscribe(plan)} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
               {busy === plan.id ? "Abrindo checkout..." : plan.active ? "Comprar para minha conta" : "Pagamento em validação"}
             </button>
-            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: 12, background: "transparent", color: "inherit", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #405148", borderRadius: 10, padding: 12, background: "transparent", color: "#e8f0eb", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <Gift size={16}/> {plan.active ? "Presentear um amigo" : "Presente em validação"}
             </button>
           </article>)}
         </div>
-        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "var(--muted,#777)", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
+        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "#aebbb4", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
         </> :
-          <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
-            <strong>Planos em configuração</strong>
-            <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
+          <div style={{ border: "1px dashed #52645a", borderRadius: 16, padding: 22 }}>
+            <strong style={{ color: "#f2f7f3" }}>Planos em configuração</strong>
+            <p style={{ margin: "8px 0 0", color: "#aebbb4", lineHeight: 1.6 }}>
               Os dois pacotes e seus valores já estão cadastrados. A compra e o envio de presente serão liberados assim que a validação final do checkout do Mercado Pago terminar.
             </p>
           </div>
       }
       {giftPlan && <SubscriptionGift plan={giftPlan} onClose={() => setGiftPlan(null)}/>}
-      <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: "9px 12px", background: "transparent", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
+      <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid #405148", borderRadius: 10, padding: "9px 12px", background: "#18221f", color: "#e8f0eb", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
       <small style={{ color: "var(--muted,#777)", lineHeight: 1.5 }}>A confirmação do pagamento é feita pelo servidor após validação da notificação do Mercado Pago. Não liberamos benefícios apenas pelo retorno do checkout.</small>
     </section>
   );
