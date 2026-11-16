@@ -43,6 +43,19 @@ const notifs = [
   { id: "n1", recipient_id: ME, actor_id: people[0].id, type: "message", title: "Nova mensagem", body: "Marina Alves enviou uma mensagem.", entity_type: null, entity_id: null, read_at: null, created_at: new Date(now - 60e3).toISOString() },
   { id: "n2", recipient_id: ME, actor_id: people[1].id, type: "new_follower", title: "Novo seguidor", body: "Rafael Nogueira começou a seguir você.", entity_type: null, entity_id: null, read_at: null, created_at: new Date(now - 8 * 60e3).toISOString() },
 ];
+const roomMsgs = [
+  { id: "r1", room_code: "BR", user_id: people[0].id, body: "Bom dia, Brasil! Como está o clima por aí?", reply_to_id: null, created_at: new Date(now - 9 * 60e3).toISOString() },
+  { id: "r2", room_code: "BR", user_id: people[3].id, body: "Sol forte no Sul hoje.", reply_to_id: "r1", created_at: new Date(now - 6 * 60e3).toISOString() },
+  { id: "r3", room_code: "BR", user_id: ME, body: "Aqui em BH está ótimo!", reply_to_id: null, created_at: new Date(now - 2 * 60e3).toISOString() },
+];
+const lives = [
+  { id: "l1", host_user_id: people[3].id, title: "Noite de violão e conversa", room_name: "live-l1", status: "live", created_at: new Date(now - 25 * 60e3).toISOString() },
+  { id: "l2", host_user_id: people[1].id, title: "Bate-papo: livros do mês", room_name: "live-l2", status: "live", created_at: new Date(now - 5 * 60e3).toISOString() },
+];
+const plansRows = [
+  { id: "connect-monthly", name: "Pacote CONNECT Mensal", description: "Buscas ilimitadas por 1 mês.", billing_interval: "month", price_brl: 19.9, active: true },
+  { id: "connect-annual", name: "Pacote CONNECT Anual", description: "Buscas ilimitadas por 1 ano.", billing_interval: "year", price_brl: 189.9, active: true },
+];
 const b64 = o => Buffer.from(JSON.stringify(o)).toString("base64url");
 const jwt = `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: ME, role: "authenticated", exp: 4102444800 })}.sig`;
 const user = { id: ME, aud: "authenticated", role: "authenticated", email: "lucas@exemplo.com", app_metadata: {}, user_metadata: {}, created_at: "2026-01-01T00:00:00Z" };
@@ -68,6 +81,9 @@ async function mockSupabase(ctx) {
     }
     if (table === "posts") return json(pick(posts));
     if (table === "notifications") return json(pick(notifs));
+    if (table === "global_room_messages") return json(pick(roomMsgs));
+    if (table === "live_sessions") return json(pick(lives));
+    if (table === "connect_plans") return json(pick(plansRows));
     return json(single ? null : [], single ? 406 : 200);
   });
 }
@@ -118,16 +134,26 @@ if (only.includes("tour")) for (const size of ["desktop", "mobile"]) {
   }
   await ctx.close();
 }
-if (only.includes("app")) for (const size of ["desktop", "tablet", "mobile"]) for (const theme of ["light", "dark"]) {
+if (only.includes("app")) for (const size of ["desktop", "tablet", "mobile"]) for (const theme of (size === "tablet" ? ["light"] : ["light", "dark"])) {
   const { ctx, page } = await newPage(size, theme, { logged: true });
   await page.goto(BASE);
   try { await page.waitForSelector(".app", { timeout: 15000 }); } catch { await shot(page, `app-FAILED-${size}-${theme}`, false); errors.push(`[app ${size} ${theme}] a área interna não abriu`); await ctx.close(); continue; }
   await shot(page, `app-feed-${size}-${theme}`, false); await overflow(page, `app feed ${size} ${theme}`);
-  const tabs = ["Conectar", "Chat", "Pessoas", "Salas", "Ao vivo"];
+  const tabs = ["Conectar", "Chat", "Pessoas", "Salas", "Ao vivo", "Perfil", "Assinatura"];
+  const navSel = size === "desktop" ? ".sidebar nav button" : ".mobile-nav button";
+  const slug = t => t.toLowerCase().replace(" ", "");
   for (const label of tabs) {
-    const btn = page.locator("nav button, .mobile-nav button, .bottom-nav button").filter({ hasText: new RegExp("^\\s*" + label + "\\s*$") }).first();
-    if (await btn.count()) { await btn.click({ timeout: 4000 }).catch(() => {}); await shot(page, `app-${label.toLowerCase().replace(" ", "")}-${size}-${theme}`, false); await overflow(page, `app ${label} ${size} ${theme}`); }
+    const btn = page.locator(navSel).filter({ hasText: new RegExp("^\\s*" + label + "\\s*$") }).first();
+    if (await btn.count()) { await btn.click({ timeout: 4000 }).catch(() => {}); await shot(page, `app-${slug(label)}-${size}-${theme}`, true); await overflow(page, `app ${label} ${size} ${theme}`); }
   }
+  // Menu do usuário e configurações
+  await page.locator(".user-menu-trigger").click({ timeout: 4000 }).catch(() => {});
+  await shot(page, `app-menu-${size}-${theme}`, false);
+  await page.getByRole("button", { name: /Configurações/ }).first().click({ timeout: 4000 }).catch(() => {});
+  await shot(page, `app-configuracoes-${size}-${theme}`, true); await overflow(page, `app configuracoes ${size} ${theme}`);
+  // Central de notificações
+  await page.locator(".notification-trigger").click({ timeout: 4000 }).catch(() => {});
+  await shot(page, `app-notificacoes-${size}-${theme}`, false);
   await ctx.close();
 }
 await browser.close(); server.close();
