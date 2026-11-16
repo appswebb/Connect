@@ -133,10 +133,16 @@ Deno.serve(async (req) => {
     .in("status", ["pending", "authorized", "paused", "past_due"])
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (current?.status === "authorized") return json({ error: "Você já possui uma assinatura ativa. Cancele a renovação antes de contratar outro plano." }, 409);
-  if (current?.status === "pending" && !current.provider_subscription_id) {
-    await admin.from("connect_subscriptions").delete().eq("id", current.id).eq("user_id", user.id);
-  } else if (current) {
+  if (current && current.status !== "pending") {
     return json({ error: "Você já possui uma assinatura em andamento. Consulte o status antes de contratar outro plano." }, 409);
+  }
+  if (current?.status === "pending" && current.provider_subscription_id) {
+    const previous = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(current.provider_subscription_id), {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    });
+    if (!previous.ok) return json({ error: "Não foi possível encerrar a tentativa de pagamento anterior. Tente novamente." }, 502);
   }
 
   const { data: plan, error: planError } = await admin.from("connect_plans")
@@ -149,10 +155,20 @@ Deno.serve(async (req) => {
 
   const siteUrl = Deno.env.get("CONNECT_SITE_URL") || "https://appswebb.github.io/Connect";
   const backUrl = siteUrl.replace(/\/$/, "") + "/?payment=return";
-  const { data: pending, error: insertError } = await admin.from("connect_subscriptions").insert({
-    user_id: user.id, plan_id: plan.id, provider: "mercadopago", status: "pending",
-  }).select("id").single();
-  if (insertError || !pending) return json({ error: "Não foi possível iniciar a assinatura no banco." }, 500);
+  let pending: { id: string } | null = current ? { id: current.id } : null;
+  if (pending) {
+    const { error: resetError } = await admin.from("connect_subscriptions").update({
+      plan_id: plan.id, provider_subscription_id: null, checkout_url: null,
+      status: "pending", updated_at: new Date().toISOString(),
+    }).eq("id", pending.id).eq("user_id", user.id);
+    if (resetError) return json({ error: "Não foi possível reiniciar a tentativa de pagamento." }, 500);
+  } else {
+    const { data: inserted, error: insertError } = await admin.from("connect_subscriptions").insert({
+      user_id: user.id, plan_id: plan.id, provider: "mercadopago", status: "pending",
+    }).select("id").single();
+    if (insertError || !inserted) return json({ error: "Não foi possível iniciar a assinatura no banco." }, 500);
+    pending = inserted;
+  }
 
   const frequency = plan.billing_interval === "year" ? 12 : 1;
   const mpResponse = await fetch("https://api.mercadopago.com/preapproval", {
