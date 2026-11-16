@@ -1932,3 +1932,13 @@ button>svg{flex:none}
 .app-release p{font-size:10px;color:#aab5bd;line-height:1.65;white-space:pre-wrap}
 .app-download-note{border:1px solid #29343e;background:#11181e;border-radius:13px;padding:15px;color:#8d99a3;font-size:10px;line-height:1.7}
 @media(max-width:760px){.app-download-card{padding:17px}.app-download-card h2{font-size:18px}.app-release header{align-items:flex-start;flex-direction:column;gap:5px}}
+
+.download-page{min-height:100vh;max-width:1000px;margin:auto;padding:0 24px 50px}
+.download-page-header{height:76px;border-bottom:1px solid #1d2730;display:flex;align-items:center;justify-content:space-between}
+.download-page-header .brand{font-size:21px}
+.download-page-content{max-width:760px;margin:auto}
+.download-page-content .heading{padding-top:42px}
+.app-release a{display:inline-flex;align-items:center;gap:7px;color:var(--lime);font-size:10px;font-weight:700;text-decoration:none}
+.app-release a:hover{text-decoration:underline}
+.app-download-card .primary{display:inline-flex;text-decoration:none}
+@media(max-width:600px){.download-page{padding:0 15px 35px}.download-page-header .brand{font-size:18px}.download-page-header .secondary{padding:10px 12px}}
