@@ -79,47 +79,62 @@ html[data-theme="dark"] .demo-readonly-banner{background:#3a3020;color:#f3d9a3;b
 
 /* Responsive */
 @media(max-width:1050px){.app .sidebar{gap:18px;padding:0 20px}.app .sidebar nav{gap:1px}.app .sidebar nav button{padding:9px 8px;font-size:10px}.app .sidebar nav button svg{width:15px}.app .main>.heading,.app .main>section,.app .main>.feed,.app .main>.settings-panel,.app .main>.profile-posts-section,.app .main>.subscription-page-card,.app .main>.people-state-rooms,.app .main>.people-live-section,.app .main>.message-requests,.app .main>.chat-history,.app .main>.chat,.app .main>.chat-minimized,.app .main>.queue-card,.app .main>.profile-card,.app .main>.empty{width:calc(100% - 40px)}.feed{margin-left:20px!important}.landing-more{padding-left:30px;padding-right:30px}}
-@media(max-width:760px){.landing-header{height:70px;padding:0 19px}.landing-header nav{display:none}.landing-brand{font-size:20px}.landing-brand img{width:34px;height:34px}.landing-actions{gap:12px}.landing-login{font-size:11px}.landing-cta{padding:11px 13px;font-size:10px}.landing-hero{grid-template-columns:1fr;padding:54px 22px 62px;gap:24px;min-height:0}.landing-copy h1{font-size:clamp(43px,9vw,60px);letter-spacing:-3px}.landing-copy>p{font-size:13px}.landing-note{margin-top:35px}.landing-art{max-width:590px;margin:auto;width:100%}.landing-art-caption{right:1%;min-width:230px;padding:10px}.landing-experience{padding:65px 22px}.landing-feature-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-top:28px}.landing-feature-grid article{min-height:190px;padding:17px}.landing-more{padding:60px 22px;display:block}.landing-more h2{font-size:34px}.landing-more-copy{margin-top:20px}.landing-footer{padding:20px;gap:12px;flex-wrap:wrap}.landing-footer>span{font-size:8px}.entry-layout{grid-template-columns:1fr}.entry-story{min-height:250px;padding:22px 24px;gap:25px}.entry-story-copy{padding:25px 0 0;margin:0}.entry-story-copy h1{font-size:37px;letter-spacing:-2px;margin:12px 0}.entry-story-copy p{font-size:11px;max-width:420px}.entry-story-copy img{display:none}.entry-story footer{font-size:7px}.entry-form-wrap{padding:30px 22px 42px}.entry-form{max-width:440px}.entry-back{margin-bottom:24px}.app.app-redesign{min-height:100dvh;overflow-x:clip}
-.app.app-redesign>.sidebar{display:none}
-.app.app-redesign>.main{width:100%;min-width:0;max-width:100%;padding:0 0 calc(76px + env(safe-area-inset-bottom));margin:0}
-.app.app-redesign .topbar{height:58px;min-height:58px;position:sticky;top:0;z-index:80;padding:0 13px;background:var(--surface);border-bottom:1px solid var(--line)}
-.app.app-redesign .mobile-brand{display:flex;align-items:center;gap:7px;font:800 17px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.7px;color:var(--ink)}
-.app.app-redesign .mobile-brand svg{width:21px;height:21px;color:var(--brand)}
-.app.app-redesign .mobile-brand span{color:var(--brand)}
-.app.app-redesign .topbar-actions{gap:6px}
-.app.app-redesign .theme-toggle,.app.app-redesign .notification-trigger,.app.app-redesign .location-trigger,.app.app-redesign .user-menu-trigger{width:35px;height:35px;min-width:35px;border-radius:10px}
-.app.app-redesign .user-menu-trigger{width:auto;min-width:0}
-.app.app-redesign .topbar>small{display:none}
-.app.app-redesign .main>.heading,.app.app-redesign .main>section,.app.app-redesign .main>.feed,.app.app-redesign .main>.settings-panel,.app.app-redesign .main>.profile-posts-section,.app.app-redesign .main>.subscription-page-card,.app.app-redesign .main>.people-state-rooms,.app.app-redesign .main>.people-live-section,.app.app-redesign .main>.message-requests,.app.app-redesign .main>.chat-history,.app.app-redesign .main>.chat,.app.app-redesign .main>.chat-minimized,.app.app-redesign .main>.queue-card,.app.app-redesign .main>.profile-card,.app.app-redesign .main>.empty{width:calc(100% - 24px);max-width:100%;margin-left:auto!important;margin-right:auto!important}
-.app.app-redesign .main>.heading{padding-top:23px;margin-bottom:16px;align-items:flex-start}
-.app.app-redesign .heading h1{font-size:clamp(23px,6vw,28px);line-height:1.18;letter-spacing:-.9px}
-.app.app-redesign .heading p{font-size:11px;line-height:1.55}
-.app.app-redesign .feed{max-width:none!important;margin-left:auto!important;margin-right:auto!important;gap:11px}
-.app.app-redesign .composer,.app.app-redesign .post,.app.app-redesign .profile-card,.app.app-redesign .subscription-page-card,.app.app-redesign .settings-panel,.app.app-redesign .rooms-panel,.app.app-redesign .chat,.app.app-redesign .chat-history,.app.app-redesign .message-requests,.app.app-redesign .queue-card,.app.app-redesign .people-directory-card,.app.app-redesign .live-list article{border-radius:13px}
-.app.app-redesign .composer,.app.app-redesign .post{padding:13px}
-.app.app-redesign .mobile-nav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:120;width:100%;height:calc(64px + env(safe-area-inset-bottom));padding:6px 5px calc(6px + env(safe-area-inset-bottom));gap:2px;align-items:stretch;justify-content:space-around;overflow-x:auto;overflow-y:hidden;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -5px 22px rgba(25,29,55,.08);scrollbar-width:none}
-.app.app-redesign .mobile-nav::-webkit-scrollbar{display:none}
-.app.app-redesign .mobile-nav button{position:relative;display:flex;flex:1 0 54px;min-width:54px;max-width:90px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px 3px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:9px;font-weight:650;white-space:nowrap}
-.app.app-redesign .mobile-nav button svg{width:19px;height:19px;stroke-width:2}
-.app.app-redesign .mobile-nav button.active{color:var(--brand);background:var(--brand-soft)}
-.app.app-redesign .mobile-nav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.app.app-redesign .mobile-nav button i{position:absolute;top:5px;right:calc(50% - 15px);width:6px;height:6px;border-radius:50%;background:#ef9d61}
-.app.app-redesign .notification-panel,.app.app-redesign .location-panel,.app.app-redesign .user-menu-panel{position:fixed;top:66px;right:10px;max-height:calc(100dvh - 150px);overflow:auto}
-.app.app-redesign .flash,.app.app-redesign .demo-readonly-banner{width:calc(100% - 24px);margin:10px 12px 0}
-.app.app-redesign .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.app.app-redesign .profile-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.app.app-redesign .messages{height:min(52dvh,480px);min-height:220px}
-.app.app-redesign .chat-compose{padding:9px;gap:6px}
-.app.app-redesign .chat-compose>input{min-width:0}
-.app.app-redesign .chat-mode-switch{width:100%;padding-bottom:3px;overflow-x:auto}
-.app.app-redesign .chat-mode-switch button{flex:0 0 auto;white-space:nowrap}
-.app.app-redesign .settings-section{padding:14px}
-.app.app-redesign .settings-section form{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:10px}
-.app.app-redesign .settings-section label,.app.app-redesign .settings-section input,.app.app-redesign .settings-section select{width:100%;max-width:100%;min-width:0}
-.app.app-redesign .live-stage{border-radius:12px}
-.app.app-redesign .live-stage>header{padding:11px;gap:8px}
-.app.app-redesign .live-header-actions{flex-wrap:wrap;justify-content:flex-end}
-.app.app-redesign .crop-backdrop{padding:10px;overflow-y:auto}
-.people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.people-hero-stats{gap:10px}.live-create{grid-template-columns:1fr}.live-create .primary{justify-self:start}.profile-facts{grid-template-columns:repeat(2,1fr)}.profile-ident{flex-wrap:wrap}.profile-ident>div:nth-child(2){min-width:calc(100% - 100px)}.visitor-preview-trigger{margin:0 0 0 88px}.profile-active{display:none}.people-state-rooms-heading,.people-live-section-heading{align-items:flex-start;flex-direction:column}.chat-mode-switch{overflow:auto;max-width:100%}.chat-mode-switch button{white-space:nowrap}.messages{height:48vh}.message-requests article{align-items:flex-start;flex-wrap:wrap}.message-request-actions{width:100%;padding-left:42px}.notification-panel,.location-panel,.user-menu-panel{position:fixed;top:124px;right:12px}.flash,.demo-readonly-banner{width:calc(100% - 26px);margin-left:13px}.settings-section form{align-items:stretch;flex-direction:column}.settings-section label,.settings-section input,.settings-section select{width:100%}}
-@media(max-width:420px){.landing-copy h1{font-size:42px}.landing-buttons{align-items:flex-start;flex-direction:column;gap:14px}.landing-feature-grid{grid-template-columns:1fr 1fr}.landing-feature-grid article{padding:14px;min-height:205px}.landing-feature-grid h3{font-size:14px}.landing-feature-grid p{font-size:10px}.landing-art-caption{min-width:210px}.app.app-redesign .topbar{padding:0 10px}.app.app-redesign .mobile-nav button{min-width:49px;flex-basis:49px;font-size:8px}.app.app-redesign .mobile-nav button svg{width:18px;height:18px}.app.app-redesign .topbar-actions{gap:5px}.people-directory-grid{grid-template-columns:1fr}.profile-facts{grid-template-columns:1fr 1fr}.room-compose{flex-direction:column}.room-compose .primary{align-self:flex-end}.entry-form .form-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.landing-header{height:70px;padding:0 19px}.landing-header nav{display:none}.landing-brand{font-size:20px}.landing-brand img{width:34px;height:34px}.landing-actions{gap:12px}.landing-login{font-size:11px}.landing-cta{padding:11px 13px;font-size:10px}.landing-hero{grid-template-columns:1fr;padding:54px 22px 62px;gap:24px;min-height:0}.landing-copy h1{font-size:clamp(43px,9vw,60px);letter-spacing:-3px}.landing-copy>p{font-size:13px}.landing-note{margin-top:35px}.landing-art{max-width:590px;margin:auto;width:100%}.landing-art-caption{right:1%;min-width:230px;padding:10px}.landing-experience{padding:65px 22px}.landing-feature-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-top:28px}.landing-feature-grid article{min-height:190px;padding:17px}.landing-more{padding:60px 22px;display:block}.landing-more h2{font-size:34px}.landing-more-copy{margin-top:20px}.landing-footer{padding:20px;gap:12px;flex-wrap:wrap}.landing-footer>span{font-size:8px}.entry-layout{grid-template-columns:1fr}.entry-story{min-height:250px;padding:22px 24px;gap:25px}.entry-story-copy{padding:25px 0 0;margin:0}.entry-story-copy h1{font-size:37px;letter-spacing:-2px;margin:12px 0}.entry-story-copy p{font-size:11px;max-width:420px}.entry-story-copy img{display:none}.entry-story footer{font-size:7px}.entry-form-wrap{padding:30px 22px 42px}.entry-form{max-width:440px}.entry-back{margin-bottom:24px}.app .sidebar{height:64px;gap:12px;padding:0 14px;overflow-x:auto}.app .sidebar .brand{font-size:0;gap:0}.app .sidebar .brand-icon{width:34px;height:34px}.app .sidebar nav{overflow-x:auto;flex:1;justify-content:flex-start;scrollbar-width:none}.app .sidebar nav::-webkit-scrollbar{display:none}.app .sidebar nav button{flex:none;display:flex;flex-direction:column;gap:3px;padding:7px 8px;font-size:8px}.app .sidebar nav button svg{width:16px;height:16px}.app .sidebar nav button.selected:after{bottom:-5px;left:8px;right:8px}.app .topbar{top:64px;height:54px;padding:0 15px}.topbar>small{display:none}.app .main{padding-bottom:25px}.app .main>.heading{padding-top:25px;margin-bottom:17px}.heading h1{font-size:25px}.app .main>.heading,.app .main>section,.app .main>.feed,.app .main>.settings-panel,.app .main>.profile-posts-section,.app .main>.subscription-page-card,.app .main>.people-state-rooms,.app .main>.people-live-section,.app .main>.message-requests,.app .main>.chat-history,.app .main>.chat,.app .main>.chat-minimized,.app .main>.queue-card,.app .main>.profile-card,.app .main>.empty{width:calc(100% - 26px)}.feed{margin-left:13px!important}.people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.people-hero-stats{gap:10px}.live-create{grid-template-columns:1fr}.live-create .primary{justify-self:start}.profile-facts{grid-template-columns:repeat(2,1fr)}.profile-ident{flex-wrap:wrap}.profile-ident>div:nth-child(2){min-width:calc(100% - 100px)}.visitor-preview-trigger{margin:0 0 0 88px}.profile-active{display:none}.people-state-rooms-heading,.people-live-section-heading{align-items:flex-start;flex-direction:column}.chat-mode-switch{overflow:auto;max-width:100%}.chat-mode-switch button{white-space:nowrap}.messages{height:48vh}.message-requests article{align-items:flex-start;flex-wrap:wrap}.message-request-actions{width:100%;padding-left:42px}.notification-panel,.location-panel,.user-menu-panel{position:fixed;top:124px;right:12px}.flash,.demo-readonly-banner{width:calc(100% - 26px);margin-left:13px}.settings-section form{align-items:stretch;flex-direction:column}.settings-section label,.settings-section input,.settings-section select{width:100%}}
+@media(max-width:420px){.landing-copy h1{font-size:42px}.landing-buttons{align-items:flex-start;flex-direction:column;gap:14px}.landing-feature-grid{grid-template-columns:1fr 1fr}.landing-feature-grid article{padding:14px;min-height:205px}.landing-feature-grid h3{font-size:14px}.landing-feature-grid p{font-size:10px}.landing-art-caption{min-width:210px}.app .sidebar{padding:0 7px;gap:6px}.app .sidebar nav button{padding:7px 5px;font-size:7px}.app .sidebar nav button svg{width:15px;height:15px}.app .sidebar .brand-icon{width:30px;height:30px}.topbar-actions{gap:5px}.notification-trigger,.location-trigger{width:33px;height:33px}.people-directory-grid{grid-template-columns:1fr}.profile-facts{grid-template-columns:1fr 1fr}.room-compose{flex-direction:column}.room-compose .primary{align-self:flex-end}.entry-form .form-grid{grid-template-columns:1fr}}
 @keyframes orbit{to{transform:rotate(360deg)}}
+
+
+/* CONNECT app: dedicated mobile layout */
+@media(max-width:760px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  body{overscroll-behavior-x:none}
+  .app.app-redesign{width:100%;min-height:100dvh;overflow-x:clip}
+  .app.app-redesign>.sidebar{display:none!important}
+  .app.app-redesign>.main{width:100%;min-width:0;max-width:100%;padding:0 0 calc(78px + env(safe-area-inset-bottom));margin:0}
+  .app.app-redesign .topbar{height:58px;min-height:58px;position:sticky;top:0;z-index:80;padding:0 13px;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(20,24,48,.04)}
+  .app.app-redesign .mobile-brand{display:flex;align-items:center;gap:7px;font:800 17px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.7px;color:var(--ink)}
+  .app.app-redesign .mobile-brand svg{width:21px;height:21px;color:var(--brand)}
+  .app.app-redesign .mobile-brand span{color:var(--brand)}
+  .app.app-redesign .topbar-actions{gap:6px}
+  .app.app-redesign .theme-toggle,.app.app-redesign .notification-trigger,.app.app-redesign .location-trigger,.app.app-redesign .user-menu-trigger{width:35px;height:35px;min-width:35px;border-radius:10px}
+  .app.app-redesign .user-menu-trigger{width:auto;min-width:0}
+  .app.app-redesign .main>.heading,.app.app-redesign .main>section,.app.app-redesign .main>.feed,.app.app-redesign .main>.settings-panel,.app.app-redesign .main>.profile-posts-section,.app.app-redesign .main>.subscription-page-card,.app.app-redesign .main>.people-state-rooms,.app.app-redesign .main>.people-live-section,.app.app-redesign .main>.message-requests,.app.app-redesign .main>.chat-history,.app.app-redesign .main>.chat,.app.app-redesign .main>.chat-minimized,.app.app-redesign .main>.queue-card,.app.app-redesign .main>.profile-card,.app.app-redesign .main>.empty{width:calc(100% - 24px);max-width:100%;margin-left:auto!important;margin-right:auto!important}
+  .app.app-redesign .main>.heading{padding-top:23px;margin-bottom:16px;align-items:flex-start}
+  .app.app-redesign .heading h1{font-size:clamp(23px,6vw,28px);line-height:1.18;letter-spacing:-.9px}
+  .app.app-redesign .heading p{font-size:11px;line-height:1.55}
+  .app.app-redesign .feed{max-width:none!important;gap:11px}
+  .app.app-redesign .composer,.app.app-redesign .post,.app.app-redesign .profile-card,.app.app-redesign .subscription-page-card,.app.app-redesign .settings-panel,.app.app-redesign .rooms-panel,.app.app-redesign .chat,.app.app-redesign .chat-history,.app.app-redesign .message-requests,.app.app-redesign .queue-card,.app.app-redesign .people-directory-card,.app.app-redesign .live-list article{border-radius:13px}
+  .app.app-redesign .composer,.app.app-redesign .post{padding:13px}
+  .app.app-redesign .mobile-nav{display:flex!important;position:fixed;left:0;right:0;bottom:0;z-index:120;width:100%;height:calc(64px + env(safe-area-inset-bottom));padding:6px 5px calc(6px + env(safe-area-inset-bottom));gap:2px;align-items:stretch;justify-content:space-around;overflow-x:auto;overflow-y:hidden;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -5px 22px rgba(25,29,55,.08);scrollbar-width:none}
+  .app.app-redesign .mobile-nav::-webkit-scrollbar{display:none}
+  .app.app-redesign .mobile-nav button{position:relative;display:flex;flex:1 0 54px;min-width:54px;max-width:90px;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px 3px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:9px;font-weight:650;white-space:nowrap}
+  .app.app-redesign .mobile-nav button svg{width:19px;height:19px;stroke-width:2}
+  .app.app-redesign .mobile-nav button.active{color:var(--brand);background:var(--brand-soft)}
+  .app.app-redesign .mobile-nav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .app.app-redesign .mobile-nav button i{position:absolute;top:5px;right:calc(50% - 15px);width:6px;height:6px;border-radius:50%;background:#ef9d61}
+  .app.app-redesign .notification-panel,.app.app-redesign .location-panel,.app.app-redesign .user-menu-panel{position:fixed;top:66px;right:10px;max-height:calc(100dvh - 150px);overflow:auto}
+  .app.app-redesign .flash,.app.app-redesign .demo-readonly-banner{width:calc(100% - 24px);margin:10px 12px 0}
+  .app.app-redesign .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .app.app-redesign .profile-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .app.app-redesign .messages{height:min(52dvh,480px);min-height:220px}
+  .app.app-redesign .chat-compose{padding:9px;gap:6px}
+  .app.app-redesign .chat-compose>input{min-width:0}
+  .app.app-redesign .chat-mode-switch{width:100%;padding-bottom:3px}
+  .app.app-redesign .chat-mode-switch button{flex:0 0 auto}
+  .app.app-redesign .settings-section{padding:14px}
+  .app.app-redesign .settings-section form{width:100%;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+  .app.app-redesign .settings-section label,.app.app-redesign .settings-section input,.app.app-redesign .settings-section select{width:100%;max-width:100%;min-width:0}
+  .app.app-redesign .live-stage{border-radius:12px}
+  .app.app-redesign .live-stage>header{padding:11px;gap:8px}
+  .app.app-redesign .live-header-actions{flex-wrap:wrap;justify-content:flex-end}
+  .app.app-redesign .crop-backdrop{padding:10px;overflow-y:auto}
+}
+@media(max-width:420px){
+  .app.app-redesign .main>.heading,.app.app-redesign .main>section,.app.app-redesign .main>.feed,.app.app-redesign .main>.settings-panel,.app.app-redesign .main>.profile-posts-section,.app.app-redesign .main>.subscription-page-card,.app.app-redesign .main>.people-state-rooms,.app.app-redesign .main>.people-live-section,.app.app-redesign .main>.message-requests,.app.app-redesign .main>.chat-history,.app.app-redesign .main>.chat,.app.app-redesign .main>.chat-minimized,.app.app-redesign .main>.queue-card,.app.app-redesign .main>.profile-card,.app.app-redesign .main>.empty{width:calc(100% - 20px)}
+  .app.app-redesign .topbar{padding:0 10px}
+  .app.app-redesign .mobile-nav button{min-width:49px;flex-basis:49px;font-size:8px}
+  .app.app-redesign .mobile-nav button svg{width:18px;height:18px}
+  .app.app-redesign .people-directory-grid{grid-template-columns:1fr}
+  .app.app-redesign .profile-facts{grid-template-columns:1fr 1fr}
+  .app.app-redesign .profile-ident>div:nth-child(2){min-width:0;flex:1}
+}
