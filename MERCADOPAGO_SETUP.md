@@ -7,10 +7,12 @@ A tela **Loja > Pacote CONNECT** usa assinaturas recorrentes para liberar buscas
 No projeto `trrakyybnvxpdhxwgjrz`, abra **Edge Functions → Secrets** e cadastre:
 
 - `MERCADOPAGO_ACCESS_TOKEN`: Access Token da aplicação Mercado Pago (comece com credenciais de teste).
+- `MERCADOPAGO_PUBLIC_KEY`: Public Key da mesma aplicação; é diferente do Access Token e é usada pelo SDK oficial para tokenizar o cartão.
 - `MERCADOPAGO_WEBHOOK_SECRET`: Assinatura secreta exibida em Mercado Pago → Sua integração → Webhooks.
 - `CONNECT_SITE_URL` (opcional): URL pública canônica do CONNECT, sem barra final.
+- `CONNECT_DEMO_USERNAME` e `CONNECT_DEMO_PASSWORD` (opcionais): credenciais privadas do acesso de demonstração. Sem esses secrets, o login de demonstração fica desativado.
 
-Nunca coloque esses valores em arquivos versionados, no frontend ou em mensagens.
+Nunca coloque esses valores em arquivos versionados, no frontend ou em mensagens. Não use credenciais reais de produção em ambientes de teste.
 
 ## Webhook no Mercado Pago
 
