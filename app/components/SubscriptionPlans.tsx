@@ -130,7 +130,7 @@ export default function SubscriptionPlans() {
           <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
             <strong>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
-              A estrutura de assinatura mensal e anual está preparada. Os valores ainda precisam ser definidos e cadastrados antes de liberar cobranças. Nenhum pagamento será iniciado sem um preço ativo.
+              A estrutura de assinatura mensal e anual está preparada. Os preços estão cadastrados, mas os planos ainda não foram liberados para cobrança. A ativação acontecerá depois da validação completa do Mercado Pago. Nenhum pagamento será iniciado enquanto o plano estiver inativo.
             </p>
           </div>
       }
