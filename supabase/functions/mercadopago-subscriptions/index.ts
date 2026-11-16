@@ -37,8 +37,59 @@ Deno.serve(async (req) => {
   const user = userData.user;
   if (userError || !user) return json({ error: "Sessão inválida. Entre novamente." }, 401);
 
-  let body: { action?: string; planId?: string; subscriptionId?: string; recipientId?: string; cardTokenId?: string };
+  let body: { action?: string; planId?: string; subscriptionId?: string; recipientId?: string; cardTokenId?: string; pixCheckoutId?: string };
   try { body = await req.json(); } catch { return json({ error: "Corpo da requisição inválido." }, 400); }
+
+  if (body.action === "pix_status") {
+    if (!body.pixCheckoutId) return json({ error: "Pagamento não informado." }, 400);
+    const { data: pix } = await admin.from("connect_pix_checkouts")
+      .select("id,status,expires_at,plan_id").eq("id", body.pixCheckoutId).eq("user_id", user.id).maybeSingle();
+    if (!pix) return json({ error: "Pagamento não encontrado." }, 404);
+    return json({ status: pix.status, expires_at: pix.expires_at, plan_id: pix.plan_id });
+  }
+
+  if (body.action === "create_pix") {
+    if (!body.planId) return json({ error: "Escolha um plano." }, 400);
+    if (!user.email) return json({ error: "Sua conta precisa ter um e-mail confirmado para pagar com Pix." }, 400);
+    const { data: plan, error: planError } = await admin.from("connect_plans")
+      .select("id,name,billing_interval,price_brl,active").eq("id", body.planId).eq("active", true).maybeSingle();
+    if (planError || !plan) return json({ error: "Plano indisponível." }, 404);
+    const amount = Number(plan.price_brl);
+    if (!Number.isFinite(amount) || amount <= 0) return json({ error: "Preço do plano inválido." }, 409);
+    const { data: checkout, error: insertError } = await admin.from("connect_pix_checkouts").insert({
+      user_id: user.id, plan_id: plan.id, amount_brl: amount,
+      duration_days: plan.billing_interval === "year" ? 365 : 30, status: "pending",
+    }).select("id").single();
+    if (insertError || !checkout) return json({ error: "Não foi possível iniciar o Pix." }, 500);
+    const expiry = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    const siteBase = (Deno.env.get("CONNECT_SITE_URL") || "https://appswebb.github.io/Connect").replace(/\/$/, "");
+    const apiBase = supabaseUrl.replace(/\/$/, "");
+    const mpResponse = await fetch("https://api.mercadopago.com/v1/payments", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json", "X-Idempotency-Key": checkout.id },
+      body: JSON.stringify({
+        transaction_amount: amount, description: "CONNECT Premium - " + (plan.name || "Buscas ilimitadas"),
+        payment_method_id: "pix", payer: { email: user.email },
+        external_reference: checkout.id,
+        date_of_expiration: expiry,
+        notification_url: apiBase + "/functions/v1/mercadopago-webhook",
+        statement_descriptor: "CONNECT",
+      }),
+    });
+    const payment = await mpResponse.json().catch(() => ({}));
+    const tx = payment.point_of_interaction?.transaction_data;
+    if (!mpResponse.ok || !payment.id || !tx?.qr_code || !tx?.qr_code_base64) {
+      await admin.from("connect_pix_checkouts").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", checkout.id);
+      return json({ error: payment.message || payment.cause?.[0]?.description || "O Mercado Pago não conseguiu gerar o Pix." }, 502);
+    }
+    const { error: saveError } = await admin.from("connect_pix_checkouts").update({
+      provider_payment_id: String(payment.id), qr_code: tx.qr_code,
+      qr_code_base64: tx.qr_code_base64, expires_at: payment.date_of_expiration || expiry,
+      updated_at: new Date().toISOString(),
+    }).eq("id", checkout.id);
+    if (saveError) return json({ error: "Pix gerado, mas não foi possível salvar o QR Code. Contate o suporte." }, 500);
+    return json({ pix_checkout_id: checkout.id, qr_code: tx.qr_code, qr_code_base64: tx.qr_code_base64, expires_at: payment.date_of_expiration || expiry });
+  }
 
   if (body.action === "public_key") {
     if (!publicKey) return json({ error: "Chave pública do Mercado Pago não configurada no servidor." }, 503);
