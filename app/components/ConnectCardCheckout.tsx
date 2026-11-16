@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -13,6 +13,9 @@ const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "curren
 
 export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan: Plan; onBack: () => void; onComplete: () => void }) {
   const formRef = useRef<CardFormInstance | null>(null);
+  const submittingRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -68,18 +71,20 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
             },
             onSubmit: (event: Event) => {
               event.preventDefault();
-              if (submitting || !instance) return;
+              if (submittingRef.current || !instance) return;
               const token = instance.getCardFormData()?.token;
               if (!token) { setError("Confira os dados do cartão e tente novamente."); return; }
+              submittingRef.current = true;
               setSubmitting(true);
               setError("");
               void supabase.functions.invoke("mercadopago-subscriptions", {
                 body: { action: "create", planId: plan.id, cardTokenId: token },
               }).then(({ data: result, error: invokeError }) => {
                 if (invokeError || !result?.success) throw new Error(result?.error || invokeError?.message || "O Mercado Pago não autorizou a assinatura.");
-                onComplete();
+                onCompleteRef.current();
               }).catch((submitError: unknown) => {
                 setError(submitError instanceof Error ? submitError.message : "Não foi possível concluir a assinatura.");
+                submittingRef.current = false;
                 setSubmitting(false);
               });
             },
@@ -97,7 +102,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
     }
     void mount();
     return () => { cancelled = true; instance?.unmount?.(); formRef.current = null; };
-  }, [plan.id, plan.price_brl, onComplete, submitting]);
+  }, [plan.id, plan.price_brl]);
 
   return (
     <div style={{ marginTop: 18, padding: 18, borderRadius: 18, background: "#0d1424", border: "1px solid #ffffff20" }}>
@@ -128,5 +133,5 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
   );
 }
 
-const fieldStyle: React.CSSProperties = { minHeight: 44, border: "1px solid #39445f", borderRadius: 10, background: "#151e32", padding: "10px 12px", color: "#f7f8ff" };
-const inputStyle: React.CSSProperties = { width: "100%", minHeight: 44, boxSizing: "border-box", border: "1px solid #39445f", borderRadius: 10, background: "#151e32", padding: "10px 12px", color: "#f7f8ff", outline: "none" };
+const fieldStyle: CSSProperties = { minHeight: 44, border: "1px solid #39445f", borderRadius: 10, background: "#151e32", padding: "10px 12px", color: "#f7f8ff" };
+const inputStyle: CSSProperties = { width: "100%", minHeight: 44, boxSizing: "border-box", border: "1px solid #39445f", borderRadius: 10, background: "#151e32", padding: "10px 12px", color: "#f7f8ff", outline: "none" };
