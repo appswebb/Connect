@@ -31,6 +31,20 @@ jobs:
         run: npm install
       - name: Build static site
         run: npm run build
+      - name: Write latest site update metadata
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, subprocess
+          message = subprocess.check_output(["git", "log", "-1", "--pretty=%s"], text=True).strip()
+          data = {
+              "version": "web-" + os.environ["GITHUB_RUN_NUMBER"],
+              "commit": os.environ["GITHUB_SHA"],
+              "updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "changes": message
+          }
+          with open("./out/app-version.json", "w", encoding="utf-8") as file:
+              json.dump(data, file, ensure_ascii=False)
+          PY
       - name: Verify static export
         run: |
           test -s ./out/index.html
