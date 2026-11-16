@@ -131,41 +131,41 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
   return (
     <section className="connect-pay-shell">
       <style>{`
-        .connect-pay-shell{width:100%;max-width:1040px;margin:22px auto 34px;color:#f7f8ff;font-family:inherit}
+        .connect-pay-shell{width:100%;max-width:1040px;margin:22px auto 34px;color:#252941;font-family:inherit}
         .connect-pay-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
-        .connect-pay-back{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff1c;background:#ffffff08;color:#cbd2e5;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:750;cursor:pointer}
+        .connect-pay-back{display:inline-flex;align-items:center;gap:8px;border:1px solid #e6e7ef;background:#f7f7fb;color:#62677d;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:750;cursor:pointer}
         .connect-pay-brand{display:flex;align-items:center;gap:9px;font-weight:950;letter-spacing:2px;font-size:16px}
-        .connect-pay-brandmark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(140deg,#8b78ff,#5744d6);box-shadow:0 7px 24px #7464f64a}
-        .connect-pay-trust{display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid #25c78a36;background:#0c2b253d;border-radius:14px;color:#b8f4dc;font-size:12px;font-weight:750}
+        .connect-pay-brandmark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#5b5cf0;box-shadow:0 7px 24px #5b5cf022}
+        .connect-pay-trust{display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid #d5e8da;background:#eff8f1;border-radius:14px;color:#477653;font-size:12px;font-weight:750}
         .connect-pay-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(270px,.8fr);gap:18px;align-items:start}
-        .connect-pay-panel{border:1px solid #ffffff16;background:linear-gradient(155deg,#111a2c,#0b1220 76%);border-radius:23px;box-shadow:0 22px 70px #0005;overflow:hidden}
+        .connect-pay-panel{border:1px solid #e8e9f0;background:#252941fff;border-radius:23px;box-shadow:0 22px 70px rgba(32,36,58,.08);overflow:hidden}
         .connect-pay-main{padding:clamp(18px,3vw,30px)}
         .connect-pay-heading{font-size:clamp(22px,3vw,29px);font-weight:900;letter-spacing:-.8px;margin:0}
-        .connect-pay-sub{font-size:13px;color:#98a5c0;line-height:1.6;margin:8px 0 22px}
-        .connect-pay-steps{display:flex;align-items:center;gap:10px;margin:0 0 24px;color:#a9b5cd;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+        .connect-pay-sub{font-size:13px;color:#85899b;line-height:1.6;margin:8px 0 22px}
+        .connect-pay-steps{display:flex;align-items:center;gap:10px;margin:0 0 24px;color:#85899b;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
         .connect-pay-step{display:flex;align-items:center;gap:7px}
-        .connect-pay-stepnum{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#7666ef;color:white;font-size:11px}
-        .connect-pay-line{height:1px;max-width:42px;flex:1;background:#ffffff20}
-        .connect-pay-label{display:block;color:#dce3f4;font-size:12px;font-weight:750;margin:0 0 7px}
-        .connect-pay-field{width:100%;min-height:47px;box-sizing:border-box;border:1px solid #35435f;border-radius:12px;background:#101a2d;padding:11px 13px;color:#f7f8ff;outline:none;transition:border .18s,box-shadow .18s}
-        .connect-pay-field:focus{border-color:#897aff;box-shadow:0 0 0 3px #897aff20}
-        .connect-pay-mpfield{min-height:47px;border:1px solid #35435f;border-radius:12px;background:#101a2d;padding:11px 13px;color:#f7f8ff;box-sizing:border-box}
+        .connect-pay-stepnum{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#5b5cf0;color:white;font-size:11px}
+        .connect-pay-line{height:1px;max-width:42px;flex:1;background:#252941fff20}
+        .connect-pay-label{display:block;color:#555a70;font-size:12px;font-weight:750;margin:0 0 7px}
+        .connect-pay-field{width:100%;min-height:47px;box-sizing:border-box;border:1px solid #e5e6ef;border-radius:12px;background:#fbfbfd;padding:11px 13px;color:#252941;outline:none;transition:border .18s,box-shadow .18s}
+        .connect-pay-field:focus{border-color:#8a8bf6;box-shadow:0 0 0 3px #8a8bf620}
+        .connect-pay-mpfield{min-height:47px;border:1px solid #e5e6ef;border-radius:12px;background:#fbfbfd;padding:11px 13px;color:#252941;box-sizing:border-box}
         .connect-pay-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
         .connect-pay-fieldgroup{display:grid;gap:7px;margin-bottom:15px;min-width:0}
-        .connect-pay-submit{display:flex;justify-content:center;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;padding:16px;background:linear-gradient(105deg,#806eff,#5d4bd8);box-shadow:0 12px 30px #6554e64a;color:white;font-size:14px;font-weight:900;cursor:pointer;transition:transform .18s,filter .18s}
+        .connect-pay-submit{display:flex;justify-content:center;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;padding:16px;background:linear-gradient(105deg,#5b5cf0,#4748d5);box-shadow:0 12px 30px #5b5cf022;color:white;font-size:14px;font-weight:900;cursor:pointer;transition:transform .18s,filter .18s}
         .connect-pay-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}
         .connect-pay-submit:disabled{opacity:.58;cursor:not-allowed;box-shadow:none}
-        .connect-pay-summary{padding:24px;position:relative;background:radial-gradient(ellipse at 100% 0%,#6554d82c,transparent 48%),linear-gradient(155deg,#151d34,#0c1425)}
-        .connect-pay-plan{padding:17px;border:1px solid #ffffff1b;background:#ffffff08;border-radius:17px;margin:18px 0}
+        .connect-pay-summary{padding:24px;position:relative;background:#f2f2ff}
+        .connect-pay-plan{padding:17px;border:1px solid #e8e9f0;background:#f7f7fb;border-radius:17px;margin:18px 0}
         .connect-pay-price{font-size:32px;font-weight:950;letter-spacing:-1.2px;margin-top:7px}
-        .connect-pay-benefit{display:flex;align-items:flex-start;gap:9px;color:#c0cbe0;font-size:12px;line-height:1.5;margin:13px 0}
-        .connect-pay-check{display:grid;place-items:center;width:18px;height:18px;flex:0 0 18px;border-radius:50%;background:#1d8c68;color:#d9fff0}
-        .connect-pay-security{border-top:1px solid #ffffff16;margin-top:22px;padding-top:18px}
-        .connect-pay-mp{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:#0875d11b;border:1px solid #1688ed40;color:#d7ecff}
-        .connect-pay-mpicon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#0879d9;color:white}
-        .connect-pay-note{color:#8e9bb5;font-size:11px;line-height:1.6;margin:12px 0 0}
-        .connect-pay-error{padding:12px 14px;border-radius:12px;background:#48282e;border:1px solid #a94f60;color:#ffe0e5;font-size:12px;line-height:1.5;margin:4px 0 14px}
-        .connect-pay-foot{display:flex;justify-content:center;align-items:center;gap:7px;color:#8491aa;font-size:10px;margin-top:16px;text-align:center}
+        .connect-pay-benefit{display:flex;align-items:flex-start;gap:9px;color:#777c91;font-size:12px;line-height:1.5;margin:13px 0}
+        .connect-pay-check{display:grid;place-items:center;width:18px;height:18px;flex:0 0 18px;border-radius:50%;background:#4d946b;color:#252941fff}
+        .connect-pay-security{border-top:1px solid #e8e9f0;margin-top:22px;padding-top:18px}
+        .connect-pay-mp{display:flex;align-items:center;gap:10px;padding:12px;border-radius:13px;background:#eef5ff;border:1px solid #d9e7ff;color:#3f5c89}
+        .connect-pay-mpicon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#3977d5;color:white}
+        .connect-pay-note{color:#85899b;font-size:11px;line-height:1.6;margin:12px 0 0}
+        .connect-pay-error{padding:12px 14px;border-radius:12px;background:#2529410f1;border:1px solid #f1d4d8;color:#c65362;font-size:12px;line-height:1.5;margin:4px 0 14px}
+        .connect-pay-foot{display:flex;justify-content:center;align-items:center;gap:7px;color:#a0a3b0;font-size:10px;margin-top:16px;text-align:center}
         @media(max-width:720px){.connect-pay-shell{max-width:100%;margin:0 auto 18px}.connect-pay-layout{grid-template-columns:minmax(0,1fr);gap:10px}.connect-pay-main{padding:15px}.connect-pay-panel{border-radius:17px}.connect-pay-summary{order:1;padding:13px;border-radius:16px}.connect-pay-top{align-items:center;flex-wrap:nowrap;margin-bottom:10px}.connect-pay-brand{font-size:14px}.connect-pay-brandmark{width:30px;height:30px}.connect-pay-back{padding:8px 10px;font-size:11px}.connect-pay-trust{width:100%;box-sizing:border-box;padding:9px 11px;font-size:10px;border-radius:11px}.connect-pay-plan{margin:9px 0;padding:12px}.connect-pay-price{font-size:25px}.connect-pay-benefit{font-size:10px;margin:8px 0}.connect-pay-security{margin-top:12px;padding-top:12px}.connect-pay-heading{font-size:21px}.connect-pay-sub{font-size:11px;margin:6px 0 12px}.connect-pay-steps{font-size:9px;gap:6px;margin-bottom:13px}.connect-pay-stepnum{width:20px;height:20px}.connect-pay-fieldgroup{gap:5px;margin-bottom:9px}.connect-pay-label{font-size:10px;margin-bottom:0}.connect-pay-field,.connect-pay-mpfield{min-height:40px;padding:8px 10px;border-radius:10px;font-size:16px}.connect-pay-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.connect-pay-main form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:9px}.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(1),.connect-pay-main form>.connect-pay-grid2,.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(2),.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(3),.connect-pay-main form>.connect-pay-fieldgroup:nth-of-type(4),.connect-pay-main form>progress,.connect-pay-main form>.connect-pay-error,.connect-pay-main form>.connect-pay-submit{grid-column:1/-1}.connect-pay-submit{min-height:44px;padding:11px;font-size:12px;border-radius:11px}.connect-pay-foot{font-size:9px;margin-top:11px}.connect-pay-summary>div:first-child{font-size:9px!important}.connect-pay-plan>div:first-child span:first-child{font-size:12px!important}}
         @media(max-width:390px){.connect-pay-grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.connect-pay-steps{font-size:8px;gap:4px}.connect-pay-step{gap:4px}.connect-pay-stepnum{width:18px;height:18px}.connect-pay-main{padding:13px}.connect-pay-field,.connect-pay-mpfield{min-height:38px;padding:7px 9px}.connect-pay-shell{margin-bottom:12px}}
 
@@ -281,15 +281,15 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
           <div style={{ color: "#aeb9d1", fontSize: 11, fontWeight: 850, letterSpacing: 1.4, textTransform: "uppercase" }}>Resumo do pedido</div>
           <div className="connect-pay-plan">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#d9dff0", fontSize: 14, fontWeight: 850 }}>{plan.name || "CONNECT Premium"}</span>
+              <span style={{ color: "#555a70", fontSize: 14, fontWeight: 850 }}>{plan.name || "CONNECT Premium"}</span>
               <span style={{ borderRadius: 20, padding: "5px 9px", background: "#7565ed24", color: "#c8c0ff", fontSize: 9, fontWeight: 900, letterSpacing: .7 }}>PREMIUM</span>
             </div>
             <div className="connect-pay-price">{money(Number(plan.price_brl))}</div>
-            <div style={{ color: "#9ca9c2", fontSize: 12, marginTop: 4 }}>por {periodLabel(plan.billing_interval)}</div>
-            <div style={{ height: 1, background: "#ffffff18", margin: "17px 0 13px" }}/>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "#aab5ca", fontSize: 12, marginBottom: 9 }}><span>Plano</span><span style={{ color: "#e6eafa" }}>{plan.name || "CONNECT Premium"}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "#aab5ca", fontSize: 12 }}><span>Cobrança</span><span style={{ color: "#e6eafa" }}>{isAnnual ? "Anual" : "Mensal"}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "#aab5ca", fontSize: 12, marginTop: 13, paddingTop: 13, borderTop: "1px solid #ffffff18" }}><strong style={{ color: "#f4f5ff" }}>Total</strong><strong style={{ color: "#fff", fontSize: 16 }}>{money(Number(plan.price_brl))}</strong></div>
+            <div style={{ color: "#85899b", fontSize: 12, marginTop: 4 }}>por {periodLabel(plan.billing_interval)}</div>
+            <div style={{ height: 1, background: "#e8e9f0", margin: "17px 0 13px" }}/>
+            <div style={{ display: "flex", justifyContent: "space-between", color: "#85899b", fontSize: 12, marginBottom: 9 }}><span>Plano</span><span style={{ color: "#252941" }}>{plan.name || "CONNECT Premium"}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", color: "#85899b", fontSize: 12 }}><span>Cobrança</span><span style={{ color: "#252941" }}>{isAnnual ? "Anual" : "Mensal"}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", color: "#85899b", fontSize: 12, marginTop: 13, paddingTop: 13, borderTop: "1px solid #e8e9f0" }}><strong style={{ color: "#252941" }}>Total</strong><strong style={{ color: "#252941", fontSize: 16 }}>{money(Number(plan.price_brl))}</strong></div>
           </div>
 
           <div style={{ color: "#e7eafd", fontSize: 13, fontWeight: 850, marginBottom: 5 }}>O que está incluído</div>
@@ -298,11 +298,11 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
           <div className="connect-pay-security">
             <div className="connect-pay-mp">
               <span className="connect-pay-mpicon"><ShieldCheck size={20}/></span>
-              <span><strong style={{ display: "block", fontSize: 12, letterSpacing: .1 }}>Mercado Pago</strong><span style={{ display: "block", fontSize: 10, color: "#a8ccec", marginTop: 2 }}>Tecnologia de pagamento segura</span></span>
+              <span><strong style={{ display: "block", fontSize: 12, letterSpacing: .1 }}>Mercado Pago</strong><span style={{ display: "block", fontSize: 10, color: "#6e82b5", marginTop: 2 }}>Tecnologia de pagamento segura</span></span>
             </div>
             <p className="connect-pay-note">O pagamento é processado pelo Mercado Pago. Os campos sensíveis do cartão são carregados pelo SDK oficial do provedor; o CONNECT não recebe o número completo nem o código de segurança.</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 14, color: "#a9b6ce", fontSize: 11 }}><ShieldCheck size={15} color="#67d5ac"/> <span>Proteção de dados durante o pagamento</span></div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, color: "#a9b6ce", fontSize: 11 }}><CreditCard size={15} color="#9b8cff"/> <span>{isAnnual ? "Renovação a cada 12 meses" : "Renovação mensal"}</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 14, color: "#85899b", fontSize: 11 }}><ShieldCheck size={15} color="#4d946b"/> <span>Proteção de dados durante o pagamento</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, color: "#85899b", fontSize: 11 }}><CreditCard size={15} color="#5b5cf0"/> <span>{isAnnual ? "Renovação a cada 12 meses" : "Renovação mensal"}</span></div>
           </div>
         </aside>
       </div>
