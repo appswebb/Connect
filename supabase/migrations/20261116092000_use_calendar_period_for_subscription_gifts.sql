@@ -1,6 +1,7 @@
 alter table public.subscription_gifts add column if not exists billing_interval text;
 update public.subscription_gifts set billing_interval = case when duration_days = 365 then 'year' else 'month' end where billing_interval is null;
 alter table public.subscription_gifts alter column billing_interval set not null;
+alter table public.subscription_gifts drop constraint if exists subscription_gifts_billing_interval_check;
 alter table public.subscription_gifts add constraint subscription_gifts_billing_interval_check check (billing_interval in ('month','year'));
 
 create or replace function public.apply_subscription_gift_payment(p_gift_id uuid, p_payment_id text, p_amount numeric, p_currency text, p_raw_event jsonb)
