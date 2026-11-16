@@ -21,3 +21,9 @@ jobs:
           test -s ./out/index.html
           test -d ./out/_next/static
           find ./out/_next/static -type f -name "*.js" | grep -q .
+      - name: Publicar site gerado para conferência visual
+        uses: actions/upload-artifact@v4
+        with:
+          name: connect-out
+          path: out
+          retention-days: 3

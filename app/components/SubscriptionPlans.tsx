@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Check, Crown, Gift, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Crown, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
-import SubscriptionGift from "./SubscriptionGift";
 import ConnectCardCheckout from "./ConnectCardCheckout";
 import ConnectPixCheckout from "./ConnectPixCheckout";
 
@@ -34,7 +33,6 @@ export default function SubscriptionPlans() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
-  const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "pix">("card");
 
@@ -86,7 +84,7 @@ export default function SubscriptionPlans() {
         </div>
         <h2 style={{ margin: "12px 0 8px", fontSize: 26 }}>Buscas ilimitadas</h2>
         <p style={{ margin: 0, maxWidth: 620, color: "#777c91", lineHeight: 1.6 }}>
-          Continue encontrando pessoas sem o limite diário de 20 buscas. Escolha o pacote mensal ou anual para sua conta, ou compre um deles para presentear um amigo.
+          Continue encontrando pessoas sem o limite diário de 20 buscas. Escolha o pacote mensal ou anual para sua conta.
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 18, color: "#4d946b", fontSize: 13 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Check size={15}/> Buscas ilimitadas enquanto a assinatura estiver válida</span>
@@ -146,21 +144,17 @@ export default function SubscriptionPlans() {
             <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#5b5cf0", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
               {plan.active ? "Ver pagamento" : "Pagamento em validação"}
             </button>
-            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #e5e6ef", borderRadius: 10, padding: 12, background: "transparent", color: "#555a70", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <Gift size={16}/> {plan.active ? "Presentear um amigo" : "Presente em validação"}
-            </button>
           </article>)}
         </div>
-        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "#85899b", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
+        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "#85899b", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra será liberada depois da validação final do checkout do Mercado Pago.</p>}
         </> :
           <div style={{ border: "1px dashed #dfe1ea", borderRadius: 16, padding: 22 }}>
             <strong style={{ color: "#555a70" }}>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "#85899b", lineHeight: 1.6 }}>
-              Os dois pacotes e seus valores já estão cadastrados. A compra e o envio de presente serão liberados assim que a validação final do checkout do Mercado Pago terminar.
+              Os dois pacotes e seus valores já estão cadastrados. A compra será liberada assim que a validação final do checkout do Mercado Pago terminar.
             </p>
           </div>
       }
-      {giftPlan && <SubscriptionGift plan={giftPlan} onClose={() => setGiftPlan(null)}/>}
       <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid #e5e6ef", borderRadius: 10, padding: "9px 12px", background: "#f7f7fb", color: "#555a70", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
       <small style={{ color: "var(--muted,#777)", lineHeight: 1.5 }}>A confirmação do pagamento é feita pelo servidor após validação da notificação do Mercado Pago. Não liberamos benefícios apenas pelo retorno do checkout.</small>
     </section>

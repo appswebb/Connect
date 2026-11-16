@@ -119,63 +119,6 @@ Deno.serve(async (req) => {
     return json({ success: true, current_period_end: row.current_period_end });
   }
 
-  if (body.action === "gift_create") {
-    if (!body.planId || !body.recipientId) return json({ error: "Escolha o plano e quem vai receber." }, 400);
-    if (body.recipientId === user.id) return json({ error: "Você não pode presentear a si mesmo." }, 400);
-    if (!user.email) return json({ error: "Sua conta precisa ter um e-mail confirmado para presentear." }, 400);
-
-    const { data: outgoing } = await admin.from("follows").select("followed_id")
-      .eq("follower_id", user.id).eq("followed_id", body.recipientId).maybeSingle();
-    const { data: incoming } = await admin.from("follows").select("follower_id")
-      .eq("follower_id", body.recipientId).eq("followed_id", user.id).maybeSingle();
-    if (!outgoing || !incoming) return json({ error: "Só é possível presentear alguém que segue você e que você também segue." }, 403);
-
-    const { data: plan, error: planError } = await admin.from("connect_plans")
-      .select("id,name,billing_interval,price_brl,active")
-      .eq("id", body.planId).eq("active", true).maybeSingle();
-    if (planError || !plan) return json({ error: "Plano indisponível para presente." }, 404);
-    const amount = Number(plan.price_brl);
-    if (!Number.isFinite(amount) || amount <= 0) return json({ error: "Preço do plano inválido." }, 409);
-
-    const { data: gift, error: giftError } = await admin.from("subscription_gifts").insert({
-      sender_id: user.id, recipient_id: body.recipientId, plan_id: plan.id,
-      duration_days: plan.billing_interval === "year" ? 365 : 30,
-      billing_interval: plan.billing_interval,
-      amount_brl: amount, provider: "mercadopago", status: "pending",
-    }).select("id").single();
-    if (giftError || !gift) return json({ error: "Não foi possível registrar o presente." }, 500);
-
-    const siteBase = Deno.env.get("CONNECT_SITE_URL") || "https://appswebb.github.io/Connect";
-    const siteUrl = siteBase.endsWith("/") ? siteBase.slice(0, -1) : siteBase;
-    const apiBase = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl;
-    const preferenceResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
-      method: "POST",
-      headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json", "X-Idempotency-Key": gift.id },
-      body: JSON.stringify({
-        items: [{ id: plan.id, title: "Presente CONNECT - " + (plan.billing_interval === "year" ? "1 ano" : "1 mês"), quantity: 1, currency_id: "BRL", unit_price: amount }],
-        payer: { email: user.email },
-        external_reference: gift.id,
-        notification_url: apiBase + "/functions/v1/mercadopago-webhook",
-        back_urls: {
-          success: siteUrl + "/?payment=return&kind=subscription_gift&status=success",
-          pending: siteUrl + "/?payment=return&kind=subscription_gift&status=pending",
-          failure: siteUrl + "/?payment=return&kind=subscription_gift&status=failure",
-        },
-        auto_return: "approved",
-        statement_descriptor: "CONNECT",
-      }),
-    });
-    const preference = await preferenceResponse.json().catch(() => ({}));
-    if (!preferenceResponse.ok || !preference.init_point) {
-      await admin.from("subscription_gifts").update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", gift.id);
-      return json({ error: preference.message || "O Mercado Pago não conseguiu criar o pagamento do presente." }, 502);
-    }
-    const { error: saveError } = await admin.from("subscription_gifts")
-      .update({ checkout_url: preference.init_point, updated_at: new Date().toISOString() }).eq("id", gift.id);
-    if (saveError) return json({ error: "Checkout criado, mas não foi possível salvar o pagamento do presente." }, 500);
-    return json({ init_point: preference.init_point, gift_id: gift.id, duration_days: plan.billing_interval === "year" ? 365 : 30 });
-  }
-
   if (body.action !== "create" || !body.planId) return json({ error: "Ação ou plano inválido." }, 400);
   if (typeof body.cardTokenId !== "string" || body.cardTokenId.length < 8) {
     return json({ error: "Não foi possível validar o cartão. Confira os dados e tente novamente." }, 400);

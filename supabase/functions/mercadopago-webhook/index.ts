@@ -102,32 +102,7 @@ Deno.serve(async (req) => {
     });
     if (!paymentResponse.ok) return response(502);
     const payment = await paymentResponse.json();
-    // One-time coin package checkout. The order UUID is the Mercado Pago external_reference.
     const externalReference = String(payment.external_reference || "");
-    if (externalReference) {
-      const { data: subscriptionGift } = await admin.from("subscription_gifts")
-        .select("id,status").eq("id", externalReference).maybeSingle();
-      if (subscriptionGift) {
-        const giftPaymentStatus = String(payment.status || "pending").toLowerCase();
-        const giftPaymentId = String(payment.id || dataId);
-        if (giftPaymentStatus === "approved") {
-          const { error: giftCreditError } = await admin.rpc("apply_subscription_gift_payment", {
-            p_gift_id: subscriptionGift.id,
-            p_payment_id: giftPaymentId,
-            p_amount: Number(payment.transaction_amount || 0),
-            p_currency: String(payment.currency_id || ""),
-            p_raw_event: payment,
-          });
-          if (giftCreditError) return response(500);
-        } else if (["rejected", "cancelled", "refunded", "charged_back"].includes(giftPaymentStatus)) {
-          const mappedGiftStatus = giftPaymentStatus === "charged_back" ? "refunded" : giftPaymentStatus;
-          await admin.from("subscription_gifts").update({
-            status: mappedGiftStatus, provider_payment_id: giftPaymentId, updated_at: new Date().toISOString(),
-          }).eq("id", subscriptionGift.id).eq("status", "pending");
-        }
-        return response(200);
-      }
-    }
     const { data: pixCheckout } = externalReference ? await admin.from("connect_pix_checkouts")
       .select("id,user_id,plan_id,amount_brl,duration_days,status")
       .eq("id", externalReference).maybeSingle() : { data: null };
