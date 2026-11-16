@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, ExternalLink, Smartphone, RefreshCw, ShieldCheck } from "lucide-react";
+import { Download, Smartphone, RefreshCw, ShieldCheck } from "lucide-react";
 
 type ReleaseAsset = { name: string; browser_download_url: string; download_count: number };
 type Release = { tag_name: string; name: string; body: string; published_at: string; html_url: string; assets: ReleaseAsset[] };
