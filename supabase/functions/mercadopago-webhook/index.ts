@@ -42,7 +42,11 @@ async function syncEntitlement(admin: ReturnType<typeof createClient>, userId: s
     .in("status", ["authorized", "cancelled"]).not("current_period_end", "is", null)
     .gt("current_period_end", new Date().toISOString())
     .order("current_period_end", { ascending: false }).limit(1).maybeSingle() : { data: null };
-  const until = data?.current_period_end || new Date().toISOString();
+  const { data: existingEntitlement } = await admin.from("queue_entitlements")
+    .select("unlimited_until").eq("user_id", userId).maybeSingle();
+  const candidates = [data?.current_period_end, existingEntitlement?.unlimited_until]
+    .filter(Boolean).map((value: string) => new Date(value).getTime()).filter(Number.isFinite);
+  const until = new Date(Math.max(Date.now(), ...candidates)).toISOString();
   await admin.from("queue_entitlements").upsert({
     user_id: userId, unlimited_until: until, updated_at: new Date().toISOString(),
   }, { onConflict: "user_id" });
@@ -101,6 +105,28 @@ Deno.serve(async (req) => {
     // One-time coin package checkout. The order UUID is the Mercado Pago external_reference.
     const externalReference = String(payment.external_reference || "");
     if (externalReference) {
+      const { data: subscriptionGift } = await admin.from("subscription_gifts")
+        .select("id,status").eq("id", externalReference).maybeSingle();
+      if (subscriptionGift) {
+        const giftPaymentStatus = String(payment.status || "pending").toLowerCase();
+        const giftPaymentId = String(payment.id || dataId);
+        if (giftPaymentStatus === "approved") {
+          const { error: giftCreditError } = await admin.rpc("apply_subscription_gift_payment", {
+            p_gift_id: subscriptionGift.id,
+            p_payment_id: giftPaymentId,
+            p_amount: Number(payment.transaction_amount || 0),
+            p_currency: String(payment.currency_id || ""),
+            p_raw_event: payment,
+          });
+          if (giftCreditError) return response(500);
+        } else if (["rejected", "cancelled", "refunded", "charged_back"].includes(giftPaymentStatus)) {
+          const mappedGiftStatus = giftPaymentStatus === "charged_back" ? "refunded" : giftPaymentStatus;
+          await admin.from("subscription_gifts").update({
+            status: mappedGiftStatus, provider_payment_id: giftPaymentId, updated_at: new Date().toISOString(),
+          }).eq("id", subscriptionGift.id).eq("status", "pending");
+        }
+        return response(200);
+      }
       const { data: coinOrder } = await admin.from("coin_orders")
         .select("id,status,amount_brl").eq("id", externalReference).maybeSingle();
       if (coinOrder) {
