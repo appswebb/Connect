@@ -55,22 +55,6 @@ export default function SubscriptionPlans() {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function subscribe(plan: Plan) {
-    setBusy(plan.id);
-    setMessage("");
-    try {
-      const { data, error } = await supabase.functions.invoke("mercadopago-subscriptions", {
-        body: { action: "create", planId: plan.id },
-      });
-      if (error) throw new Error(data?.error || error.message || "Não foi possível conectar ao Mercado Pago.");
-      if (!data?.init_point) throw new Error(data?.error || "O Mercado Pago não retornou o link de checkout.");
-      window.location.assign(data.init_point);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Não foi possível iniciar a assinatura.");
-      setBusy("");
-    }
-  }
-
   async function cancel() {
     if (!subscription) return;
     if (!window.confirm("Deseja cancelar a renovação desta assinatura?")) return;
@@ -151,7 +135,7 @@ export default function SubscriptionPlans() {
           <strong style={{ display: "flex", alignItems: "center", gap: 8 }}><Crown size={18}/> Você tem uma assinatura CONNECT</strong>
           <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : subscription.status === "cancelled" ? "renovação cancelada" : subscription.status === "past_due" ? "pagamento pendente" : "aguardando pagamento"}.</p>
           {subscription.current_period_end && <p style={{ margin: "6px 0", fontSize: 13 }}>Período atual até {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}.</p>}
-          {subscription.status === "pending" && subscription.checkout_url && <button type="button" onClick={() => window.location.assign(subscription.checkout_url!)} style={{ marginTop: 8, border: 0, borderRadius: 10, padding: "10px 14px", background: "#b9ed70", color: "#15200d", fontWeight: 800, cursor: "pointer" }}>Continuar pagamento</button>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #547b60", borderRadius: 10, padding: "10px 14px", background: "#1c3024", color: "#e3f7e8", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
+          {subscription.status === "pending" && <p role="status" style={{ margin: "10px 0 0", color: "#d8e7dc", fontSize: 13 }}>Estamos aguardando a confirmação do Mercado Pago. Você não precisa sair do CONNECT nem informar os dados do cartão novamente.</p>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #547b60", borderRadius: 10, padding: "10px 14px", background: "#1c3024", color: "#e3f7e8", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
         </div>
       )}
 
