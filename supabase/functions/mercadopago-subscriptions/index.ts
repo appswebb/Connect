@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
     const mpResponse = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(row.provider_subscription_id), {
       method: "PUT",
       headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "cancelled" }),
+      body: JSON.stringify({ status: "canceled" }),
     });
     const mpData = await mpResponse.json().catch(() => ({}));
     if (!mpResponse.ok) return json({ error: mpData.message || "O Mercado Pago não conseguiu cancelar a assinatura." }, 502);
@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
     const previous = await fetch("https://api.mercadopago.com/preapproval/" + encodeURIComponent(current.provider_subscription_id), {
       method: "PUT",
       headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "cancelled" }),
+      body: JSON.stringify({ status: "canceled" }),
     });
     if (!previous.ok) return json({ error: "Não foi possível encerrar a tentativa de pagamento anterior. Tente novamente." }, 502);
   }
