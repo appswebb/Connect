@@ -1,6 +1,6 @@
 # Mercado Pago — CONNECT
 
-A tela **Loja > Pacote CONNECT** usa assinaturas recorrentes para liberar buscas ilimitadas.
+A tela **Loja > Pacote CONNECT** oferece cartão com renovação automática e Pix com pagamento único para liberar buscas ilimitadas.
 
 ## Secrets no Supabase
 
@@ -27,6 +27,6 @@ Ative notificações de **Assinaturas** e **Pagamentos**. O endpoint valida o ca
 Os registros `connect-monthly` e `connect-annual` já foram criados no banco como inativos, para não cobrar um valor fictício. Antes de vender, defina o preço em reais e marque cada plano como ativo na tabela `public.connect_plans`.
 
 - Mensal: `billing_interval = 'month'`
-- Anual: `billing_interval = 'year'` (renovação a cada 12 meses)
+- Anual: `billing_interval = 'year'` (renovação a cada 12 meses no cartão; Pix libera 365 dias sem renovação automática)
 
-O CONNECT só libera buscas ilimitadas depois de receber e validar uma notificação de pagamento aprovado. O cancelamento interrompe renovações; o acesso permanece até o fim do período pago quando a data de término estiver disponível.
+No Pix, o QR Code tem validade de 30 minutos; o pacote mensal libera 30 dias e o anual libera 365 dias, sem renovação automática. O CONNECT só libera buscas ilimitadas depois de receber e validar uma notificação de pagamento aprovado. O cancelamento interrompe renovações; o acesso permanece até o fim do período pago quando a data de término estiver disponível.
