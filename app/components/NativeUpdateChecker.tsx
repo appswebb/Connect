@@ -25,6 +25,8 @@ function hasUnsavedWork() {
   for (const field of Array.from(fields)) {
     if (field instanceof HTMLInputElement && (field.type === "checkbox" || field.type === "radio")) {
       if (field.checked !== field.defaultChecked) return true;
+    } else if (field instanceof HTMLSelectElement) {
+      if (Array.from(field.options).some((option) => option.selected !== option.defaultSelected)) return true;
     } else if (field.value !== field.defaultValue) {
       return true;
     }
