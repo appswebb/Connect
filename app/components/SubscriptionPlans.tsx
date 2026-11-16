@@ -118,7 +118,8 @@ export default function SubscriptionPlans() {
       )}
 
       {loading ? <div style={{ display: "flex", alignItems: "center", gap: 9, padding: 24 }}><LoaderCircle size={18}/> Carregando planos...</div> :
-        plans.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
+        plans.length ? <>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
           {plans.map(plan => <article key={plan.id} style={{ border: "1px solid var(--border, #dedfe5)", borderRadius: 16, padding: 20, background: "var(--card, #fff)", display: "flex", flexDirection: "column", gap: 12 }}>
             <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#7771b9" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
             <h3 style={{ margin: 0, fontSize: 20 }}>{plan.name}</h3>
@@ -133,7 +134,7 @@ export default function SubscriptionPlans() {
           </article>)}
         </div>
         {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "var(--muted,#777)", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
-        :
+        </> :
           <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
             <strong>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
