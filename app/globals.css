@@ -1747,3 +1747,6 @@ button>svg{flex:none}
 /* The temporary-match image editor stays contained inside its chat overlay. */
 .queue-match-chat .crop-backdrop{position:absolute;inset:0;z-index:130;padding:12px;background:#05080bf2;backdrop-filter:blur(8px)}
 .queue-match-chat .crop-dialog{width:min(560px,100%);max-height:100%;padding:16px;overflow:auto}
+
+/* Ações das mensagens nas salas regionais */
+.room-message-content{min-width:0;flex:1}.room-message-actions{display:flex;gap:12px;margin-top:5px}.room-message-actions button,.room-replying button{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:var(--muted,#84909d);font-size:12px;padding:3px 0;cursor:pointer}.room-message-actions button:hover{color:var(--primary,#6c63ff)}.room-reply-quote{border-left:2px solid var(--primary,#6c63ff);padding:5px 9px;margin:0 0 7px;background:rgba(108,99,255,.07);border-radius:0 7px 7px 0;color:var(--muted,#84909d);font-size:12px;overflow-wrap:anywhere}.room-replying{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;margin:0 0 8px;border-radius:9px;background:rgba(108,99,255,.08);font-size:12px;color:var(--muted,#84909d)}.room-replying span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
