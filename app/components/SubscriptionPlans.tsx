@@ -38,7 +38,7 @@ export default function SubscriptionPlans() {
         .eq("active", true).gt("price_brl", 0).order("price_brl", { ascending: true }),
       supabase.from("connect_subscriptions")
         .select("id,plan_id,status,checkout_url,current_period_end,cancel_at_period_end")
-        .in("status", ["pending", "authorized", "paused", "past_due"])
+        .in("status", ["pending", "authorized", "paused", "past_due", "cancelled"])
         .order("created_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
     if (planResult.error) setMessage("Não foi possível carregar os planos: " + planResult.error.message);
@@ -86,7 +86,7 @@ export default function SubscriptionPlans() {
     }
   }
 
-  const active = subscription && ["authorized", "paused", "past_due"].includes(subscription.status);
+  const active = subscription && (["pending", "authorized", "paused", "past_due"].includes(subscription.status) || (subscription.status === "cancelled" && Boolean(subscription.current_period_end) && new Date(subscription.current_period_end!).getTime() > Date.now()));
   return (
     <section style={{ display: "grid", gap: 18 }}>
       <div style={{ borderRadius: 20, padding: 24, color: "#f7f8fb", background: "linear-gradient(135deg,#151b2d,#25204a 65%,#173b45)", border: "1px solid #ffffff1c" }}>
@@ -108,9 +108,9 @@ export default function SubscriptionPlans() {
       {active && subscription && (
         <div style={{ border: "1px solid #a9dfc1", background: "#effaf3", borderRadius: 16, padding: 18, color: "#174b30" }}>
           <strong style={{ display: "flex", alignItems: "center", gap: 8 }}><Crown size={18}/> Você tem uma assinatura CONNECT</strong>
-          <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : "pagamento pendente"}.</p>
+          <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : subscription.status === "cancelled" ? "renovação cancelada" : subscription.status === "past_due" ? "pagamento pendente" : "aguardando pagamento"}.</p>
           {subscription.current_period_end && <p style={{ margin: "6px 0", fontSize: 13 }}>Período atual até {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}.</p>}
-          {subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #8bbda0", borderRadius: 10, padding: "10px 14px", background: "white", color: "#174b30", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
+          {subscription.status === "pending" && subscription.checkout_url && <button type="button" onClick={() => window.location.assign(subscription.checkout_url!)} style={{ marginTop: 8, border: 0, borderRadius: 10, padding: "10px 14px", background: "#6c5ce7", color: "white", fontWeight: 700, cursor: "pointer" }}>Continuar pagamento</button>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #8bbda0", borderRadius: 10, padding: "10px 14px", background: "white", color: "#174b30", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
         </div>
       )}
 
