@@ -64,15 +64,19 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
           mkdir -p android/app/src/main/res/mipmap-mdpi android/app/src/main/res/mipmap-hdpi android/app/src/main/res/mipmap-xhdpi android/app/src/main/res/mipmap-xxhdpi android/app/src/main/res/mipmap-xxxhdpi
-          rsvg-convert -w 48 -h 48 public/icons/connect.svg -o android/app/src/main/res/mipmap-mdpi/ic_launcher.png
-          rsvg-convert -w 72 -h 72 public/icons/connect.svg -o android/app/src/main/res/mipmap-hdpi/ic_launcher.png
-          rsvg-convert -w 96 -h 96 public/icons/connect.svg -o android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-          rsvg-convert -w 144 -h 144 public/icons/connect.svg -o android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-          rsvg-convert -w 192 -h 192 public/icons/connect.svg -o android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-          mkdir -p android/app/src/main/res/drawable
-          cp public/icons/connect.svg android/app/src/main/res/drawable/connect_icon.svg
-          sed -i 's/android:icon="@mipmap\\/ic_launcher"/android:icon="@mipmap\\/ic_launcher"/' android/app/src/main/AndroidManifest.xml
+          for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            case "$density" in
+              mdpi) size=48 ;;
+              hdpi) size=72 ;;
+              xhdpi) size=96 ;;
+              xxhdpi) size=144 ;;
+              xxxhdpi) size=192 ;;
+            esac
+            rsvg-convert -w "$size" -h "$size" public/icons/connect.svg -o "android/app/src/main/res/mipmap-$density/ic_launcher.png"
+            cp "android/app/src/main/res/mipmap-$density/ic_launcher.png" "android/app/src/main/res/mipmap-$density/ic_launcher_round.png"
+          done
 
       - name: Build signed Android release
         if: steps.signing.outputs.ready == 'true'
