@@ -1952,3 +1952,59 @@ button>svg{flex:none}
 @media(max-width:700px){
   .topbar-actions{margin-left:auto;gap:7px}
 }
+
+
+/* Download page — visual renovado */
+.app-download{gap:22px}
+.app-download-hero{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:22px;align-items:center;min-height:340px;padding:clamp(22px,4vw,42px);border:1px solid #35452c;border-radius:24px;background:radial-gradient(ellipse at 80% 10%,#83c83c2b,transparent 38%),radial-gradient(ellipse at 5% 100%,#315a2b44,transparent 48%),linear-gradient(135deg,#17231a,#10171a 68%,#101b13)}
+.app-download-hero:after{content:"";position:absolute;inset:0;z-index:-1;background-image:linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,transparent,#000)}
+.app-download-hero-copy{max-width:590px}
+.app-download-eyebrow{display:inline-flex;align-items:center;gap:8px}
+.app-download-eyebrow i,.app-live-update i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px #c5f477}
+.app-download-hero h2{font:800 clamp(27px,4vw,43px)/1.12 Manrope;letter-spacing:-1.7px;margin:17px 0 12px;max-width:560px}
+.app-download-hero h2 em{font-style:normal;color:var(--lime)}
+.app-download-hero-copy>p{max-width:520px;color:#a7b4aa;font-size:12px;line-height:1.85}
+.app-download-hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:13px;margin-top:22px}
+.app-download-secondary,.app-install-hint,.app-installed-label{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;color:#d6e2d3}
+.app-download-secondary{padding:11px 13px;border:1px solid #526247;border-radius:10px}
+.app-download-secondary:hover{background:#ffffff0b}
+.app-installed-label{color:#c5f477}
+.app-download-benefits{display:flex;flex-wrap:wrap;gap:15px;margin-top:27px;color:#91a18f;font-size:9px}
+.app-download-benefits span{display:inline-flex;align-items:center;gap:6px}
+.app-download-benefits svg{width:13px;height:13px;color:var(--lime)}
+.app-download-art{height:260px;position:relative;display:grid;place-items:center}
+.app-download-orbit{position:absolute;border:1px solid #a8e76a25;border-radius:50%;transform:rotate(-24deg)}
+.app-download-orbit-one{width:260px;height:170px}
+.app-download-orbit-two{width:220px;height:240px;transform:rotate(38deg)}
+.app-download-device{position:relative;z-index:1;width:152px;height:230px;border:1px solid #b9ec8266;border-radius:27px;background:linear-gradient(155deg,#26372a,#0b110d 72%);box-shadow:0 25px 60px #0009,0 0 45px #8cda4c1c;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px}
+.app-download-device:before{content:"";position:absolute;inset:6px;border:1px solid #ffffff12;border-radius:22px;pointer-events:none}
+.app-download-device-camera{position:absolute;top:10px;width:38px;height:5px;border-radius:8px;background:#080c09}
+.app-download-device img{width:82px;height:82px;border-radius:23px;box-shadow:0 10px 35px #9aff3b25}
+.app-download-device strong{font:800 13px Manrope;letter-spacing:2px}
+.app-download-device small{font-size:7px;color:#9eae9a}
+.app-download-device-dots{display:flex;gap:5px;margin-top:5px}
+.app-download-device-dots i{width:4px;height:4px;border-radius:50%;background:#c5f477}
+.app-download-float{position:absolute;z-index:2;display:inline-flex;align-items:center;gap:7px;padding:9px 11px;border:1px solid #526747;background:#17231bd9;backdrop-filter:blur(10px);border-radius:11px;font-size:9px;font-weight:700;color:#e3efd9;box-shadow:0 10px 28px #0005}
+.app-download-float svg{width:14px;height:14px;color:var(--lime)}
+.app-download-float-one{top:38px;left:0}
+.app-download-float-two{right:-5px;bottom:42px}
+.app-download-platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.app-download-platform-card{padding:21px;border:1px solid #2d3a35;border-radius:17px;background:linear-gradient(145deg,#141d19,#10161b)}
+.app-download-android-card{background:radial-gradient(ellipse at 100% 0,#405c2c55,transparent 58%),#11191a;border-color:#405333}
+.app-download-platform-icon{width:39px;height:39px;border:1px solid #526b3b;background:#27351e;border-radius:12px;display:grid;place-items:center;color:var(--lime);margin-bottom:17px}
+.app-download-platform-icon svg{width:19px;height:19px}
+.app-download-platform-card h3{font:800 17px Manrope;margin:8px 0}
+.app-download-platform-card p,.app-download-platform-card li{font-size:10px;line-height:1.75;color:#9eaba3}
+.app-download-platform-card ol{padding-left:17px;margin:13px 0 18px}
+.app-download-platform-card .primary{margin-top:7px}
+.app-download-platform-card>small{display:block;margin-top:12px;color:#8c9b91;font-size:9px}
+.app-download-platform-card .app-download-status{margin-top:12px}
+.app-download-updates{display:grid;gap:12px}
+.app-download-updates>.section-heading{align-items:center}
+.app-live-update{display:inline-flex;align-items:center;gap:7px;color:#a9c697;font-size:8px;font-weight:800;letter-spacing:.7px}
+.app-site-release header strong,.app-site-release header time{display:inline-flex;align-items:center;gap:7px}
+.app-site-release header strong svg{color:var(--lime)}
+.app-download-footnote{display:flex;align-items:flex-start;gap:9px;padding:14px 16px;border:1px solid #2e3b32;border-radius:12px;background:#121a15;color:#a1afa0;font-size:9px;line-height:1.7}
+.app-download-footnote svg{flex:0 0 auto;color:var(--lime);width:15px;height:15px}
+.subscription-page-card{border:1px solid #34452e;border-radius:17px;padding:20px;background:#11191a}
+@media(max-width:760px){.app-download-hero{grid-template-columns:1fr;gap:0;padding:23px 19px}.app-download-art{height:245px;max-width:350px;width:100%;margin:0 auto}.app-download-float-one{left:0}.app-download-float-two{right:0}.app-download-platform-grid{grid-template-columns:1fr}.app-download-updates>.section-heading{align-items:flex-start;flex-direction:column;gap:9px}.app-download-benefits{gap:10px}.app-download-hero h2{font-size:30px}}
