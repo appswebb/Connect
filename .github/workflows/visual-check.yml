@@ -1,0 +1,32 @@
+name: CONNECT visual check
+# Gera capturas de tela do site exportado e as publica na branch visual-shots (somente imagens).
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/redesign-connect"]
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+      - run: npm install --no-save playwright && npx playwright install --with-deps chromium
+      - run: node scripts/visual-check.mjs
+        env:
+          SHOTS_DIR: shots
+      - name: Publicar capturas
+        run: |
+          set -e
+          cd shots
+          git init -q -b visual-shots
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Capturas de ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" visual-shots
