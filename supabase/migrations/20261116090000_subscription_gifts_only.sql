@@ -4,6 +4,7 @@ create table if not exists public.subscription_gifts (
   recipient_id uuid not null references auth.users(id) on delete restrict,
   plan_id text not null references public.connect_plans(id),
   duration_days integer not null check (duration_days in (30, 365)),
+  billing_interval text not null check (billing_interval in ('month', 'year')),
   amount_brl numeric(12,2) not null check (amount_brl > 0),
   status text not null default 'pending' check (status in ('pending','paid','failed','cancelled','refunded')),
   provider text not null default 'mercadopago',
