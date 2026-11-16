@@ -127,29 +127,6 @@ Deno.serve(async (req) => {
         }
         return response(200);
       }
-      const { data: coinOrder } = await admin.from("coin_orders")
-        .select("id,status,amount_brl").eq("id", externalReference).maybeSingle();
-      if (coinOrder) {
-        const paymentStatus = String(payment.status || "pending").toLowerCase();
-        const paymentId = String(payment.id || dataId);
-        if (paymentStatus === "approved") {
-          if (String(payment.currency_id || "") !== "BRL") return response(400);
-          const { error } = await admin.rpc("credit_coin_order", {
-            p_order_id: coinOrder.id,
-            p_payment_id: paymentId,
-            p_amount: Number(payment.transaction_amount || 0),
-            p_raw_event: payment,
-          });
-          if (error) return response(500);
-        } else if (["rejected", "cancelled", "refunded", "charged_back"].includes(paymentStatus)) {
-          const { error } = await admin.from("coin_orders").update({
-            status: paymentStatus, provider_payment_id: paymentId,
-            raw_event: payment, updated_at: new Date().toISOString(),
-          }).eq("id", coinOrder.id).eq("status", "pending");
-          if (error) return response(500);
-        }
-        return response(200);
-      }
     }
     const mpSubId = String(payment.preapproval_id || payment.subscription_id || "");
     if (!mpSubId) return response(200);
