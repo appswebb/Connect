@@ -6,9 +6,11 @@ import { Download, ExternalLink, Smartphone, RefreshCw, ShieldCheck } from "luci
 type ReleaseAsset = { name: string; browser_download_url: string; download_count: number };
 type Release = { tag_name: string; name: string; body: string; published_at: string; html_url: string; assets: ReleaseAsset[] };
 type InstallPrompt = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }> };
+type SiteVersion = { version: string; commit: string; updatedAt: string; changes: string };
 
 export default function AppDownload() {
   const [releases, setReleases] = useState<Release[]>([]);
+  const [siteVersion, setSiteVersion] = useState<SiteVersion | null>(null);
   const [loading, setLoading] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
@@ -26,6 +28,7 @@ export default function AppDownload() {
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     setInstalled(window.matchMedia("(display-mode: standalone)").matches);
+    fetch("/Connect/app-version.json", { cache: "no-store" }).then(response => response.ok ? response.json() as Promise<SiteVersion> : null).then(data => { if (data) setSiteVersion(data); }).catch(() => {});
     fetch("https://api.github.com/repos/appswebb/Connect/releases?per_page=8", { cache: "no-store" })
       .then(async response => {
         if (!response.ok) throw new Error("Não foi possível consultar as versões agora.");
@@ -55,6 +58,7 @@ export default function AppDownload() {
       <h2>Leve suas conexões com você.</h2>
       <p>O aplicativo abre o CONNECT em uma experiência própria de celular. Seu perfil, conversas, salas, transmissões, notificações e demais recursos continuam ligados à mesma conta do site.</p>
       <div className="app-download-status"><i/> O site continua funcionando normalmente pelo navegador</div>
+      {siteVersion && <div className="app-download-note"><strong>Última atualização do CONNECT: {new Date(siteVersion.updatedAt).toLocaleString("pt-BR",{dateStyle:"long",timeStyle:"short"})}</strong><br/>{siteVersion.changes} <small>· {siteVersion.version}</small></div>}
       {installed ? <p>O CONNECT já está instalado neste dispositivo.</p> : installPrompt ? <div><button className="primary" onClick={install}><Smartphone size={16}/> Instalar CONNECT neste celular</button></div> : <p>Para instalar agora pelo navegador, abra o menu do Chrome e escolha “Instalar aplicativo” ou “Adicionar à tela inicial”. No iPhone, use Compartilhar e depois “Adicionar à Tela de Início”.</p>}
     </section>
     <section className="app-download-card">
@@ -64,6 +68,7 @@ export default function AppDownload() {
     </section>
     <section>
       <div className="section-heading"><div><strong>Histórico de atualizações</strong><span>Versões e novidades publicadas para o aplicativo CONNECT.</span></div></div>
+      {siteVersion && <article className="app-release"><header><strong>Atualização do site · {siteVersion.version}</strong><time>{new Date(siteVersion.updatedAt).toLocaleString("pt-BR",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}</time></header><p>{siteVersion.changes}</p><small>Esta versão do site já está disponível. O aplicativo abre a versão atual automaticamente.</small></article>}
       {error && <div className="app-download-note">{error}</div>}
       {!loading && !releases.length && !error && <div className="app-download-note"><ShieldCheck size={15}/> A primeira versão pública ainda está sendo preparada. Assim que uma versão for publicada, a data e as novidades aparecerão aqui.</div>}
       <div className="app-release-list">{releases.map(release => {
