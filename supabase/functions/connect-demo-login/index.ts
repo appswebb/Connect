@@ -10,6 +10,12 @@ const corsHeaders = {
 };
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const demoEmail = "connect-demo@connect.app";
+function safeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("Origin");
@@ -31,7 +37,12 @@ Deno.serve(async (req: Request) => {
 
   let body: { username?: string; password?: string };
   try { body = await req.json(); } catch { return json({ error: "Dados inválidos." }, 400); }
-  if (body.username !== "l" || body.password !== "l") {
+  const expectedUsername = Deno.env.get("CONNECT_DEMO_USERNAME") || "";
+  const expectedPassword = Deno.env.get("CONNECT_DEMO_PASSWORD") || "";
+  if (!expectedUsername || !expectedPassword) {
+    return json({ error: "O acesso de demonstração ainda não foi configurado." }, 503);
+  }
+  if (!safeEqual(body.username || "", expectedUsername) || !safeEqual(body.password || "", expectedPassword)) {
     return json({ error: "Usuário ou senha de demonstração incorretos." }, 401);
   }
 
