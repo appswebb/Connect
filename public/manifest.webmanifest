@@ -8,8 +8,8 @@
   "scope": "/Connect/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#090c10",
-  "theme_color": "#090c10",
+  "background_color": "#070c1a",
+  "theme_color": "#070c1a",
   "categories": ["social", "communication"],
   "icons": [
     { "src": "/Connect/icons/connect.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
