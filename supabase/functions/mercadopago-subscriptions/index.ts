@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
   }).select("id").single();
   if (insertError || !pending) return json({ error: "Não foi possível iniciar a assinatura no banco." }, 500);
 
-  const frequencyType = plan.billing_interval === "year" ? "years" : "months";
+  const frequency = plan.billing_interval === "year" ? 12 : 1;
   const mpResponse = await fetch("https://api.mercadopago.com/preapproval", {
     method: "POST",
     headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json", "X-Idempotency-Key": pending.id },
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       reason: plan.name || "Pacote CONNECT - buscas ilimitadas",
       external_reference: pending.id,
       payer_email: user.email,
-      auto_recurring: { frequency: 1, frequency_type: frequencyType, transaction_amount: amount, currency_id: "BRL" },
+      auto_recurring: { frequency, frequency_type: "months", transaction_amount: amount, currency_id: "BRL" },
       back_url: backUrl,
     }),
   });
