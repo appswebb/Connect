@@ -3023,7 +3023,7 @@ button:not(.primary):not(.secondary){transition:background .18s,border-color .18
 .auth-intro>.brand>span:last-child{color:#b8a8ff!important}
 .auth-intro .brand-icon{width:43px;height:43px;border:1px solid #ffffff20;background:#ffffff12;border-radius:14px;box-shadow:0 10px 35px #09071855}
 .auth-intro .connect-brand-symbol{width:34px;height:34px}
-.auth-orbit-visual{position:absolute;z-index:-1;width:min(82%,720px);right:-10%;top:15%;opacity:.62;pointer-events:none}
+.auth-orbit-visual{position:absolute;z-index:0;pointer-events:none;width:min(82%,720px);right:-10%;top:15%;opacity:.62;pointer-events:none}
 .intro-copy{max-width:570px;position:relative}
 .intro-copy small,.auth-card>small{color:#a28bff!important;letter-spacing:2px}
 .intro-copy h1{color:#fff;font-size:clamp(46px,5.8vw,76px);letter-spacing:-4px;line-height:1.01}
