@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
   if (!Number.isFinite(amount) || amount <= 0) return json({ error: "O preço deste plano ainda não foi configurado." }, 409);
   if (!user.email) return json({ error: "Sua conta precisa ter um e-mail confirmado para assinar." }, 400);
 
-  const siteUrl = Deno.env.get("CONNECT_SITE_URL") || req.headers.get("origin") || "https://appswebb.github.io/Connect";
+  const siteUrl = Deno.env.get("CONNECT_SITE_URL") || "https://appswebb.github.io/Connect";
   const backUrl = siteUrl.replace(/\/$/, "") + "/?payment=return";
   const externalReference = crypto.randomUUID();
   const { data: pending, error: insertError } = await admin.from("connect_subscriptions").insert({
