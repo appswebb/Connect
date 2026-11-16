@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const BRAZIL_STATES: Record<string,string> = {
-  AC:"Acre", AL:"Alagoas", AP:"Amapá", AM:"Amazonas", BA:"Bahia", CE:"Ceará", DF:"Distrito Federal",
-  ES:"Espírito Santo", GO:"Goiás", MA:"Maranhão", MT:"Mato Grosso", MS:"Mato Grosso do Sul",
-  MG:"Minas Gerais", PA:"Pará", PB:"Paraíba", PR:"Paraná", PE:"Pernambuco", PI:"Piauí",
-  RJ:"Rio de Janeiro", RN:"Rio Grande do Norte", RS:"Rio Grande do Sul", RO:"Rondônia",
-  RR:"Roraima", SC:"Santa Catarina", SP:"São Paulo", SE:"Sergipe", TO:"Tocantins"
-};
+import { brazilStates } from "../lib/brazil";
 
 type Props = {
   stateCode: string;
@@ -62,7 +56,7 @@ export default function BrazilLocationPicker({
         Estado
         <select value={stateCode} onChange={event => onChange(event.target.value, "")}>
           <option value="">{allowAnyState ? "Qualquer estado" : "Selecione o estado"}</option>
-          {Object.entries(BRAZIL_STATES).map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
+          {Object.entries(brazilStates).map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
         </select>
       </label>
       <label>
