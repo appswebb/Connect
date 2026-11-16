@@ -228,7 +228,7 @@ export default function Home(){
    <article className="public-feature-card"><span className="public-feature-icon"><Heart/></span><small>04 · ENCONTRAR</small><h3>Conexões</h3><p>Descubra pessoas abertas a conversar e deixe novas conexões acontecerem.</p></article>
    <article className="public-feature-card"><span className="public-feature-icon"><MessageCircle/></span><small>05 · CONVERSAR</small><h3>Chat completo</h3><p>Converse, acompanhe solicitações e organize suas conversas e arquivadas.</p></article>
    <article className="public-feature-card"><span className="public-feature-icon"><Bell/></span><small>06 · ACOMPANHAR</small><h3>Notificações</h3><p>Fique por dentro de mensagens, interações e acontecimentos importantes.</p></article>
-   <article className="public-feature-card public-feature-wide"><span className="public-feature-icon"><ShoppingBag/></span><div><small>07 · PRESENTEAR</small><h3>Presentes virtuais</h3><p>Compartilhe carinho com presentes durante as experiências ao vivo e na loja.</p></div><span className="public-feature-arrow"><ArrowRight/></span></article>
+
   </div></section>
   <section className="public-bottom-cta"><div><span>SEU PRÓXIMO CAPÍTULO COMEÇA AQUI</span><h2>Uma conexão pode mudar o seu dia.</h2><p>Crie seu perfil e descubra o que acontece quando pessoas se encontram.</p></div><button className="primary" onClick={()=>{setMode("signup");setAuthScreen("auth");}}>Começar agora <ArrowRight size={17}/></button></section>
   <footer className="public-footer"><a className="brand"><span className="brand-icon"><Activity/></span>connect<span>.</span></a><span>CONNECT © 2026</span><span>PRIVACIDADE · RESPEITO · CONEXÃO</span></footer>
