@@ -1,0 +1,17 @@
+{
+  "id": "/Connect/",
+  "name": "CONNECT — Conexões reais",
+  "short_name": "CONNECT",
+  "description": "Conheça pessoas, converse e participe de comunidades em tempo real.",
+  "lang": "pt-BR",
+  "start_url": "/Connect/",
+  "scope": "/Connect/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090c10",
+  "theme_color": "#090c10",
+  "categories": ["social", "communication"],
+  "icons": [
+    { "src": "/Connect/icons/connect.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
