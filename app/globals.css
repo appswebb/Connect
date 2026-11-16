@@ -2238,3 +2238,113 @@ a:not(.primary):hover{color:#8ceee4}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+
+/* HOME PAGE REFINEMENT — CONNECT brand mark, spacing and responsive navigation */
+.public-home{
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse at 8% 12%,#167e8730 0,transparent 36%),
+    radial-gradient(ellipse at 92% 18%,#5544a638 0,transparent 40%),
+    radial-gradient(ellipse at 52% 96%,#245ca52b 0,transparent 48%),
+    #080b14;
+}
+.public-header{
+  width:min(1320px,calc(100% - 64px));
+  height:auto;min-height:88px;margin:0 auto;padding:16px 0;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+}
+.public-header .brand,.public-footer .brand{
+  display:inline-flex;align-items:center;gap:11px;flex:0 0 auto;
+  color:#f4f7ff;text-decoration:none;font-size:27px;font-weight:850;
+  letter-spacing:-1.5px;line-height:1;
+}
+.public-header .brand-icon,.public-footer .brand-icon{
+  width:46px;height:46px;min-width:46px;flex:0 0 46px;
+  display:grid;place-items:center;border-radius:15px;
+  color:#071321;background:linear-gradient(135deg,#72f0e2 0%,#72a9ff 58%,#a58bff 100%);
+  border:1px solid #ffffff45;box-shadow:0 8px 28px #5dcbf044, inset 0 1px #ffffff80;
+}
+.public-header .brand-icon svg,.public-footer .brand-icon svg{width:25px;height:25px;display:block}
+.public-header .brand>span:last-child,.public-footer .brand>span:last-child{color:#8c9fff}
+.public-header>div{
+  display:flex;align-items:center;justify-content:flex-end;gap:12px;
+  flex-wrap:nowrap;min-width:0;
+}
+.public-header>div>a,.public-header>div>button{
+  min-height:44px;min-width:max-content;padding:0 17px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:12px;font-size:12px;font-weight:750;line-height:1;
+  white-space:nowrap;text-decoration:none;flex:0 0 auto;
+}
+.public-header>div>.secondary{
+  color:#dce7fa;background:#111b2c;border:1px solid #344866;
+}
+.public-header>div>.primary{
+  color:#081322;background:linear-gradient(115deg,#72f0e2,#79b7ff 58%,#a58bff);
+  box-shadow:0 8px 26px #6bafff28;
+}
+.public-header>div>a:hover,.public-header>div>button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.public-hero{width:min(1320px,calc(100% - 64px));}
+.public-core{
+  background:linear-gradient(135deg,#78f1e4 0%,#72b8ff 55%,#a58bff 100%);
+  color:#081321;border:1px solid #ffffff65;
+  box-shadow:0 0 90px #6ab9ff50,0 0 150px #9b8cff25,inset 0 1px #ffffffa0;
+}
+.public-core svg{width:52px;height:52px;display:block}
+.public-orbit{border-color:#77c9ff42}
+.public-orbit-two{border-color:#9d91ff45}
+.public-orbit-three{border-color:#65e6df35}
+.public-float{
+  border:1px solid #7896c655;background:#111c30ed;color:#eaf1ff;
+  box-shadow:0 12px 36px #0005;white-space:nowrap;
+}
+.public-float svg{color:#79e9e1}
+.public-art-caption{color:#9cadd0}
+.public-hero-copy h1 em,.public-section-heading h2 em{
+  color:transparent;background:linear-gradient(110deg,#73f0e1,#7db8ff 55%,#b09aff);
+  background-clip:text;-webkit-background-clip:text;
+}
+.public-eyebrow{color:#a7e9f2}
+.public-eyebrow i{background:#72e9e2;box-shadow:0 0 16px #72e9e2}
+.public-actions button{min-height:52px;border-radius:12px}
+.public-actions .primary{background:linear-gradient(115deg,#72f0e2,#79b7ff 58%,#a58bff);color:#081321}
+.public-actions .secondary{background:#111b2c;border-color:#344866;color:#e3ebfa}
+.public-feature-card{border-color:#344461;background:linear-gradient(145deg,#17243add,#101827ed)}
+.public-feature-icon{color:#7de9e2;background:linear-gradient(135deg,#72f0e21c,#8b9eff24);border:1px solid #789fff30}
+.public-feature-card small,.public-bottom-cta>div>span{color:#91b7ff}
+.public-bottom-cta{border-color:#3a4d70;background:linear-gradient(115deg,#17243b,#171a32)}
+.public-bottom-cta .primary{background:linear-gradient(115deg,#72f0e2,#79b7ff 58%,#a58bff);color:#081321}
+.public-footer{border-color:#293b59}
+@media(max-width:760px){
+  .public-header{
+    width:calc(100% - 36px);min-height:0;padding:18px 0 16px;
+    display:grid;grid-template-columns:1fr;justify-items:stretch;gap:16px;
+  }
+  .public-header .brand{font-size:25px;justify-self:start}
+  .public-header .brand-icon,.public-footer .brand-icon{width:43px;height:43px;min-width:43px;flex-basis:43px}
+  .public-header>div{
+    width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:9px;align-items:stretch;
+  }
+  .public-header>div>a,.public-header>div>button{
+    width:100%;min-width:0;min-height:46px;padding:0 10px;
+    font-size:12px;white-space:normal;text-align:center;
+  }
+  .public-header>div>a:first-child{grid-column:1/-1;min-height:39px}
+  .public-hero{width:calc(100% - 36px);padding-top:22px}
+  .public-hero-copy{padding:20px 0 8px}
+  .public-hero-copy h1{font-size:clamp(43px,10.8vw,64px);line-height:1.03;letter-spacing:-2.8px}
+  .public-hero-art{width:100%;min-width:0;overflow:hidden}
+  .public-float{font-size:11px;padding:10px 11px;gap:6px}
+  .public-actions{display:grid;grid-template-columns:1fr;gap:10px}
+  .public-actions button{width:100%;min-height:50px}
+}
+@media(max-width:390px){
+  .public-header{width:calc(100% - 28px);gap:13px}
+  .public-header>div{gap:8px}
+  .public-header>div>a,.public-header>div>button{font-size:11px;padding:0 7px}
+  .public-hero{width:calc(100% - 32px)}
+  .public-hero-copy h1{font-size:42px;letter-spacing:-2.4px}
+  .public-hero-art{height:285px;min-height:285px}
+}
