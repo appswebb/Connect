@@ -179,6 +179,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
     void load();
     const channel=supabase.channel("live-economy-"+liveId)
       .on("postgres_changes",{event:"*",schema:"public",table:"live_battles",filter:"live_id=eq."+liveId},()=>void load())
+      .subscribe();
 
     return()=>{active=false;void supabase.removeChannel(channel);};
   },[liveId]);
@@ -189,7 +190,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   },[battle?.id,battle?.status,battle?.ends_at]);
   async function startBattle(challengerId:string){
     const {data,error:e}=await supabase.rpc("create_live_battle",{p_live_id:liveId,p_challenger_user_id:challengerId,p_duration_seconds:300});
-    if(e)setError(e.message);else setGiftMessage("Convite de batalha enviado!");
+    if(e)setError(e.message);
   }
   async function answerBattle(accept:boolean){
     if(!battle)return;const {data,error:e}=await supabase.rpc("respond_live_battle",{p_battle_id:battle.id,p_accept:accept});
