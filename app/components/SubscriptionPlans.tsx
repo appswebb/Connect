@@ -128,10 +128,12 @@ export default function SubscriptionPlans() {
               {busy === plan.id ? "Abrindo checkout..." : plan.active ? "Comprar para minha conta" : "Pagamento em validação"}
             </button>
             <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: 12, background: "transparent", color: "inherit", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              <Gift size={16}/> Presentear um amigo
+              <Gift size={16}/> {plan.active ? "Presentear um amigo" : "Presente em validação"}
             </button>
           </article>)}
-        </div> :
+        </div>
+        {plans.some(plan => !plan.active) && <p style={{ margin: 0, color: "var(--muted,#777)", fontSize: 13, lineHeight: 1.5 }}>Os valores dos pacotes já estão cadastrados. A compra e o presente serão liberados depois da validação final do checkout do Mercado Pago.</p>}
+        :
           <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
             <strong>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
