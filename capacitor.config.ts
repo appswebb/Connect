@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "CONNECT",
   webDir: "out",
   server: {
-    // O app carrega a mesma versão publicada do site; novas funções chegam sem reinstalar o APK.
+    // CONNECT é um invólucro Android fixo: identidade/ícone ficam no APK e o conteúdo vem do site publicado.
     url: "https://appswebb.github.io/Connect/",
     cleartext: false
   },
