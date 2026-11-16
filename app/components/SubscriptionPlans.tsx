@@ -5,6 +5,7 @@ import { Check, Crown, Gift, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } fr
 import { supabase } from "../lib/supabase";
 import SubscriptionGift from "./SubscriptionGift";
 import ConnectCardCheckout from "./ConnectCardCheckout";
+import ConnectPixCheckout from "./ConnectPixCheckout";
 
 type Plan = {
   id: string;
@@ -35,6 +36,7 @@ export default function SubscriptionPlans() {
   const [message, setMessage] = useState("");
   const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "pix">("card");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -111,11 +113,13 @@ export default function SubscriptionPlans() {
           }}
         >
           <div style={{ width: "100%", maxWidth: 1100, margin: "auto" }}>
-            <ConnectCardCheckout
-              plan={selectedPlan}
-              onBack={() => setSelectedPlan(null)}
-              onComplete={() => { setSelectedPlan(null); void load(); }}
-            />
+            <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+              <button type="button" onClick={()=>setPaymentMethod("card")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #ffffff25",background:paymentMethod==="card"?"#6554d8":"#151b2d",color:"#fff",fontWeight:800}}>Cartão · recorrente</button>
+              <button type="button" onClick={()=>setPaymentMethod("pix")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #ffffff25",background:paymentMethod==="pix"?"#16845f":"#151b2d",color:"#fff",fontWeight:800}}>Pix · pagamento único</button>
+            </div>
+            {paymentMethod === "pix" ?
+              <ConnectPixCheckout plan={selectedPlan} onBack={() => setSelectedPlan(null)} onComplete={() => { setSelectedPlan(null); void load(); }} /> :
+              <ConnectCardCheckout plan={selectedPlan} onBack={() => setSelectedPlan(null)} onComplete={() => { setSelectedPlan(null); void load(); }} />}
           </div>
         </div>
       )}
@@ -139,7 +143,7 @@ export default function SubscriptionPlans() {
             <h3 style={{ margin: 0, fontSize: 20, color: "#f4f8f5" }}>{plan.name}</h3>
             <strong style={{ fontSize: 27, color: "#f4f8f5" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#aebbb4" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
             <p style={{ margin: 0, minHeight: 42, color: "#aebbb4", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
-            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
+            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
               {plan.active ? "Ver pagamento" : "Pagamento em validação"}
             </button>
             <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #405148", borderRadius: 10, padding: 12, background: "transparent", color: "#e8f0eb", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
