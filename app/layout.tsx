@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./styles/tokens.css";
 import "./globals.css";
 import "./styles/app-shell.css";
+import "./styles/queue.css";
 import "./styles/public.css";
 import "./styles/tour.css";
 import "./styles/auth.css";
