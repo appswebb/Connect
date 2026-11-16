@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Check, Crown, Gift, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import SubscriptionGift from "./SubscriptionGift";
+import ConnectCardCheckout from "./ConnectCardCheckout";
 
 type Plan = {
   id: string;
@@ -132,14 +133,11 @@ export default function SubscriptionPlans() {
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><Check size={17} color="#b9ed70"/> Buscas ilimitadas durante o período da assinatura</div>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><ShieldCheck size={17} color="#b9ed70"/> Pagamento processado com segurança pelo Mercado Pago</div>
               </div>
-              <div style={{ padding: 12, borderRadius: 12, background: "#ffffff0a", color: "#aeb6cb", fontSize: 12, lineHeight: 1.5 }}>
-                Na próxima etapa, você será direcionado ao ambiente seguro do Mercado Pago para escolher ou confirmar a forma de pagamento. A cobrança será recorrente conforme o plano escolhido.
-              </div>
-              {message && <div role="alert" style={{ marginTop: 14, padding: 12, borderRadius: 12, background: "#492b2b", border: "1px solid #a45b5b", color: "#ffe0e0", fontSize: 13 }}>{message}</div>}
-              <button type="button" disabled={Boolean(busy)} onClick={() => void subscribe(selectedPlan)} style={{ width: "100%", marginTop: 18, border: 0, borderRadius: 14, padding: 15, background: "linear-gradient(100deg,#7666f2,#5c52d8)", color: "white", fontSize: 15, fontWeight: 900, cursor: busy ? "wait" : "pointer", boxShadow: "0 8px 24px #5d51d84d", display: "flex", alignItems: "center", justifyContent: "center", gap: 9 }}>
-                {busy === selectedPlan.id ? <><LoaderCircle size={18}/> Conectando ao pagamento...</> : <>Continuar para pagamento seguro <ShieldCheck size={18}/></>}
-              </button>
-              <button type="button" disabled={Boolean(busy)} onClick={() => setSelectedPlan(null)} style={{ width: "100%", marginTop: 10, border: "1px solid #ffffff26", borderRadius: 14, padding: 13, background: "transparent", color: "#d8dbea", fontWeight: 750, cursor: "pointer" }}>Voltar aos planos</button>
+              <ConnectCardCheckout
+                plan={selectedPlan}
+                onBack={() => setSelectedPlan(null)}
+                onComplete={() => { setSelectedPlan(null); void load(); }}
+              />
               <div style={{ marginTop: 18, textAlign: "center", color: "#8992aa", fontSize: 11 }}>CONNECT · Pagamento protegido pelo Mercado Pago</div>
             </div>
           </div>
