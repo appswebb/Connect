@@ -62,8 +62,12 @@ Deno.serve(async (req) => {
 
   if (body.action !== "create" || !body.planId) return json({ error: "Ação ou plano inválido." }, 400);
   const { data: current } = await admin.from("connect_subscriptions")
-    .select("id,status").eq("user_id", user.id).eq("status", "authorized").limit(1).maybeSingle();
-  if (current) return json({ error: "Você já possui uma assinatura ativa. Cancele a renovação antes de contratar outro plano." }, 409);
+    .select("id,status,checkout_url").eq("user_id", user.id)
+    .in("status", ["pending", "authorized", "paused", "past_due"])
+    .order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (current?.status === "authorized") return json({ error: "Você já possui uma assinatura ativa. Cancele a renovação antes de contratar outro plano." }, 409);
+  if (current?.status === "pending" && current.checkout_url) return json({ init_point: current.checkout_url, subscription_id: current.id });
+  if (current) return json({ error: "Você já possui uma assinatura em andamento. Consulte o status antes de contratar outro plano." }, 409);
 
   const { data: plan, error: planError } = await admin.from("connect_plans")
     .select("id,name,description,billing_interval,price_brl,active")
