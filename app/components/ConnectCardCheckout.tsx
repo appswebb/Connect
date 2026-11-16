@@ -29,6 +29,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
   onCompleteRef.current = onComplete;
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [formReady, setFormReady] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -77,7 +78,8 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
           },
           callbacks: {
             onFormMounted: (mountError: unknown) => {
-              if (mountError) setError("Não foi possível carregar os campos do cartão. Atualize a página e tente novamente.");
+              if (mountError) { setError("Não foi possível carregar os campos seguros do cartão. Atualize a página e tente novamente."); setFormReady(false); }
+              else setFormReady(true);
               setLoading(false);
             },
             onSubmit: (event: Event) => {
