@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Check, Crown, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Crown, Gift, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import SubscriptionGift from "./SubscriptionGift";
 
@@ -11,6 +11,7 @@ type Plan = {
   description: string;
   billing_interval: "month" | "year";
   price_brl: number;
+  active: boolean;
 };
 type Subscription = {
   id: string;
@@ -31,12 +32,13 @@ export default function SubscriptionPlans() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [giftPlan, setGiftPlan] = useState<Plan | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     const [planResult, subResult] = await Promise.all([
-      supabase.from("connect_plans").select("id,name,description,billing_interval,price_brl")
-        .eq("active", true).gt("price_brl", 0).order("price_brl", { ascending: true }),
+      supabase.from("connect_plans").select("id,name,description,billing_interval,price_brl,active")
+        .in("id", ["connect-monthly", "connect-annual"]).gt("price_brl", 0).order("price_brl", { ascending: true }),
       supabase.from("connect_subscriptions")
         .select("id,plan_id,status,checkout_url,current_period_end,cancel_at_period_end")
         .in("status", ["pending", "authorized", "paused", "past_due", "cancelled"])
@@ -96,7 +98,7 @@ export default function SubscriptionPlans() {
         </div>
         <h2 style={{ margin: "12px 0 8px", fontSize: 26 }}>Buscas ilimitadas</h2>
         <p style={{ margin: 0, maxWidth: 620, color: "#d2d5e2", lineHeight: 1.6 }}>
-          Continue encontrando pessoas sem o limite diário de 20 buscas. Escolha cobrança mensal ou anual; a renovação é automática até o cancelamento.
+          Continue encontrando pessoas sem o limite diário de 20 buscas. Escolha o pacote mensal ou anual para sua conta, ou compre um deles para presentear um amigo.
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 18, color: "#d9f6e8", fontSize: 13 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Check size={15}/> Buscas ilimitadas enquanto a assinatura estiver válida</span>
@@ -118,23 +120,26 @@ export default function SubscriptionPlans() {
       {loading ? <div style={{ display: "flex", alignItems: "center", gap: 9, padding: 24 }}><LoaderCircle size={18}/> Carregando planos...</div> :
         plans.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
           {plans.map(plan => <article key={plan.id} style={{ border: "1px solid var(--border, #dedfe5)", borderRadius: 16, padding: 20, background: "var(--card, #fff)", display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#7771b9" }}>{plan.billing_interval === "month" ? "COBRANÇA MENSAL" : "COBRANÇA ANUAL"}</span>
+            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#7771b9" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
             <h3 style={{ margin: 0, fontSize: 20 }}>{plan.name}</h3>
-            <strong style={{ fontSize: 27 }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "var(--muted,#777)" }}> / {plan.billing_interval === "month" ? "mês" : "ano"}</small></strong>
+            <strong style={{ fontSize: 27 }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "var(--muted,#777)" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
             <p style={{ margin: 0, minHeight: 42, color: "var(--muted,#777)", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
-            <button type="button" disabled={Boolean(busy) || Boolean(active)} onClick={() => void subscribe(plan)} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: "pointer", opacity: busy || active ? .6 : 1 }}>
-              {busy === plan.id ? "Abrindo checkout..." : "Assinar com Mercado Pago"}
+            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => void subscribe(plan)} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#6c5ce7", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
+              {busy === plan.id ? "Abrindo checkout..." : plan.active ? "Comprar para minha conta" : "Pagamento em validação"}
+            </button>
+            <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: 12, background: "transparent", color: "inherit", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <Gift size={16}/> Presentear um amigo
             </button>
           </article>)}
         </div> :
           <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
             <strong>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
-              A estrutura de assinatura mensal e anual está preparada. Os preços estão cadastrados, mas os planos ainda não foram liberados para cobrança. A ativação acontecerá depois da validação completa do Mercado Pago. Nenhum pagamento será iniciado enquanto o plano estiver inativo.
+              Os dois pacotes e seus valores já estão cadastrados. A compra e o envio de presente serão liberados assim que a validação final do checkout do Mercado Pago terminar.
             </p>
           </div>
       }
-      <SubscriptionGift/>
+      {giftPlan && <SubscriptionGift plan={giftPlan} onClose={() => setGiftPlan(null)}/>}
       <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: "9px 12px", background: "transparent", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
       <small style={{ color: "var(--muted,#777)", lineHeight: 1.5 }}>A confirmação do pagamento é feita pelo servidor após validação da notificação do Mercado Pago. Não liberamos benefícios apenas pelo retorno do checkout.</small>
     </section>
