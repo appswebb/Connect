@@ -5,6 +5,7 @@ import { Gift, LoaderCircle, Search, Users } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 type Plan = { id: string; name: string; billing_interval: "month" | "year"; price_brl: number };
+// A friend is eligible only when both follow directions exist.
 type Friend = { id: string; username: string; display_name: string; avatar_url: string | null };
 
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
