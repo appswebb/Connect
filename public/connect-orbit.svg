@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 760" fill="none">
+<style>@media (prefers-reduced-motion: reduce){animate,animateTransform{display:none!important}}</style>
 <defs><radialGradient id="g"><stop stop-color="#63D9FF" stop-opacity=".32"/><stop offset=".5" stop-color="#7569FF" stop-opacity=".12"/><stop offset="1" stop-color="#070D20" stop-opacity="0"/></radialGradient><linearGradient id="l" x1="100" y1="80" x2="800" y2="680" gradientUnits="userSpaceOnUse"><stop stop-color="#70E7F2"/><stop offset=".5" stop-color="#668DFF"/><stop offset="1" stop-color="#B38AFF"/></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="22"/></filter></defs>
 <circle cx="470" cy="360" r="340" fill="url(#g)"/>
 <g opacity=".6" filter="url(#blur)"><circle cx="480" cy="360" r="190" fill="#386FFF" fill-opacity=".28"/></g>
