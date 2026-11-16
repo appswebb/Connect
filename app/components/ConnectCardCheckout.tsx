@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, CreditCard, LockKeyhole, LoaderCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
