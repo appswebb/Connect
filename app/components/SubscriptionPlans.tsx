@@ -93,37 +93,29 @@ export default function SubscriptionPlans() {
       </div>
 
       {selectedPlan && (
-        <div role="dialog" aria-modal="true" aria-labelledby="connect-checkout-title" style={{ position: "fixed", inset: 0, zIndex: 10000, overflowY: "auto", display: "grid", placeItems: "center", padding: 18, background: "rgba(5,8,15,.94)", backdropFilter: "blur(12px)" }}>
-          <div style={{ width: "100%", maxWidth: 480, borderRadius: 26, overflow: "hidden", border: "1px solid #ffffff24", background: "linear-gradient(160deg,#171d32 0%,#17172b 58%,#102a2b 100%)", boxShadow: "0 24px 90px #0009", color: "#f7f8ff" }}>
-            <div style={{ padding: "24px 24px 20px", background: "linear-gradient(120deg,#6c5ce7,#344b80 58%,#147b78)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: 2, color: "#e6e1ff" }}>CONNECT</div>
-                <h2 id="connect-checkout-title" style={{ margin: "8px 0 0", fontSize: 25, lineHeight: 1.15 }}>Finalizar assinatura</h2>
-              </div>
-              <div style={{ width: 48, height: 48, borderRadius: 16, display: "grid", placeItems: "center", background: "#ffffff20", border: "1px solid #ffffff35" }}><Crown size={25}/></div>
-            </div>
-            <div style={{ padding: 24 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#bdb4ff", fontSize: 11, fontWeight: 850, letterSpacing: 1.3 }}><ShieldCheck size={15}/> RESUMO DO PEDIDO</div>
-              <div style={{ marginTop: 16, padding: 18, borderRadius: 18, background: "#ffffff0a", border: "1px solid #ffffff18" }}>
-                <div style={{ fontSize: 13, color: "#b9bfd3" }}>Pacote selecionado</div>
-                <div style={{ marginTop: 5, fontSize: 20, fontWeight: 850 }}>{selectedPlan.name}</div>
-                <div style={{ marginTop: 5, color: "#b9bfd3", fontSize: 13 }}>{selectedPlan.billing_interval === "month" ? "Cobrança recorrente mensal" : "Cobrança recorrente anual"}</div>
-                <div style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid #ffffff1c", display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12 }}>
-                  <span style={{ color: "#c5c9d8", fontSize: 14 }}>Total de hoje</span>
-                  <strong style={{ fontSize: 28, letterSpacing: -.6 }}>{money(Number(selectedPlan.price_brl))}</strong>
-                </div>
-              </div>
-              <div style={{ display: "grid", gap: 12, margin: "18px 0", color: "#d7dbea", fontSize: 13, lineHeight: 1.5 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><Check size={17} color="#b9ed70"/> Buscas ilimitadas durante o período da assinatura</div>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}><ShieldCheck size={17} color="#b9ed70"/> Pagamento processado com segurança pelo Mercado Pago</div>
-              </div>
-              <ConnectCardCheckout
-                plan={selectedPlan}
-                onBack={() => setSelectedPlan(null)}
-                onComplete={() => { setSelectedPlan(null); void load(); }}
-              />
-              <div style={{ marginTop: 18, textAlign: "center", color: "#8992aa", fontSize: 11 }}>CONNECT · Pagamento protegido pelo Mercado Pago</div>
-            </div>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="connect-checkout-title"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10000,
+            overflowY: "auto",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            padding: "clamp(10px, 3vw, 28px)",
+            background: "rgba(5,8,15,.96)",
+            backdropFilter: "blur(14px)",
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: 1100, margin: "auto" }}>
+            <ConnectCardCheckout
+              plan={selectedPlan}
+              onBack={() => setSelectedPlan(null)}
+              onComplete={() => { setSelectedPlan(null); void load(); }}
+            />
           </div>
         </div>
       )}
