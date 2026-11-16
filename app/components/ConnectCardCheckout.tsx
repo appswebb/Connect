@@ -25,6 +25,7 @@ async function invokeErrorMessage(error: unknown, data: unknown, fallback: strin
 export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan: Plan; onBack: () => void; onComplete: () => void }) {
   const formRef = useRef<CardFormInstance | null>(null);
   const submittingRef = useRef(false);
+  const formReadyRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
   const [loading, setLoading] = useState(true);
@@ -78,13 +79,13 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
           },
           callbacks: {
             onFormMounted: (mountError: unknown) => {
-              if (mountError) { setError("Não foi possível carregar os campos seguros do cartão. Atualize a página e tente novamente."); setFormReady(false); }
-              else setFormReady(true);
+              if (mountError) { formReadyRef.current = false; setError("Não foi possível carregar os campos seguros do cartão. Atualize a página e tente novamente."); setFormReady(false); }
+              else { formReadyRef.current = true; setFormReady(true); }
               setLoading(false);
             },
             onSubmit: (event: Event) => {
               event.preventDefault();
-              if (submittingRef.current || !instance || !formReady) return;
+              if (submittingRef.current || !instance || !formReadyRef.current) return;
               const token = instance.getCardFormData()?.token;
               if (!token) { setError("Confira os dados do cartão e tente novamente."); return; }
               submittingRef.current = true;
@@ -114,7 +115,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
       }
     }
     void mount();
-    return () => { cancelled = true; instance?.unmount?.(); formRef.current = null; };
+    return () => { cancelled = true; formReadyRef.current = false; instance?.unmount?.(); formRef.current = null; };
   }, [plan.id, plan.price_brl]);
 
   return (
