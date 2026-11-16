@@ -2760,3 +2760,65 @@ button:not(.primary):not(.secondary){transition:background .18s,border-color .18
  .public-home:before,.auth-page:before,.public-hero-art:before,.public-eyebrow i{animation:none!important}
  .public-feature-card{transition:none!important}
 }
+
+
+/* CONNECT — acabamento leve para homepage e cadastro */
+.public-home:before,.auth-page:before{animation:none!important;transform:none!important}
+.public-home:after,.auth-page:after{opacity:.08}
+.public-hero-art:before{display:none!important}
+.public-hero-visual{filter:none!important;opacity:.78}
+.public-art-glow{filter:none!important;opacity:.55}
+.public-orbit{box-shadow:none!important;animation:none!important}
+.public-core{box-shadow:0 0 0 8px #7abaff0b!important;animation:none!important}
+.public-float{backdrop-filter:none!important;box-shadow:0 8px 24px #02071655!important}
+.public-eyebrow i{animation:none!important;box-shadow:0 0 7px #75f1e8}
+.public-feature-card{transition:border-color .15s ease!important}
+.public-feature-card:after{display:none}
+.auth-card{backdrop-filter:none!important;box-shadow:0 18px 48px #02071688,0 0 0 1px #9acfff0a inset!important}
+.signup-card{max-width:510px}
+.signup-card>.brand-icon{margin-bottom:14px}
+.signup-card>small{color:#8fe9ed;font-weight:800;letter-spacing:1.5px}
+.signup-card h2{max-width:390px}
+.signup-card>p{line-height:1.6}
+.signup-card .auth-tabs{margin-top:17px}
+.signup-card form{gap:12px}
+.signup-card label{font-size:11px;font-weight:700;color:#c6d5e8}
+.signup-card input,.signup-card select{transition:border-color .15s ease,background .15s ease}
+.signup-card input:focus,.signup-card select:focus{border-color:#73dce8;background:#0b1930}
+.signup-card .form-grid{align-items:start}
+.signup-card .primary{margin-top:4px;font-weight:800}
+@media(max-width:700px){
+ .public-hero-art{height:205px!important;min-height:205px!important;margin:0 -5px!important}
+ .public-hero-visual{inset:-6% 0!important;width:100%!important;height:112%!important;opacity:.68!important}
+ .public-float{box-shadow:none!important;padding:8px 10px}
+ .public-core{width:70px;height:70px;border-radius:22px}
+ .public-core svg{width:32px;height:32px}
+ .public-discover{margin-top:14px}
+ .public-feature-card{box-shadow:none!important}
+ .auth-page{background:#080f1d!important}
+ .auth-intro{min-height:130px!important;padding:14px 8px 5px!important}
+ .auth-orbit-visual{display:none!important}
+ .auth-intro:after{display:none!important}
+ .intro-copy{margin:10px 0 0!important}
+ .intro-copy small{padding:6px 9px!important}
+ .intro-copy h1{font-size:clamp(25px,7vw,32px)!important;margin:9px 0 5px!important}
+ .intro-copy p{max-width:310px!important;font-size:10px!important}
+ .auth-side{padding-bottom:0!important}
+ .signup-card{padding:17px 15px!important;border-radius:18px!important}
+ .signup-card>.brand-icon{display:none}
+ .signup-card h2{font-size:22px!important;letter-spacing:-.8px}
+ .signup-card>p{font-size:10px!important}
+ .signup-card .auth-tabs{margin:10px 0!important}
+ .signup-card form{gap:9px!important}
+ .signup-card label{font-size:10px!important}
+ .signup-card input,.signup-card select{height:42px!important;border-radius:10px!important}
+ .signup-card .form-grid{gap:8px!important}
+ .signup-card .primary{min-height:44px!important}
+ .signup-card .terms{margin:8px 0 0!important}
+}
+@media(max-width:370px){
+ .signup-card .form-grid{grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .public-feature-card,.signup-card input,.signup-card select{transition:none!important}
+}
