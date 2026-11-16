@@ -49,6 +49,7 @@ Deno.serve(async (req) => {
   }
 
   if (body.action === "create_pix") {
+    if (!accessToken) return json({ error: "Integração do Mercado Pago não configurada no servidor." }, 503);
     if (!body.planId) return json({ error: "Escolha um plano." }, 400);
     if (!user.email) return json({ error: "Sua conta precisa ter um e-mail confirmado para pagar com Pix." }, 400);
     const { data: plan, error: planError } = await admin.from("connect_plans")
