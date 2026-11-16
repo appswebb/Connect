@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Activity, Archive, ArrowRight, Ban, Bell, BellRing, Camera, Check, CheckCheck, Compass, Download, FileText, Flag, Globe2, Heart, ImagePlus, LogOut, Mail, MapPinned, Menu, MessageCircle, MessageSquare, Mic, Minus, Paperclip, Radio, Send, Settings, ShieldCheck, ShoppingBag, Sparkles, Square, Trash2, UserRound, UserSearch, Eye, Users, X } from "lucide-react";
+import { Activity, Archive, ArrowRight, Ban, Bell, BellRing, Camera, Check, CheckCheck, Compass, Download, FileText, Flag, Globe2, Heart, ImagePlus, LogOut, Mail, MapPin, MapPinned, Menu, MessageCircle, MessageSquare, Mic, Minus, Paperclip, Radio, Send, Settings, ShieldCheck, ShoppingBag, Sparkles, Square, Trash2, UserRound, UserSearch, Eye, Users, X } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import ImageCropper from "./components/ImageCropper";
 import LiveRoom from "./components/LiveRoom";
