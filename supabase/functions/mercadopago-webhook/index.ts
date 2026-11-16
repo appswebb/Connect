@@ -156,6 +156,33 @@ Deno.serve(async (req) => {
       }
       return response(200);
     }
+    const { data: pixCheckout } = externalReference ? await admin.from("connect_pix_checkouts")
+      .select("id,user_id,plan_id,amount_brl,duration_days,status")
+      .eq("id", externalReference).maybeSingle() : { data: null };
+    if (pixCheckout) {
+      const paymentStatus = String(payment.status || "pending").toLowerCase();
+      const paymentId = String(payment.id || dataId);
+      if (Number(payment.transaction_amount || 0) !== Number(pixCheckout.amount_brl) || String(payment.currency_id || "") !== "BRL") return response(400);
+      const mapped = ["approved","rejected","cancelled","refunded","charged_back"].includes(paymentStatus) ? paymentStatus : "pending";
+      const { error: updateError } = await admin.from("connect_pix_checkouts").update({
+        status: mapped, provider_payment_id: paymentId, paid_at: payment.date_approved || null,
+        updated_at: new Date().toISOString(),
+      }).eq("id", pixCheckout.id);
+      if (updateError) return response(500);
+      if (paymentStatus === "approved") {
+        const now = new Date();
+        const { data: current } = await admin.from("queue_entitlements").select("unlimited_until")
+          .eq("user_id", pixCheckout.user_id).maybeSingle();
+        const currentEnd = current?.unlimited_until ? new Date(current.unlimited_until) : now;
+        const base = currentEnd > now ? currentEnd : now;
+        const end = new Date(base.getTime() + Number(pixCheckout.duration_days) * 86400000);
+        const { error: entitlementError } = await admin.from("queue_entitlements").upsert({
+          user_id: pixCheckout.user_id, unlimited_until: end.toISOString(), updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+        if (entitlementError) return response(500);
+      }
+      return response(200);
+    }
     const mpSubId = String(payment.preapproval_id || payment.subscription_id || "");
     if (!mpSubId) return response(200);
     const { data: sub } = await admin.from("connect_subscriptions")
