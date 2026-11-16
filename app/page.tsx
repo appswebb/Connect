@@ -29,7 +29,7 @@ const ago=(d:string)=>{const n=Math.max(0,Date.now()-new Date(d).getTime());retu
 
 export default function Home(){
  const [session,setSession]=useState<Session|null>(null),[profile,setProfile]=useState<Profile|null>(null),[loading,setLoading]=useState(true);
- const [mode,setMode]=useState<"signup"|"signin">("signup"),[authScreen,setAuthScreen]=useState<"home"|"auth"|"demo">("home"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[demoUsername,setDemoUsername]=useState("l"),[demoPassword,setDemoPassword]=useState("l"),[name,setName]=useState(""),[username,setUsername]=useState(""),[gender,setGender]=useState("woman"),[description,setDescription]=useState(""),[looking,setLooking]=useState("any");
+ const [mode,setMode]=useState<"signup"|"signin">("signup"),[authScreen,setAuthScreen]=useState<"home"|"auth"|"demo">("home"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[demoUsername,setDemoUsername]=useState(""),[demoPassword,setDemoPassword]=useState(""),[name,setName]=useState(""),[username,setUsername]=useState(""),[gender,setGender]=useState("woman"),[description,setDescription]=useState(""),[looking,setLooking]=useState("any");
  const [tab,setTab]=useState("feed"),[error,setError]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false);
  const [chatView,setChatView]=useState<"direct"|"rooms">("direct"),[roomCode,setRoomCode]=useState("BR"),[roomMessages,setRoomMessages]=useState<RoomMessage[]>([]),[roomDraft,setRoomDraft]=useState(""),[roomReply,setRoomReply]=useState<RoomMessage|null>(null);
  const [lives,setLives]=useState<LiveSessionRow[]>([]),[liveTitle,setLiveTitle]=useState(""),[activeLive,setActiveLive]=useState<LiveSessionRow|null>(null);
@@ -257,6 +257,9 @@ export default function Home(){
    <article className="public-feature-card"><span className="public-feature-icon"><Heart/></span><small>04 · ENCONTRAR</small><h3>Conexões</h3><p>Descubra pessoas abertas a conversar e deixe novas conexões acontecerem.</p></article>
    <article className="public-feature-card"><span className="public-feature-icon"><MessageCircle/></span><small>05 · CONVERSAR</small><h3>Chat completo</h3><p>Converse, acompanhe solicitações e organize suas conversas e arquivadas.</p></article>
    <article className="public-feature-card"><span className="public-feature-icon"><Bell/></span><small>06 · ACOMPANHAR</small><h3>Notificações</h3><p>Fique por dentro de mensagens, interações e acontecimentos importantes.</p></article>
+   <article className="public-feature-card"><span className="public-feature-icon"><Sparkles/></span><small>07 · PRESENTEAR</small><h3>Presentes e moedas</h3><p>Valorize quem cria momentos especiais com presentes digitais e recursos da comunidade.</p></article>
+   <article className="public-feature-card"><span className="public-feature-icon"><CreditCard/></span><small>08 · EVOLUIR</small><h3>CONNECT Premium</h3><p>Desbloqueie benefícios exclusivos e gerencie sua assinatura dentro do próprio CONNECT.</p></article>
+   <article className="public-feature-card"><span className="public-feature-icon"><ShieldCheck/></span><small>09 · TER CONTROLE</small><h3>Privacidade e segurança</h3><p>Ferramentas para bloquear, denunciar e controlar suas interações com tranquilidade.</p></article>
 
   </div></section>
   <section className="public-bottom-cta"><div><span>SEU PRÓXIMO CAPÍTULO COMEÇA AQUI</span><h2>Uma conexão pode mudar o seu dia.</h2><p>Crie seu perfil e descubra o que acontece quando pessoas se encontram.</p></div><button className="primary" onClick={()=>{setMode("signup");setAuthScreen("auth");}}>Começar agora <ArrowRight size={17}/></button></section>
