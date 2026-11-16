@@ -11,6 +11,17 @@ declare global { interface Window { MercadoPago?: new (key: string, options?: Re
 
 const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
+async function invokeErrorMessage(error: unknown, data: unknown, fallback: string) {
+  const payload = data as { error?: string; message?: string } | null;
+  if (payload?.error || payload?.message) return payload.error || payload.message || fallback;
+  const context = (error as { context?: unknown } | null)?.context;
+  if (typeof Response !== "undefined" && context instanceof Response) {
+    const body = await context.clone().json().catch(() => null) as { error?: string; message?: string } | null;
+    if (body?.error || body?.message) return body.error || body.message || fallback;
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
 export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan: Plan; onBack: () => void; onComplete: () => void }) {
   const formRef = useRef<CardFormInstance | null>(null);
   const submittingRef = useRef(false);
@@ -27,7 +38,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
     async function mount() {
       try {
         const { data, error: keyError } = await supabase.functions.invoke("mercadopago-subscriptions", { body: { action: "public_key" } });
-        if (keyError || !data?.public_key) throw new Error(data?.error || keyError?.message || "Não foi possível preparar o pagamento.");
+        if (keyError || !data?.public_key) throw new Error(await invokeErrorMessage(keyError, data, "Não foi possível preparar o pagamento."));
         if (cancelled) return;
 
         const loadSdk = () => new Promise<void>((resolve, reject) => {
@@ -71,7 +82,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
             },
             onSubmit: (event: Event) => {
               event.preventDefault();
-              if (submittingRef.current || !instance) return;
+              if (submittingRef.current || !instance || !formReady) return;
               const token = instance.getCardFormData()?.token;
               if (!token) { setError("Confira os dados do cartão e tente novamente."); return; }
               submittingRef.current = true;
@@ -123,7 +134,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
         <label style={{ display: "grid", gap: 6, color: "#d8deed", fontSize: 12 }}>Parcelas<select id="connect-card-installments" style={inputStyle}/></label>
         <progress id="connect-card-progress" value="0" max="100" style={{ width: "100%", accentColor: "#8c7cff" }}/>
         {error && <div role="alert" style={{ padding: 11, borderRadius: 10, background: "#492b2b", border: "1px solid #a45b5b", color: "#ffe0e0", fontSize: 13 }}>{error}</div>}
-        <button type="submit" disabled={loading || submitting} style={{ width: "100%", border: 0, borderRadius: 13, padding: 15, background: "linear-gradient(100deg,#7666f2,#5c52d8)", color: "white", fontSize: 15, fontWeight: 900, cursor: loading || submitting ? "wait" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
+        <button type="submit" disabled={loading || submitting || !formReady} style={{ width: "100%", border: 0, borderRadius: 13, padding: 15, background: "linear-gradient(100deg,#7666f2,#5c52d8)", color: "white", fontSize: 15, fontWeight: 900, cursor: loading || submitting ? "wait" : "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
           {loading || submitting ? <><LoaderCircle size={18}/> {loading ? "Preparando checkout..." : "Confirmando assinatura..."}</> : <>Assinar com segurança <ShieldCheck size={18}/></>}
         </button>
       </form>
