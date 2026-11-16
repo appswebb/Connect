@@ -1913,3 +1913,22 @@ button>svg{flex:none}
  .people-hero-core{width:42px;height:42px;border-radius:14px}
  .people-hero-avatar{width:27px;height:27px;border-radius:9px}
 }
+
+
+/* CONNECT app download and PWA */
+.app-download{display:grid;gap:16px;margin:4px 0 34px}
+.app-download-card{border:1px solid #35452c;border-radius:17px;padding:22px;background:radial-gradient(ellipse at 100% 0,#435a2c66,transparent 58%),linear-gradient(145deg,#151f16,#11171d)}
+.app-download-card h2{font:800 21px Manrope;letter-spacing:-.7px;margin:8px 0}
+.app-download-card p{font-size:11px;line-height:1.7;color:#a1ada3;max-width:620px}
+.app-download-card .primary,.app-download-card .secondary{margin-top:8px}
+.app-download-eyebrow{font-size:9px;letter-spacing:1.4px;color:var(--lime);font-weight:800}
+.app-download-status{display:inline-flex;align-items:center;gap:7px;font-size:9px;color:#b9d99b}
+.app-download-status i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.app-release-list{display:grid;gap:10px}
+.app-release{border:1px solid #29343e;background:#11181e;border-radius:13px;padding:15px}
+.app-release header{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.app-release strong{font:700 12px Manrope}
+.app-release time,.app-release small{font-size:9px;color:#84919b}
+.app-release p{font-size:10px;color:#aab5bd;line-height:1.65;white-space:pre-wrap}
+.app-download-note{border:1px solid #29343e;background:#11181e;border-radius:13px;padding:15px;color:#8d99a3;font-size:10px;line-height:1.7}
+@media(max-width:760px){.app-download-card{padding:17px}.app-download-card h2{font-size:18px}.app-release header{align-items:flex-start;flex-direction:column;gap:5px}}
