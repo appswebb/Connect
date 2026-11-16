@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import {
-  ArrowRight, Ban, Bell, Check, Crown, Download, Eye, Flag, Gift, Globe2, Heart, Lock,
+  ArrowRight, Ban, Bell, Check, Crown, Download, Eye, Flag, Globe2, Heart, Lock,
   MapPin, MessageCircle, Mic, Moon, PhoneOff, Radio, ShieldCheck, Sparkles, Sun, Users, Video,
 } from "lucide-react";
 import { formatBRL, useReveal, useScrolled, usePublicPlans } from "./usePublic";
@@ -298,7 +298,7 @@ export default function Landing({ theme, onToggleTheme, onSignup, onSignin, onTo
           <div className="pub-head" data-reveal>
             <span className="pub-eyebrow">Assinatura</span>
             <h2 className="pub-h2">Mais buscas, mais conexões.</h2>
-            <p className="pub-sub">O pacote CONNECT libera buscas ilimitadas e pode ser dado de presente a outra pessoa.</p>
+            <p className="pub-sub">O pacote CONNECT libera buscas ilimitadas.</p>
           </div>
           <div className="pub-plans" data-reveal>
             {state === "loading" && [0, 1].map(n => (
@@ -312,7 +312,6 @@ export default function Landing({ theme, onToggleTheme, onSignup, onSignin, onTo
                 <p>{p.description}</p>
                 <ul className="pub-ticks">
                   <li><Crown size={16} /> Buscas ilimitadas</li>
-                  <li><Gift size={16} /> Pode ser dado de presente</li>
                   <li><Sparkles size={16} /> Renovação automática</li>
                 </ul>
                 <button type="button" className={"pub-btn " + (n === plans.length - 1 ? "pub-btn--primary" : "pub-btn--ghost")} onClick={onSignup}>Criar conta e assinar <ArrowRight size={16} /></button>

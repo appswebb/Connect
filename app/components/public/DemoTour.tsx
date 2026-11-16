@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import {
-  ArrowLeft, ArrowRight, Bell, CheckCheck, Compass, Crown, FlaskConical, Gift, Globe2, Heart, MessageCircle,
+  ArrowLeft, ArrowRight, Bell, CheckCheck, Compass, Crown, FlaskConical, Globe2, Heart, MessageCircle,
   Mic, MicOff, Moon, Newspaper, Paperclip, PhoneOff, Radio, Reply, Search, Send, Sun, Trash2, Users, Video, VideoOff,
 } from "lucide-react";
 import {
@@ -328,7 +328,7 @@ export default function DemoTour({ theme, onToggleTheme, onBack, onSignup, onSig
                     <strong>{p.name}</strong>
                     <div className="tour-plan__price">{formatBRL(Number(p.price_brl))}<small> / {p.billing_interval === "year" ? "ano" : "mês"}</small></div>
                     <p>{p.description}</p>
-                    <ul><li><Crown size={15} /> Buscas ilimitadas</li><li><Gift size={15} /> Pode ser dado de presente</li></ul>
+                    <ul><li><Crown size={15} /> Buscas ilimitadas</li></ul>
                     <button type="button" className="tour-btn tour-btn--solid" onClick={onSignup}>Criar conta para assinar <ArrowRight size={14} /></button>
                   </article>
                 ))}
