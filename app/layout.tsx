@@ -3,8 +3,8 @@ import "./globals.css";
 import NativeUpdateChecker from "./components/NativeUpdateChecker";
 
 export const metadata: Metadata = {
-  title: "CONNECT — Encontre sua conexão",
-  description: "Conheça pessoas, compartilhe momentos e converse.",
+  title: "CONNECT — Pessoas, conversas e comunidades",
+  description: "Conheça pessoas, converse em tempo real e participe de comunidades.",
   manifest: "/Connect/manifest.webmanifest",
   applicationName: "CONNECT",
   appleWebApp: { capable: true, title: "CONNECT", statusBarStyle: "black-translucent" },
