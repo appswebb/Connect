@@ -1794,3 +1794,24 @@ button>svg{flex:none}
 .location-current-row>strong{display:flex;align-items:center;gap:8px;font-size:14px}
 .location-current-row>span{font-size:13px;opacity:.72}
 .location-current-row button{flex:0 0 auto}
+
+/* Global location control in the top bar */
+.location-area{position:relative;display:flex;align-items:center}
+.location-trigger{position:relative;display:grid;place-items:center;width:40px;height:40px;border:1px solid #ffffff16;border-radius:12px;background:#ffffff07;color:#dce8df;cursor:pointer;transition:.18s}
+.location-trigger:hover,.location-trigger.is-open{border-color:#b8e98770;background:#b8e98714;color:var(--lime)}
+.location-panel{position:absolute;z-index:80;top:calc(100% + 12px);right:0;width:min(360px,calc(100vw - 28px));padding:17px;border:1px solid #34423b;border-radius:16px;background:#101815;box-shadow:0 20px 60px #0009;color:#edf3ee}
+.location-panel>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 10px}
+.location-panel>header>div{display:grid;gap:4px}
+.location-panel>header strong{font:800 15px Manrope}
+.location-panel>header small,.location-privacy-note{color:#93a39a;font-size:10px}
+.location-panel>header .location-close{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:8px;background:#ffffff0c;color:#cbd7cf;cursor:pointer}
+.location-panel>p{margin:0 0 13px;color:#aab8af;font-size:11px;line-height:1.65}
+.location-detect-button{width:100%;justify-content:center;min-height:42px}
+.location-manual{display:grid;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid #ffffff14}
+.location-manual>strong{font-size:11px;color:#dce6df}
+.location-manual .brazil-location-picker{display:grid;grid-template-columns:1fr;gap:9px}
+.location-manual .brazil-location-picker label{font-size:10px}
+.location-manual .brazil-location-picker select{height:40px}
+.location-manual>.secondary{width:100%;justify-content:center;min-height:39px}
+.location-privacy-note{display:block;margin-top:12px;line-height:1.5}
+@media(max-width:600px){.location-panel{right:-48px;width:min(340px,calc(100vw - 20px));}.location-trigger{width:36px;height:36px}}
