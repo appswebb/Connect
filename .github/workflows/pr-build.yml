@@ -1,4 +1,5 @@
 name: CONNECT pull request build
+# Ensures subscription and social features compile before merge
 on:
   pull_request:
     branches: ["main"]
