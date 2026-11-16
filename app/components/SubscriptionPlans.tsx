@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Check, Crown, LoaderCircle, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import SubscriptionGift from "./SubscriptionGift";
 
 type Plan = {
   id: string;
@@ -129,10 +130,11 @@ export default function SubscriptionPlans() {
           <div style={{ border: "1px dashed var(--border,#c9cbd4)", borderRadius: 16, padding: 22 }}>
             <strong>Planos em configuração</strong>
             <p style={{ margin: "8px 0 0", color: "var(--muted,#777)", lineHeight: 1.6 }}>
-              A estrutura de assinatura mensal e anual está preparada. Os valores ainda precisam ser definidos e cadastrados antes de liberar cobranças. Nenhum pagamento será iniciado sem um preço ativo.
+              A estrutura de assinatura mensal e anual está preparada. Os preços estão cadastrados, mas os planos ainda não foram liberados para cobrança. A ativação acontecerá depois da validação completa do Mercado Pago. Nenhum pagamento será iniciado enquanto o plano estiver inativo.
             </p>
           </div>
       }
+      <SubscriptionGift/>
       <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} style={{ justifySelf: "start", display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid var(--border,#ddd)", borderRadius: 10, padding: "9px 12px", background: "transparent", cursor: "pointer" }}><RefreshCw size={15}/> Atualizar assinatura</button>
       <small style={{ color: "var(--muted,#777)", lineHeight: 1.5 }}>A confirmação do pagamento é feita pelo servidor após validação da notificação do Mercado Pago. Não liberamos benefícios apenas pelo retorno do checkout.</small>
     </section>
