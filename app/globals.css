@@ -2008,3 +2008,12 @@ button>svg{flex:none}
 .app-download-footnote svg{flex:0 0 auto;color:var(--lime);width:15px;height:15px}
 .subscription-page-card{border:1px solid #34452e;border-radius:17px;padding:20px;background:#11191a}
 @media(max-width:760px){.app-download-hero{grid-template-columns:1fr;gap:0;padding:23px 19px}.app-download-art{height:245px;max-width:350px;width:100%;margin:0 auto}.app-download-float-one{left:0}.app-download-float-two{right:0}.app-download-platform-grid{grid-template-columns:1fr}.app-download-updates>.section-heading{align-items:flex-start;flex-direction:column;gap:9px}.app-download-benefits{gap:10px}.app-download-hero h2{font-size:30px}}
+
+/* Assinaturas: contraste reforçado para o tema escuro do CONNECT. */
+.subscription-page-card { color: #eef5ef; }
+.subscription-page-card > .section-heading strong { color: #f4f8f5; }
+.subscription-page-card > .section-heading span { color: #aebbb4; }
+.subscription-page-card button:focus-visible { outline: 2px solid #c5f477; outline-offset: 3px; }
+@media (max-width: 560px) {
+  .subscription-page-card { padding: 14px; }
+}
