@@ -1775,3 +1775,6 @@ button>svg{flex:none}
 .live-connect-checklist{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:8px 0 12px}.live-connect-checklist span{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid #ffffff12;border-radius:9px;background:#ffffff06;color:#c4d0c6;font-size:9px}.live-connect-checklist svg{color:var(--lime)}
 .live-connect-enhanced>.primary{min-width:190px;min-height:44px}
 @media(max-width:600px){.live-connect-enhanced{min-height:330px;padding:28px 16px}.live-connect-enhanced h3{font-size:19px}.live-connect-checklist{gap:6px}.live-connect-checklist span{font-size:8px;padding:7px 8px}}
+
+.live-card-actions{display:flex;align-items:center;gap:10px;flex:none}.live-card-actions .content-report-action{padding:9px 4px}
+@media(max-width:600px){.live-card-actions{grid-column:1/-1;justify-content:flex-end}}
