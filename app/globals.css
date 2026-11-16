@@ -1788,3 +1788,9 @@ button>svg{flex:none}
 .brazil-location-picker .location-picker-error{grid-column:1/-1;color:#f0a0a8;font-size:9px;line-height:1.5}
 .queue-filters .brazil-location-picker label{color:#9eabb1;font-size:9px}
 .queue-filters .brazil-location-picker select{min-height:37px;height:37px;padding:8px 10px;border-radius:8px;font-size:10px}
+
+
+.location-current-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 4px;padding:12px 14px;border:1px solid var(--line,#27313d);border-radius:14px;background:rgba(255,255,255,.025)}
+.location-current-row>strong{display:flex;align-items:center;gap:8px;font-size:14px}
+.location-current-row>span{font-size:13px;opacity:.72}
+.location-current-row button{flex:0 0 auto}
