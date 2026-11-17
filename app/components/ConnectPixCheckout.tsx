@@ -15,14 +15,14 @@ export default function ConnectPixCheckout({ plan, onBack, onComplete }: { plan:
  <div style={{display:"flex",alignItems:"center",gap:9,margin:"18px 0 12px",color:"#4d946b"}}><ShieldCheck size={19}/> Pix seguro pelo Mercado Pago</div>
  <h2 style={{fontSize:25,margin:"8px 0"}}>Pague com Pix</h2>
  <p style={{color:"#85899b",fontSize:13,lineHeight:1.55,margin:"0 0 16px"}}>{plan.name} · {money} · acesso por {plan.billing_interval==="year"?"365 dias":"30 dias"}. Pagamento único, sem renovação automática.</p>
- {!pix?<button type="button" onClick={()=>void createPix()} disabled={loading} style={{width:"100%",padding:14,border:0,borderRadius:12,background:"linear-gradient(100deg,#7778f3,#5b5cf0)",color:"white",fontWeight:900,display:"flex",justifyContent:"center",alignItems:"center",gap:9}}>{loading?<><LoaderCircle size={18}/> Gerando Pix...</>:<><QrCode size={18}/> Gerar QR Code Pix</>}</button>:
+ {!pix?<button type="button" onClick={()=>void createPix()} disabled={loading} style={{width:"100%",padding:14,border:0,borderRadius:12,background:"linear-gradient(100deg,#8274ff,#5b4bdb)",color:"white",fontWeight:900,display:"flex",justifyContent:"center",alignItems:"center",gap:9}}>{loading?<><LoaderCircle size={18}/> Gerando Pix...</>:<><QrCode size={18}/> Gerar QR Code Pix</>}</button>:
  <div style={{padding:12,borderRadius:16,background:"#f7f7fb",border:"1px solid #e6e7ef",textAlign:"center"}}>
  <img alt="QR Code Pix para pagamento" src={"data:image/png;base64,"+pix.image} style={{width:"min(220px,68vw)",height:"auto",objectFit:"contain",background:"white",borderRadius:12,padding:8,boxSizing:"border-box"}}/>
  <p style={{fontSize:12,color:"#85899b"}}>Escaneie o QR Code no aplicativo do seu banco</p>
  <button type="button" onClick={()=>void copyCode()} style={{width:"100%",display:"flex",justifyContent:"center",alignItems:"center",gap:8,padding:12,borderRadius:11,border:"1px solid #3e806d",background:"#f0efff",color:"#ffffff",fontWeight:850}}><Copy size={16}/>{copied?"Código copiado":"Copiar código Pix"}</button>
  <textarea readOnly value={pix.code} aria-label="Código Pix copia e cola" style={{width:"100%",height:78,marginTop:10,padding:10,boxSizing:"border-box",resize:"none",borderRadius:9,border:"1px solid #ffffff22",background:"#f8f8fc",color:"#343852",fontSize:11}}/>
  <p style={{fontSize:11,color:"#85899b"}}>Válido até {new Date(pix.expires).toLocaleString("pt-BR")}</p>
- <button type="button" onClick={()=>void checkStatus()} disabled={checking} style={{width:"100%",padding:12,border:0,borderRadius:11,background:"#5b5cf0",color:"white",fontWeight:850}}>{checking?"Consultando...":"Já paguei · verificar status"}</button></div>}
+ <button type="button" onClick={()=>void checkStatus()} disabled={checking} style={{width:"100%",padding:12,border:0,borderRadius:11,background:"#5b4bdb",color:"white",fontWeight:850}}>{checking?"Consultando...":"Já paguei · verificar status"}</button></div>}
  {message&&<p role="status" style={{marginTop:13,padding:11,borderRadius:10,background:"#fff7e8",color:"#916c36",fontSize:12,lineHeight:1.5}}>{message}</p>}
  <p style={{fontSize:11,color:"#8391ab",lineHeight:1.55,marginTop:14}}>A liberação ocorre somente após confirmação do pagamento pelo webhook do Mercado Pago.</p>
  </section>;
