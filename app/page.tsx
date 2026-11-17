@@ -229,6 +229,7 @@ export default function Home() {
     [description, setDescription] = useState(""),
     [looking, setLooking] = useState("any");
   const [tab, setTab] = useState("feed"),
+    [mobileMoreOpen, setMobileMoreOpen] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false);
@@ -4699,7 +4700,7 @@ export default function Home() {
             aria-label={label}
             aria-current={tab === id ? "page" : undefined}
             className={tab === id ? "active" : ""}
-            onClick={() => setTab(id)}
+            onClick={() => { setTab(id); setMobileMoreOpen(false); }}
           >
             <Icon />
             <span>{label}</span>
@@ -4710,14 +4711,32 @@ export default function Home() {
           type="button"
           title="Mais opções"
           aria-label="Mais opções"
-          aria-current={["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "page" : undefined}
-          className={["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
-          onClick={() => setTab(tab === "rooms" ? "lives" : "rooms")}
+          aria-expanded={mobileMoreOpen}
+          aria-haspopup="menu"
+          className={mobileMoreOpen || ["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
+          onClick={() => setMobileMoreOpen(value => !value)}
         >
           <Menu />
           <span>Mais</span>
         </button>
-      </nav>
-    </main>
+        {mobileMoreOpen && (
+          <div className="mobile-more-menu" role="menu" aria-label="Mais áreas do CONNECT">
+            {items.filter(([id]) => ["rooms", "lives"].includes(id)).map(([id, label, Icon]) => (
+              <button type="button" role="menuitem" key={id} className={tab === id ? "active" : ""} onClick={() => { setTab(id); setMobileMoreOpen(false); }}>
+                <Icon size={18} /><span>{label}</span>
+              </button>
+            ))}
+            <button type="button" role="menuitem" className={tab === "subscription" ? "active" : ""} onClick={() => { setTab("subscription"); setMobileMoreOpen(false); }}>
+              <CreditCard size={18} /><span>Assinatura</span>
+            </button>
+            <button type="button" role="menuitem" className={tab === "profile" ? "active" : ""} onClick={() => { setTab("profile"); setMobileMoreOpen(false); }}>
+              <UserRound size={18} /><span>Meu perfil</span>
+            </button>
+            <button type="button" role="menuitem" className={tab === "settings" ? "active" : ""} onClick={() => { setTab("settings"); setMobileMoreOpen(false); }}>
+              <Settings size={18} /><span>Configurações</span>
+            </button>
+          </div>
+        )}
+      </nav>    </main>
   );
 }
