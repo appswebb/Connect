@@ -381,3 +381,46 @@ html[data-theme="dark"] .connect-auth .entry-form{background:#202438!important;b
 html[data-theme="dark"] .connect-auth .entry-form h2{color:#f4f4fc!important}
 html[data-theme="dark"] .connect-auth .entry-form>p,html[data-theme="dark"] .connect-auth .entry-form label{color:#b7bdd0!important}
 html[data-theme="dark"] .connect-auth .entry-form input,html[data-theme="dark"] .connect-auth .entry-form select,html[data-theme="dark"] .connect-auth .entry-form textarea{background:#171a2a!important;border-color:#3a4059!important;color:#f4f4fc!important}
+
+
+/* Component hardening: consistent image sizing and a single people-directory card layout. */
+.connect-app img{max-width:100%;height:auto}
+.connect-app .avatar img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.connect-app .banner{height:clamp(150px,24vw,230px);background-size:cover;background-position:center;overflow:hidden}
+.connect-app .people-directory-card{display:block;width:100%;min-width:0;padding:0;text-align:left;appearance:none;-webkit-appearance:none;border:1px solid var(--cx-line);background:var(--cx-surface);color:var(--cx-ink);font:inherit;overflow:hidden;cursor:pointer}
+.connect-app .people-card-cover{height:clamp(84px,11vw,132px);background-size:cover;background-position:center;overflow:hidden}
+.connect-app .people-card-content{min-width:0}
+.connect-app .people-card-content>.avatar{display:block;object-fit:cover}
+.connect-app .people-card-identity{min-width:0;align-items:flex-end}
+.connect-app .people-card-identity strong,.connect-app .people-card-identity small,.connect-app .people-card-content p{overflow-wrap:anywhere;word-break:normal}
+.connect-app .people-card-content p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5;min-height:4.5em}
+.connect-app .people-hero-copy h1{font:700 clamp(25px,3vw,36px)/1.08 'Outfit',sans-serif;letter-spacing:-1.1px;margin:10px 0;color:#252344}
+.connect-app .people-hero-copy h1 em{font-style:normal;color:var(--cx-primary)}
+.connect-app .people-hero-stats>span{display:grid;gap:3px;min-width:0}
+.connect-app .people-hero-stats>span strong{font:800 22px 'Outfit',sans-serif;color:var(--cx-primary)}
+.connect-app .people-hero-stats>span small{font-size:9px;color:#8589a5}
+.connect-app .people-hero-stats>span em{font-size:10px;color:#777b98;font-style:normal}
+.connect-app .user-menu-panel>header{display:none}
+.connect-app .profile-ident{min-width:0}
+.connect-app .profile-ident>div:nth-child(2){min-width:0}
+@media(max-width:680px){
+ .connect-app .people-page-hero{display:block;padding:18px!important}
+ .connect-app .people-hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:18px}
+ .connect-app .people-hero-stats>span{padding:10px 8px;background:rgba(255,255,255,.72);border:1px solid rgba(91,75,219,.1);border-radius:12px}
+ .connect-app .people-hero-stats>span strong{font-size:18px}
+ .connect-app .people-hero-stats>span small{font-size:8px;letter-spacing:.02em}
+ .connect-app .people-hero-stats>span em{display:none}
+ .connect-app .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .connect-app .people-card-cover{height:78px!important}
+ .connect-app .people-card-content{padding:0 10px 12px!important}
+ .connect-app .people-card-content>.avatar{width:56px;height:56px}
+ .connect-app .profile-ident{gap:10px;padding:0 14px}
+ .connect-app .profile-active{display:none}
+ .connect-app .visitor-preview-trigger{margin-top:10px}
+}
+@media(max-width:380px){
+ .connect-app .people-directory-grid{grid-template-columns:1fr!important}
+ .connect-app .people-hero-stats{grid-template-columns:1fr}
+ .connect-app .people-hero-stats>span{grid-template-columns:auto 1fr;align-items:center}
+ .connect-app .people-hero-stats>span em{display:block;grid-column:2}
+}
