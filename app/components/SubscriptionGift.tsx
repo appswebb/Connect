@@ -120,14 +120,14 @@ export default function SubscriptionGift({ plan, onClose }: { plan: Plan; onClos
     </label>
     {loading ? <div style={{ display: "flex", alignItems: "center", gap: 8 }}><LoaderCircle size={17}/> Carregando amigos...</div> : filtered.length ? (
       <div style={{ display: "grid", gap: 7, maxHeight: 220, overflowY: "auto" }}>
-        {filtered.map(friend => <button key={friend.id} type="button" onClick={() => setRecipientId(friend.id)} aria-pressed={recipientId === friend.id} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", border: recipientId === friend.id ? "2px solid #5b5cf0" : "1px solid var(--border,#ddd)", borderRadius: 10, padding: 9, background: "var(--card,#fff)", color: "inherit", cursor: "pointer" }}>
+        {filtered.map(friend => <button key={friend.id} type="button" onClick={() => setRecipientId(friend.id)} aria-pressed={recipientId === friend.id} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", border: recipientId === friend.id ? "2px solid #5b4bdb" : "1px solid var(--border,#ddd)", borderRadius: 10, padding: 9, background: "var(--card,#fff)", color: "inherit", cursor: "pointer" }}>
           {friend.avatar_url ? <img src={friend.avatar_url} alt="" style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover" }}/> : <span style={{ width: 34, height: 34, borderRadius: "50%", display: "grid", placeItems: "center", background: "var(--border,#ddd)" }}><Users size={16}/></span>}
           <span><strong>{friend.display_name || friend.username || "Usuário"}</strong><small style={{ display: "block", color: "var(--muted,#777)" }}>{friend.username ? "@" + friend.username : ""}</small></span>
           {recipientId === friend.id && <strong style={{ marginLeft: "auto" }}>✓</strong>}
         </button>)}
       </div>
     ) : <p style={{ color: "var(--muted,#777)", margin: 0, fontSize: 13 }}>{friends.length ? "Nenhum amigo encontrado." : "Você ainda não tem amigos com seguimento mútuo. Os dois precisam se seguir."}</p>}
-    <button type="button" disabled={busy || loading || !recipientId} onClick={() => void gift()} style={{ border: 0, borderRadius: 10, padding: 13, background: "#5b5cf0", color: "white", fontWeight: 800, cursor: "pointer", opacity: busy || loading || !recipientId ? .55 : 1 }}>
+    <button type="button" disabled={busy || loading || !recipientId} onClick={() => void gift()} style={{ border: 0, borderRadius: 10, padding: 13, background: "#5b4bdb", color: "white", fontWeight: 800, cursor: "pointer", opacity: busy || loading || !recipientId ? .55 : 1 }}>
       {busy ? "Abrindo pagamento..." : "Comprar e enviar este pacote"}
     </button>
     {message && <p role="status" style={{ margin: 0, color: "#c65362" }}>{message}</p>}
