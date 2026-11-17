@@ -2050,7 +2050,7 @@ export default function Home() {
     );
   if (!session && authScreen === "home")
     return (
-      <main className="landing">
+      <main className="connect-home" data-screen="marketing">
         <header className="landing-header">
           <a className="landing-brand" href="#inicio">
             <img src="/Connect/connect-mark.svg" alt="" />
@@ -2244,7 +2244,7 @@ export default function Home() {
     );
   if (!session && authScreen === "demo")
     return (
-      <main className="entry-layout">
+      <main className="connect-auth" data-screen="authentication">
         <section className="entry-story">
           <a className="entry-brand">
             <img src="/Connect/connect-mark.svg" alt="" />
@@ -2668,8 +2668,8 @@ export default function Home() {
     </>
   );
   return (
-    <main className="app app-redesign">
-      <header className="sidebar">
+    <main className="connect-app" data-screen="workspace">
+      <aside className="connect-rail" aria-label="Navegação do CONNECT">
         <a className="brand" href="#" aria-label="CONNECT" onClick={(e) => { e.preventDefault(); setTab("feed"); }}>
           <span className="brand-icon">
             <img className="connect-brand-symbol" src="/Connect/connect-mark.svg" alt="" />
@@ -2689,8 +2689,8 @@ export default function Home() {
         <span className="sidebar-caption">
           <i /> SUA COMUNIDADE, SEU ESPAÇO
         </span>
-      </header>
-      <section className="main">
+      </aside>
+      <section className="connect-main">
         <header className="topbar">
           <div className="mobile-brand">
             <img src="/Connect/connect-mark.svg" alt="" />
@@ -4662,7 +4662,7 @@ export default function Home() {
           </>
         )}
       </section>
-      <aside className="right">
+      <aside className="connect-discover">
         <div className="rail-title">
           <small>CONNECT · AO SEU LADO</small>
           <Activity />
@@ -4690,8 +4690,8 @@ export default function Home() {
           CONNECT © 2026 <span>FEITO PARA APROXIMAR</span>
         </footer>
       </aside>
-      <nav className="mobile-nav" aria-label="Navegação principal">
-        {items.map(([id, label, Icon]) => (
+      <nav className="connect-bottom-nav" aria-label="Navegação principal">
+        {items.filter(([id]) => ["feed", "queue", "chat", "people"].includes(id)).map(([id, label, Icon]) => (
           <button
             type="button"
             key={id}
@@ -4706,6 +4706,17 @@ export default function Home() {
             {id === "queue" && queue === "waiting" && <i />}
           </button>
         ))}
+        <button
+          type="button"
+          title="Mais opções"
+          aria-label="Mais opções"
+          aria-current={["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "page" : undefined}
+          className={["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
+          onClick={() => setTab(tab === "rooms" ? "lives" : "rooms")}
+        >
+          <Menu />
+          <span>Mais</span>
+        </button>
       </nav>
     </main>
   );
