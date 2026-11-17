@@ -80,8 +80,8 @@ export default function SubscriptionPlans() {
   const active = subscription && (["pending", "authorized", "paused", "past_due"].includes(subscription.status) || (subscription.status === "cancelled" && Boolean(subscription.current_period_end) && new Date(subscription.current_period_end!).getTime() > Date.now()));
   return (
     <section style={{ display: "grid", gap: 18 }}>
-      <div style={{ borderRadius: 20, padding: 24, color: "#252941", background: "linear-gradient(135deg,#f0efff,#e9eaff 65%,#eff8f1)", border: "1px solid #ffffff1c" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#5b5cf0", fontSize: 12, fontWeight: 800, letterSpacing: 1.4 }}>
+      <div style={{ borderRadius: 20, padding: 24, color: "#252941", background: "linear-gradient(135deg,#efedff,#f6f4ff 65%,#f0f2fa)", border: "1px solid #ffffff1c" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#5b4bdb", fontSize: 12, fontWeight: 800, letterSpacing: 1.4 }}>
           <Sparkles size={17}/> PACOTE CONNECT
         </div>
         <h2 style={{ margin: "12px 0 8px", fontSize: 26 }}>Buscas ilimitadas</h2>
@@ -114,8 +114,8 @@ export default function SubscriptionPlans() {
         >
           <div style={{ width: "100%", maxWidth: 1100, margin: "auto" }}>
             <div style={{display:"flex",justifyContent:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-              <button type="button" onClick={()=>setPaymentMethod("card")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="card"?"#5b5cf0":"#f7f7fb",color:"#fff",fontWeight:800}}>Cartão · recorrente</button>
-              <button type="button" onClick={()=>setPaymentMethod("pix")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="pix"?"#5b5cf0":"#f7f7fb",color:"#fff",fontWeight:800}}>Pix · pagamento único</button>
+              <button type="button" onClick={()=>setPaymentMethod("card")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="card"?"#5b4bdb":"#f7f7fb",color:"#fff",fontWeight:800}}>Cartão · recorrente</button>
+              <button type="button" onClick={()=>setPaymentMethod("pix")} style={{padding:"9px 14px",borderRadius:10,border:"1px solid #e6e7ef",background:paymentMethod==="pix"?"#5b4bdb":"#f7f7fb",color:"#fff",fontWeight:800}}>Pix · pagamento único</button>
             </div>
             {paymentMethod === "pix" ?
               <ConnectPixCheckout plan={selectedPlan} onBack={() => setSelectedPlan(null)} onComplete={() => { setSelectedPlan(null); void load(); }} /> :
@@ -131,7 +131,7 @@ export default function SubscriptionPlans() {
           <strong style={{ display: "flex", alignItems: "center", gap: 8 }}><Crown size={18}/> Você tem uma assinatura CONNECT</strong>
           <p style={{ margin: "8px 0", fontSize: 14 }}>Status: {subscription.status === "authorized" ? "ativa" : subscription.status === "paused" ? "pausada" : subscription.status === "cancelled" ? "renovação cancelada" : subscription.status === "past_due" ? "pagamento pendente" : "aguardando pagamento"}.</p>
           {subscription.current_period_end && <p style={{ margin: "6px 0", fontSize: 13 }}>Período atual até {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}.</p>}
-          {subscription.status === "pending" && <><p role="status" style={{ margin: "10px 0 0", color: "#557b60", fontSize: 13 }}>Seu pagamento ainda não foi concluído. Continue pelo checkout seguro dentro do CONNECT.</p><button type="button" onClick={() => { const plan = plans.find(item => item.id === subscription.plan_id); if (plan) { setMessage(""); setSelectedPlan(plan); } else setMessage("Não foi possível localizar o plano desta assinatura. Atualize a página."); }} style={{ marginTop: 10, border: 0, borderRadius: 10, padding: "11px 15px", background: "#5b5cf0", color: "#fff", fontWeight: 850, cursor: "pointer" }}>Continuar pagamento no CONNECT</button></>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #d5e8da", borderRadius: 10, padding: "10px 14px", background: "#f6fbf7", color: "#3c6849", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
+          {subscription.status === "pending" && <><p role="status" style={{ margin: "10px 0 0", color: "#557b60", fontSize: 13 }}>Seu pagamento ainda não foi concluído. Continue pelo checkout seguro dentro do CONNECT.</p><button type="button" onClick={() => { const plan = plans.find(item => item.id === subscription.plan_id); if (plan) { setMessage(""); setSelectedPlan(plan); } else setMessage("Não foi possível localizar o plano desta assinatura. Atualize a página."); }} style={{ marginTop: 10, border: 0, borderRadius: 10, padding: "11px 15px", background: "#5b4bdb", color: "#fff", fontWeight: 850, cursor: "pointer" }}>Continuar pagamento no CONNECT</button></>}{subscription.status === "authorized" && !subscription.cancel_at_period_end && <button type="button" disabled={busy === "cancel"} onClick={() => void cancel()} style={{ marginTop: 8, border: "1px solid #d5e8da", borderRadius: 10, padding: "10px 14px", background: "#f6fbf7", color: "#3c6849", fontWeight: 700, cursor: "pointer" }}>{busy === "cancel" ? "Cancelando..." : "Cancelar renovação"}</button>}
         </div>
       )}
 
@@ -139,11 +139,11 @@ export default function SubscriptionPlans() {
         plans.length ? <>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
           {plans.map(plan => <article key={plan.id} style={{ border: "1px solid #e7e8ef", borderRadius: 16, padding: 20, background: "#ffffff", display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#5b5cf0" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
+            <span style={{ fontSize: 11, letterSpacing: 1.2, fontWeight: 800, color: "#5b4bdb" }}>{plan.billing_interval === "month" ? "PACOTE MENSAL · 1 MÊS" : "PACOTE ANUAL · 1 ANO"}</span>
             <h3 style={{ margin: 0, fontSize: 20, color: "#252941" }}>{plan.name}</h3>
             <strong style={{ fontSize: 27, color: "#252941" }}>{money(Number(plan.price_brl))}<small style={{ fontSize: 13, fontWeight: 500, color: "#85899b" }}> / {plan.billing_interval === "month" ? "1 mês" : "1 ano"}</small></strong>
             <p style={{ margin: 0, minHeight: 42, color: "#85899b", lineHeight: 1.5 }}>{plan.description || "Buscas ilimitadas no CONNECT."}</p>
-            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#5b5cf0", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
+            <button type="button" disabled={!plan.active || Boolean(busy) || Boolean(active)} onClick={() => { setMessage(""); setPaymentMethod("card"); setSelectedPlan(plan); }} style={{ marginTop: "auto", border: 0, borderRadius: 10, padding: 13, background: "#5b4bdb", color: "white", fontWeight: 800, cursor: plan.active ? "pointer" : "not-allowed", opacity: !plan.active || busy || active ? .6 : 1 }}>
               {plan.active ? "Ver pagamento" : "Pagamento em validação"}
             </button>
             <button type="button" disabled={!plan.active} onClick={() => setGiftPlan(plan)} style={{ border: "1px solid #e5e6ef", borderRadius: 10, padding: 12, background: "transparent", color: "#555a70", fontWeight: 750, cursor: plan.active ? "pointer" : "not-allowed", opacity: plan.active ? 1 : .55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
