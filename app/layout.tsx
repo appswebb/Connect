@@ -3,6 +3,7 @@ import "./globals.css";
 import "./styles/connect-redesign.css";
 import "./styles/connect-mobile-app.css";
 import NativeUpdateChecker from "./components/NativeUpdateChecker";
+import PWARegister from "./components/PWARegister";
 
 export const metadata: Metadata = {
   title: "CONNECT — Pessoas, conversas e comunidades",
@@ -15,13 +16,14 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport: Viewport = { themeColor: "#344bdb", width: "device-width", initialScale: 1, viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#5b4bdb", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
       <body>
         <NativeUpdateChecker />
+        <PWARegister />
         {children}
       </body>
     </html>
