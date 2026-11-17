@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./styles/connect-redesign.css";
+import "./styles/connect-mobile-app.css";
 import NativeUpdateChecker from "./components/NativeUpdateChecker";
 
 export const metadata: Metadata = {
