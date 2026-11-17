@@ -2904,13 +2904,6 @@ export default function Home() {
               </button>
               {userMenuOpen && (
                 <section className="user-menu-panel" aria-label="Menu da conta">
-                  <header>
-                    <Avatar p={profile} />
-                    <span>
-                      <strong>{profile.display_name}</strong>
-                      <small>@{profile.username}</small>
-                    </span>
-                  </header>
                   <button
                     type="button"
                     onClick={() => {
