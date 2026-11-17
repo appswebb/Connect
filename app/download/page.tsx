@@ -8,7 +8,7 @@ export const metadata = {
 export default function DownloadPage() {
   return <main className="download-page">
     <header className="download-page-header">
-      <a className="brand" href="/Connect/"><span className="brand-icon">C</span>connect<span>.</span></a>
+      <a className="brand" href="/Connect/"><span className="brand-icon"><img src="/Connect/connect-mark.svg" alt="" /></span>CONNECT</a>
       <a className="secondary" href="/Connect/">Voltar ao site</a>
     </header>
     <section className="download-page-content">

@@ -4,7 +4,6 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
-  Waypoints,
   Archive,
   ArrowRight,
   Ban,
@@ -2055,11 +2054,12 @@ export default function Home() {
         <header className="landing-header">
           <a className="landing-brand" href="#inicio">
             <img src="/Connect/connect-mark.svg" alt="" />
-            <span>connect</span>
+            <span>CONNECT</span>
           </a>
           <nav>
             <a href="#experiencia">Experiência</a>
-            <a href="#possibilidades">O que você encontra</a>
+            <a href="#como">Como funciona</a>
+            <a href="#possibilidades">Histórias</a>
           </nav>
           <div className="landing-actions">
             <button
@@ -2178,21 +2178,45 @@ export default function Home() {
             </article>
           </div>
         </section>
+        <section className="landing-steps" id="como">
+          <div className="landing-section-heading">
+            <span className="landing-kicker">COMO FUNCIONA</span>
+            <h2>
+              Três passos.
+              <br />
+              <span>E você já está dentro.</span>
+            </h2>
+          </div>
+          <ol className="landing-step-list">
+            <li>
+              <span>01</span>
+              <h3>Crie seu espaço</h3>
+              <p>Abra sua conta, escolha como quer aparecer e defina suas preferências.</p>
+            </li>
+            <li>
+              <span>02</span>
+              <h3>Encontre gente</h3>
+              <p>Descubra pessoas, salas do Brasil e transmissões ao vivo no mesmo lugar.</p>
+            </li>
+            <li>
+              <span>03</span>
+              <h3>Continue a conversa</h3>
+              <p>Fale no privado, publique no feed e acompanhe o que importa para você.</p>
+            </li>
+          </ol>
+        </section>
         <section className="landing-more" id="possibilidades">
-          <div>
+          <div className="landing-more-visual">
+            <img className="landing-more-photo" src="/Connect/images/community.webp" alt="Amigos reunidos ao pôr do sol" loading="lazy" width={1600} height={1000} />
+          </div>
+          <div className="landing-more-copy">
             <span className="landing-kicker">MAIS DO QUE UMA REDE SOCIAL</span>
             <h2>
               Compartilhe momentos.
               <br />
               <span>Crie novas histórias.</span>
             </h2>
-          </div>
-          <img className="landing-more-photo" src="/Connect/images/community.webp" alt="Comunidade celebrando junta" loading="lazy" width={1100} height={715} />
-          <div className="landing-more-copy">
-            <p>
-              Seu perfil, seu feed, notificações importantes, conexões e benefícios de assinatura — tudo pensado para funcionar junto, sem
-              complicar.
-            </p>
+            <p>Perfil, feed, notificações, conexões e assinatura continuam juntos — agora com uma casa mais clara.</p>
             <button
               className="landing-cta"
               onClick={() => {
@@ -2205,12 +2229,16 @@ export default function Home() {
           </div>
         </section>
         <footer className="landing-footer">
-          <a className="landing-brand">
+          <a className="landing-brand" href="#inicio">
             <img src="/Connect/connect-mark.svg" alt="" />
-            <span>connect</span>
+            <span>CONNECT</span>
           </a>
-          <span>© CONNECT 2026</span>
-          <span>FEITO PARA CONECTAR PESSOAS.</span>
+          <nav>
+            <a href="#experiencia">Experiência</a>
+            <a href="#como">Como funciona</a>
+            <a href="/Connect/download/">Baixar o app</a>
+          </nav>
+          <span>© CONNECT 2026 · FEITO PARA CONECTAR PESSOAS</span>
         </footer>
       </main>
     );
@@ -2220,7 +2248,7 @@ export default function Home() {
         <section className="entry-story">
           <a className="entry-brand">
             <img src="/Connect/connect-mark.svg" alt="" />
-            connect
+            CONNECT
           </a>
           <div className="entry-story-copy">
             <span>CONNECT / DEMONSTRAÇÃO</span>
@@ -2288,7 +2316,7 @@ export default function Home() {
         <section className="entry-story">
           <a className="entry-brand">
             <img src="/Connect/connect-mark.svg" alt="" />
-            connect
+            CONNECT
           </a>
           <div className="entry-story-copy">
             <span>SEU ESPAÇO COMEÇA AQUI</span>
@@ -2646,7 +2674,7 @@ export default function Home() {
           <span className="brand-icon">
             <img className="connect-brand-symbol" src="/Connect/connect-mark.svg" alt="" />
           </span>
-          <span>connect</span>
+          <span>CONNECT</span>
         </a>
         <nav aria-label="Navegação principal">
           {items.map(([id, label, Icon]) => (
@@ -2665,7 +2693,8 @@ export default function Home() {
       <section className="main">
         <header className="topbar">
           <div className="mobile-brand">
-            <Waypoints strokeWidth={2.4} /> connect<span>.</span>
+            <img src="/Connect/connect-mark.svg" alt="" />
+            CONNECT
           </div>
           <small>
             <i /> UM LUGAR PARA SE CONECTAR
