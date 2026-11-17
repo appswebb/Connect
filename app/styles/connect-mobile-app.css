@@ -1,0 +1,185 @@
+/* CONNECT / APP REFRAME
+   A structural mobile-first product shell: Android-style bottom destinations,
+   adaptive desktop rail, dedicated marketing/auth canvases and readable content.
+*/
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --cx-bg:#f4f5f8;
+  --cx-surface:#ffffff;
+  --cx-surface-soft:#f8f9fc;
+  --cx-ink:#171a2b;
+  --cx-muted:#73798c;
+  --cx-line:#e7e9f0;
+  --cx-primary:#5b4bdb;
+  --cx-primary-dark:#4032b5;
+  --cx-primary-soft:#efedff;
+  --cx-coral:#ff745f;
+  --cx-lime:#d9f278;
+  --cx-shadow:0 20px 60px rgba(26,31,61,.09);
+  --cx-radius:26px;
+  --cx-ease:cubic-bezier(.2,0,0,1);
+}
+html,body{min-height:100%;background:var(--cx-bg)}
+body{font-family:'DM Sans',sans-serif;color:var(--cx-ink)}
+button,input,textarea,select{font-family:inherit}
+button{ -webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid rgba(91,75,219,.45)!important;outline-offset:3px!important}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif;letter-spacing:-.035em}
+
+/* Marketing: new composition, not a recolor of the old shell */
+.connect-home{min-height:100svh!important;background:#101222!important;color:#f7f7fb!important;overflow:hidden}
+.connect-home .landing-header{width:min(1320px,calc(100% - 64px));height:86px;margin:auto;padding:0!important;border:0!important;background:transparent!important;display:flex;align-items:center;justify-content:space-between}
+.connect-home .landing-brand{font:800 21px 'Outfit',sans-serif!important;letter-spacing:.12em!important;color:#fff!important}
+.connect-home .landing-brand img{width:38px;height:38px;filter:drop-shadow(0 8px 22px rgba(116,96,255,.5))}
+.connect-home .landing-header nav{display:flex;gap:34px}
+.connect-home .landing-header nav a{font-size:13px;color:#a9aec2!important;transition:color .2s}
+.connect-home .landing-header nav a:hover{color:#fff!important}
+.connect-home .landing-actions{display:flex;align-items:center;gap:12px}
+.connect-home .landing-login{color:#fff!important;background:transparent!important;border:0!important;padding:12px 18px}
+.connect-home .landing-cta{background:var(--cx-lime)!important;color:#171a2b!important;border:0!important;border-radius:999px!important;box-shadow:0 8px 28px rgba(217,242,120,.15);font-weight:800!important}
+.connect-home .landing-cta:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(217,242,120,.23)}
+.connect-home .landing-hero{width:min(1320px,calc(100% - 64px));min-height:660px;margin:20px auto 110px!important;padding:58px 0 30px!important;display:grid!important;grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr)!important;align-items:center!important;gap:clamp(40px,7vw,110px)!important;position:relative}
+.connect-home .landing-hero:before{content:"";position:absolute;width:540px;height:540px;border-radius:50%;background:radial-gradient(circle,rgba(91,75,219,.27),transparent 68%);right:9%;top:4%;pointer-events:none}
+.connect-home .landing-copy{position:relative;z-index:1;max-width:650px}
+.connect-home .landing-kicker{color:#b8b3ff!important;font-size:11px!important;letter-spacing:.18em!important;font-weight:800!important}
+.connect-home .landing-copy h1{font:700 clamp(52px,6.3vw,88px)/.99 'Outfit',sans-serif!important;letter-spacing:-.065em!important;color:#fff!important;margin:28px 0!important}
+.connect-home .landing-copy h1 span{color:#b8b3ff!important}
+.connect-home .landing-copy p{max-width:530px;color:#aeb3c6!important;font-size:17px!important;line-height:1.8!important}
+.connect-home .landing-buttons{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.connect-home .landing-cta-big{padding:17px 25px!important;min-height:58px}
+.connect-home .landing-demo{border:1px solid #373b54!important;background:#1b1e32!important;color:#fff!important;border-radius:999px!important;padding:15px 22px!important}
+.connect-home .landing-note{margin-top:42px;color:#fff!important}
+.connect-home .landing-note small{color:#858ba3!important}
+.connect-home .landing-art{position:relative;z-index:1;min-height:560px!important;border-radius:36px!important;overflow:hidden!important;background:#292d45!important;box-shadow:0 40px 100px rgba(0,0,0,.35)!important;transform:rotate(1.5deg)}
+.connect-home .landing-photo{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;filter:saturate(.85)!important}
+.connect-home .landing-art:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,rgba(11,13,28,.88));pointer-events:none}
+.connect-home .landing-art-caption{position:absolute!important;z-index:2!important;left:28px!important;right:28px!important;bottom:26px!important;background:rgba(255,255,255,.12)!important;backdrop-filter:blur(18px)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:22px!important;color:#fff!important;padding:20px!important}
+.connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-possibilities,.connect-home .landing-footer{width:min(1320px,calc(100% - 64px));margin:0 auto!important}
+.connect-home .landing-experience{padding:80px 0!important;border-top:1px solid #2b2e43!important}
+.connect-home .landing-section-heading h2{font:700 clamp(40px,5vw,66px)/1.02 'Outfit',sans-serif!important;color:#fff!important}
+.connect-home .landing-section-heading h2 span{color:#b8b3ff!important}
+.connect-home .landing-section-heading p{color:#aeb3c6!important}
+.connect-home .landing-feature-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:18px!important}
+.connect-home .landing-feature-grid article{min-height:250px;background:#1b1e32!important;border:1px solid #30344d!important;border-radius:26px!important;padding:30px!important;color:#fff!important}
+.connect-home .landing-feature-grid article p{color:#aeb3c6!important;line-height:1.7}
+.connect-home .landing-feature-grid article h3{font-size:24px!important}
+.connect-home .landing-steps,.connect-home .landing-possibilities{padding:80px 0!important}
+.connect-home .landing-footer{border-top:1px solid #2b2e43!important;color:#aeb3c6!important;padding:32px 0!important}
+
+/* Authentication: focused app onboarding instead of a generic form panel */
+.connect-auth{min-height:100svh!important;background:#f0f1f7!important;display:grid!important;grid-template-columns:minmax(0,1.05fr) minmax(460px,.95fr)!important;padding:22px!important;gap:22px!important}
+.connect-auth .entry-story{border-radius:34px!important;min-height:calc(100svh - 44px)!important;background:#17192d!important;padding:clamp(34px,5vw,72px)!important;position:relative!important;overflow:hidden!important;color:#fff!important}
+.connect-auth .entry-story:before{content:"";position:absolute;width:540px;height:540px;border-radius:50%;background:radial-gradient(circle,rgba(112,94,255,.42),transparent 70%);right:-170px;bottom:-140px}
+.connect-auth .entry-brand{position:relative;z-index:1;color:#fff!important;font:800 20px 'Outfit',sans-serif!important;letter-spacing:.12em}
+.connect-auth .entry-story-copy{position:relative;z-index:1;max-width:610px;margin:clamp(80px,14vh,150px) 0 0!important}
+.connect-auth .entry-story-copy>span,.connect-auth .entry-overline{font-size:11px!important;letter-spacing:.18em!important;font-weight:800!important;color:#b8b3ff!important}
+.connect-auth .entry-story-copy h1{font:700 clamp(46px,5.5vw,76px)/1 'Outfit',sans-serif!important;letter-spacing:-.06em!important;color:#fff!important}
+.connect-auth .entry-story-copy h1 em{color:#b8b3ff!important}
+.connect-auth .entry-story-copy p{color:#b4b8ca!important;max-width:480px;line-height:1.8}
+.connect-auth .entry-photo{width:min(300px,52%)!important;height:190px!important;object-fit:cover!important;border-radius:24px!important;opacity:.9!important;box-shadow:0 24px 60px rgba(0,0,0,.28)}
+.connect-auth .entry-story footer{position:absolute;bottom:32px;left:clamp(34px,5vw,72px);color:#777d98!important;font-size:10px;letter-spacing:.12em}
+.connect-auth .entry-form-wrap{display:grid!important;place-items:center!important;padding:clamp(18px,4vw,64px)!important}
+.connect-auth .entry-form{width:min(100%,480px)!important;background:#fff!important;border:1px solid #e7e8ef!important;border-radius:30px!important;padding:clamp(28px,4vw,48px)!important;box-shadow:0 28px 90px rgba(28,31,57,.09)!important}
+.connect-auth .entry-back{color:#73798c!important;background:transparent!important;border:0!important;padding:0!important}
+.connect-auth .entry-mark{width:54px!important;height:54px!important;border-radius:18px!important;background:var(--cx-primary-soft)!important;color:var(--cx-primary)!important;margin:28px 0 22px!important}
+.connect-auth .entry-form h2{font:700 36px/1.05 'Outfit',sans-serif!important;color:var(--cx-ink)!important}
+.connect-auth .entry-form>p{color:var(--cx-muted)!important;line-height:1.65}
+.connect-auth .entry-tabs{background:#f1f2f7!important;border-radius:14px!important;padding:5px!important}
+.connect-auth .entry-tabs button{border-radius:10px!important;min-height:44px!important}
+.connect-auth .entry-tabs button.active{background:#fff!important;color:var(--cx-primary)!important;box-shadow:0 3px 12px rgba(20,25,50,.08)!important}
+.connect-auth .entry-form label{display:grid;gap:8px;color:#42485c!important;font-size:12px!important;font-weight:700!important;margin:16px 0!important}
+.connect-auth .entry-form input,.connect-auth .entry-form select{width:100%!important;min-height:50px!important;border:1px solid #e3e5ed!important;border-radius:13px!important;background:#fbfcfe!important;padding:0 14px!important;color:#20243a!important}
+.connect-auth .entry-submit{width:100%!important;min-height:54px!important;border-radius:14px!important;background:var(--cx-primary)!important;color:#fff!important;box-shadow:0 10px 24px rgba(91,75,219,.22)!important}
+.connect-auth .entry-terms{font-size:11px!important;line-height:1.6;color:#9297a7!important}
+
+/* Signed-in product shell: rail on large screens, bottom destinations on phones */
+.connect-app{min-height:100svh!important;background:var(--cx-bg)!important;display:grid!important;grid-template-columns:248px minmax(0,1fr) 310px!important;gap:0!important;color:var(--cx-ink)!important}
+.connect-app .connect-rail{position:sticky!important;top:0!important;height:100svh!important;align-self:start!important;background:#17192d!important;border:0!important;border-radius:0 28px 28px 0!important;padding:28px 18px!important;display:flex!important;flex-direction:column!important;gap:26px!important;z-index:20}
+.connect-app .connect-rail .brand{color:#fff!important;font:800 19px 'Outfit',sans-serif!important;letter-spacing:.1em!important;padding:8px 10px 20px!important}
+.connect-app .connect-rail nav{display:grid!important;gap:7px!important}
+.connect-app .connect-rail nav button{display:flex!important;align-items:center!important;gap:14px!important;width:100%!important;min-height:50px!important;padding:0 14px!important;border:0!important;border-radius:14px!important;background:transparent!important;color:#a9aec2!important;text-align:left!important}
+.connect-app .connect-rail nav button.selected{background:#302d56!important;color:#fff!important;box-shadow:inset 3px 0 #b8b3ff!important}
+.connect-app .connect-rail nav button svg{width:19px;height:19px}
+.connect-app .connect-rail .sidebar-caption{margin-top:auto!important;color:#737995!important;font-size:9px!important;letter-spacing:.14em}
+.connect-app .connect-main{min-width:0!important;padding:0 clamp(18px,3vw,48px) 48px!important;background:var(--cx-bg)!important}
+.connect-app .topbar{height:82px!important;max-width:1120px!important;margin:0 auto 26px!important;padding:0!important;border:0!important;background:transparent!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+.connect-app .topbar>small{font-size:10px!important;letter-spacing:.14em!important;color:#9298aa!important}
+.connect-app .topbar-actions{display:flex!important;align-items:center!important;gap:10px!important}
+.connect-app .topbar-actions>button,.connect-app .notification-trigger,.connect-app .location-trigger,.connect-app .user-menu-trigger{width:44px!important;height:44px!important;border:1px solid var(--cx-line)!important;border-radius:15px!important;background:#fff!important;color:#535a70!important;box-shadow:0 4px 14px rgba(25,30,60,.035)!important}
+.connect-app .heading{max-width:1120px!important;margin:0 auto 26px!important;padding:0!important}
+.connect-app .heading h1{font:700 clamp(32px,4vw,48px)/1.05 'Outfit',sans-serif!important;color:var(--cx-ink)!important}
+.connect-app .heading p{color:var(--cx-muted)!important}
+.connect-app .right{display:none!important}
+.connect-app .connect-discover{position:sticky!important;top:0!important;height:100svh!important;padding:28px 22px!important;background:#fff!important;border-left:1px solid var(--cx-line)!important;display:block!important}
+.connect-app .connect-discover .rail-title{color:#8a90a3!important}
+.connect-app .connect-discover .rail-card{background:#f2f0ff!important;border:0!important;border-radius:24px!important;padding:22px!important;overflow:hidden}
+.connect-app .connect-discover .rail-card h2{font:700 27px/1.1 'Outfit',sans-serif!important;color:#242342!important}
+.connect-app .connect-discover .rail-card p{color:#6c6b88!important;line-height:1.65}
+.connect-app .connect-discover .rail-photo{border-radius:18px!important}
+.connect-app .connect-discover .rail-tip{margin-top:18px!important;background:#f6f7fb!important;border:1px solid var(--cx-line)!important;border-radius:20px!important;padding:18px!important}
+.connect-app .connect-bottom-nav{display:none!important}
+
+/* Content modules: independent surfaces and readable rhythm */
+.connect-app .main-content,.connect-app .content,.connect-app .feed,.connect-app .people-content{min-width:0}
+.connect-app .post,.connect-app .panel,.connect-app .rooms-panel,.connect-app .subscription-page-card,.connect-app .profile-card,.connect-app .chat-panel,.connect-app .people-panel{background:var(--cx-surface)!important;border:1px solid var(--cx-line)!important;border-radius:22px!important;box-shadow:0 8px 28px rgba(25,30,60,.035)!important}
+.connect-app .post{padding:22px!important;margin-bottom:16px!important}
+.connect-app .post header{gap:12px!important}
+.connect-app .post-body,.connect-app .room-message-content p{font-size:14px!important;line-height:1.75!important;color:#353b50!important}
+.connect-app .section-heading{margin-bottom:18px!important}
+.connect-app input,.connect-app textarea,.connect-app select{max-width:100%;border-radius:13px!important}
+.connect-app button{transition:transform .18s var(--cx-ease),box-shadow .18s var(--cx-ease),background .18s var(--cx-ease)!important}
+.connect-app button:active{transform:scale(.975)}
+.connect-app .primary{background:var(--cx-primary)!important;color:#fff!important;border:0!important;border-radius:13px!important}
+.connect-app .empty{border:1px dashed #d9dce7!important;border-radius:22px!important;background:#fff!important;padding:42px 24px!important}
+.connect-app .notification-panel,.connect-app .location-panel,.connect-app .user-menu-panel{border:1px solid var(--cx-line)!important;border-radius:22px!important;box-shadow:var(--cx-shadow)!important}
+
+/* Responsive adaptation: the app is designed around thumb reach first */
+@media(max-width:1120px){
+ .connect-app{grid-template-columns:84px minmax(0,1fr)!important}
+ .connect-app .connect-rail{padding:24px 12px!important;border-radius:0 22px 22px 0!important}
+ .connect-app .connect-rail .brand>span:last-child,.connect-app .connect-rail nav button span,.connect-app .sidebar-caption{display:none!important}
+ .connect-app .connect-rail nav button{justify-content:center!important;padding:0!important}
+ .connect-app .connect-discover{display:none!important}
+}
+@media(max-width:760px){
+ .connect-home .landing-header{width:calc(100% - 36px);height:72px}
+ .connect-home .landing-header nav{display:none!important}
+ .connect-home .landing-actions{gap:4px}
+ .connect-home .landing-login{padding:10px!important}
+ .connect-home .landing-cta{padding:12px 16px!important}
+ .connect-home .landing-hero{width:calc(100% - 36px);min-height:0;margin:14px auto 62px!important;padding:34px 0 0!important;grid-template-columns:1fr!important;gap:34px!important}
+ .connect-home .landing-copy h1{font-size:clamp(46px,13vw,66px)!important}
+ .connect-home .landing-copy p{font-size:15px!important}
+ .connect-home .landing-art{min-height:420px!important;transform:none!important;border-radius:28px!important}
+ .connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-possibilities,.connect-home .landing-footer{width:calc(100% - 36px);padding:54px 0!important}
+ .connect-home .landing-feature-grid{grid-template-columns:1fr!important}
+ .connect-auth{display:block!important;padding:0!important;background:#f3f4f8!important}
+ .connect-auth .entry-story{min-height:0!important;height:auto!important;border-radius:0 0 28px 28px!important;padding:24px 24px 26px!important}
+ .connect-auth .entry-story-copy{margin:44px 0 0!important}
+ .connect-auth .entry-story-copy h1{font-size:42px!important}
+ .connect-auth .entry-photo{display:none!important}
+ .connect-auth .entry-story footer{display:none!important}
+ .connect-auth .entry-form-wrap{padding:20px 14px 36px!important}
+ .connect-auth .entry-form{border-radius:24px!important;padding:24px!important}
+ .connect-app{display:block!important;min-height:100svh!important;padding-bottom:calc(82px + env(safe-area-inset-bottom))!important}
+ .connect-app .connect-rail{display:none!important}
+ .connect-app .connect-main{padding:0 14px 30px!important}
+ .connect-app .topbar{height:66px!important;margin:0 0 18px!important;position:sticky!important;top:0!important;z-index:30!important;background:rgba(244,245,248,.92)!important;backdrop-filter:blur(18px)!important}
+ .connect-app .topbar>small{display:none!important}
+ .connect-app .mobile-brand{display:flex!important;align-items:center!important;gap:9px!important;font:800 16px 'Outfit',sans-serif!important;letter-spacing:.08em;color:var(--cx-ink)!important}
+ .connect-app .mobile-brand img{width:30px;height:30px}
+ .connect-app .heading{margin-bottom:18px!important}
+ .connect-app .heading h1{font-size:32px!important}
+ .connect-app .connect-bottom-nav{position:fixed!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px!important;left:10px!important;right:10px!important;bottom:calc(9px + env(safe-area-inset-bottom))!important;z-index:100!important;padding:8px 6px!important;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(22px)!important;border:1px solid rgba(222,225,236,.95)!important;border-radius:23px!important;box-shadow:0 14px 44px rgba(25,30,60,.16)!important}
+ .connect-app .connect-bottom-nav button{position:relative!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;min-width:0!important;min-height:52px!important;padding:4px 1px!important;border:0!important;border-radius:15px!important;background:transparent!important;color:#8b91a3!important}
+ .connect-app .connect-bottom-nav button svg{width:21px!important;height:21px!important;stroke-width:2.1}
+ .connect-app .connect-bottom-nav button span{font-size:9px!important;font-weight:700!important;white-space:nowrap}
+ .connect-app .connect-bottom-nav button.active{background:var(--cx-primary-soft)!important;color:var(--cx-primary)!important}
+ .connect-app .connect-bottom-nav button i{position:absolute;top:5px;right:calc(50% - 17px);width:7px;height:7px;border-radius:50%;background:var(--cx-coral)}
+ .connect-app .post,.connect-app .rooms-panel,.connect-app .subscription-page-card{border-radius:19px!important;padding:16px!important}
+ .connect-app .notification-panel,.connect-app .location-panel,.connect-app .user-menu-panel{position:fixed!important;top:70px!important;left:12px!important;right:12px!important;width:auto!important;max-width:none!important;max-height:calc(100svh - 100px)!important;overflow:auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
