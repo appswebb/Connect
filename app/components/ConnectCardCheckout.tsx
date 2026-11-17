@@ -135,7 +135,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
         .connect-pay-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
         .connect-pay-back{display:inline-flex;align-items:center;gap:8px;border:1px solid #e6e7ef;background:#f7f7fb;color:#62677d;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:750;cursor:pointer}
         .connect-pay-brand{display:flex;align-items:center;gap:9px;font-weight:950;letter-spacing:2px;font-size:16px}
-        .connect-pay-brandmark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#5b5cf0;box-shadow:0 7px 24px #5b5cf022}
+        .connect-pay-brandmark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#5b4bdb;box-shadow:0 7px 24px #5b4bdb22}
         .connect-pay-trust{display:flex;align-items:center;gap:9px;padding:11px 14px;border:1px solid #d5e8da;background:#eff8f1;border-radius:14px;color:#477653;font-size:12px;font-weight:750}
         .connect-pay-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(270px,.8fr);gap:18px;align-items:start}
         .connect-pay-panel{border:1px solid #e8e9f0;background:#ffffff;border-radius:23px;box-shadow:0 22px 70px rgba(32,36,58,.08);overflow:hidden}
@@ -144,15 +144,15 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
         .connect-pay-sub{font-size:13px;color:#85899b;line-height:1.6;margin:8px 0 22px}
         .connect-pay-steps{display:flex;align-items:center;gap:10px;margin:0 0 24px;color:#85899b;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
         .connect-pay-step{display:flex;align-items:center;gap:7px}
-        .connect-pay-stepnum{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#5b5cf0;color:white;font-size:11px}
+        .connect-pay-stepnum{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#5b4bdb;color:white;font-size:11px}
         .connect-pay-line{height:1px;max-width:42px;flex:1;background:#e8e9f0}
         .connect-pay-label{display:block;color:#555a70;font-size:12px;font-weight:750;margin:0 0 7px}
         .connect-pay-field{width:100%;min-height:47px;box-sizing:border-box;border:1px solid #e5e6ef;border-radius:12px;background:#fbfbfd;padding:11px 13px;color:#252941;outline:none;transition:border .18s,box-shadow .18s}
-        .connect-pay-field:focus{border-color:#8a8bf6;box-shadow:0 0 0 3px #8a8bf620}
+        .connect-pay-field:focus{border-color:#8274ff;box-shadow:0 0 0 3px #8274ff20}
         .connect-pay-mpfield{min-height:47px;border:1px solid #e5e6ef;border-radius:12px;background:#fbfbfd;padding:11px 13px;color:#252941;box-sizing:border-box}
         .connect-pay-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
         .connect-pay-fieldgroup{display:grid;gap:7px;margin-bottom:15px;min-width:0}
-        .connect-pay-submit{display:flex;justify-content:center;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;padding:16px;background:linear-gradient(105deg,#5b5cf0,#4748d5);box-shadow:0 12px 30px #5b5cf022;color:white;font-size:14px;font-weight:900;cursor:pointer;transition:transform .18s,filter .18s}
+        .connect-pay-submit{display:flex;justify-content:center;align-items:center;gap:10px;width:100%;border:0;border-radius:14px;padding:16px;background:linear-gradient(105deg,#5b4bdb,#4032b5);box-shadow:0 12px 30px #5b4bdb22;color:white;font-size:14px;font-weight:900;cursor:pointer;transition:transform .18s,filter .18s}
         .connect-pay-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08)}
         .connect-pay-submit:disabled{opacity:.58;cursor:not-allowed;box-shadow:none}
         .connect-pay-summary{padding:24px;position:relative;background:#f2f2ff}
@@ -302,7 +302,7 @@ export default function ConnectCardCheckout({ plan, onBack, onComplete }: { plan
             </div>
             <p className="connect-pay-note">O pagamento é processado pelo Mercado Pago. Os campos sensíveis do cartão são carregados pelo SDK oficial do provedor; o CONNECT não recebe o número completo nem o código de segurança.</p>
             <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 14, color: "#85899b", fontSize: 11 }}><ShieldCheck size={15} color="#4d946b"/> <span>Proteção de dados durante o pagamento</span></div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, color: "#85899b", fontSize: 11 }}><CreditCard size={15} color="#5b5cf0"/> <span>{isAnnual ? "Renovação a cada 12 meses" : "Renovação mensal"}</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, color: "#85899b", fontSize: 11 }}><CreditCard size={15} color="#5b4bdb"/> <span>{isAnnual ? "Renovação a cada 12 meses" : "Renovação mensal"}</span></div>
           </div>
         </aside>
       </div>
