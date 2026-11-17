@@ -8,8 +8,8 @@
   "scope": "/Connect/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f0c1a",
-  "theme_color": "#ff4d5e",
+  "background_color": "#101222",
+  "theme_color": "#5b4bdb",
   "categories": [
     "social",
     "communication"
