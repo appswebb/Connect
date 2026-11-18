@@ -37,6 +37,10 @@ A lista deve continuar sendo revisada função por função. O aviso não foi oc
 - Advisor: proteção contra senhas vazadas está desabilitada.
 - A configuração é do Supabase Auth e não é controlada por migration SQL deste repositório. Deve ser habilitada no painel em [Auth → Password Security](https://supabase.com/dashboard/project/trrakyybnvxpdhxwgjrz/auth/providers), avaliando o impacto para cadastro e alteração de senha.
 
+## Dependências
+
+A primeira auditoria npm encontrou avisos críticos/altos em Capacitor e PostCSS. As versões foram atualizadas para Capacitor 7.6.10 e PostCSS 8.5.25 via override, sem promover o Next.js 15 para uma nova major. O CI agora usa `npm ci`, mantém `package-lock.json` versionado e falha se restarem vulnerabilidades high/critical. A auditoria final após as atualizações está em execução.
+
 ## Performance e manutenção
 
 Após as migrations `20261118023249_optimize_rls_auth_initplans` e `20261118023313_consolidate_permissive_rls_policies`, o advisor deixou de apontar as 10 policies com chamadas de auth reavaliadas por linha e os 3 conjuntos de policies permissivas sobrepostas. As regras foram reescritas preservando os mesmos critérios de acesso e combinando as permissões por OR.
