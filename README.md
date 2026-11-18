@@ -56,4 +56,4 @@ Não copie tokens privados para arquivos versionados, código cliente, issues ou
 
 ## Auditoria funcional
 
-Consulte [PROJECT_FUNCTIONALITY_MATRIX.md](./PROJECT_FUNCTIONALITY_MATRIX.md) para inventário dos módulos, rastreabilidade e limites dos testes executados.
+Consulte [PROJECT_FUNCTIONALITY_MATRIX.md](./PROJECT_FUNCTIONALITY_MATRIX.md) para inventário funcional, [PROJECT_SECURITY_AUDIT.md](./PROJECT_SECURITY_AUDIT.md) para achados de segurança e [PROJECT_MIGRATION_AUDIT.md](./PROJECT_MIGRATION_AUDIT.md) para o estado do histórico de migrations.
