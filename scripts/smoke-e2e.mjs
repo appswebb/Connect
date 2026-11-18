@@ -121,6 +121,14 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 });
   await auditAccessibility("Sign-in mobile");
+
+  await page.getByRole("button", { name: "Criar conta", exact: true }).click();
+  await page.getByRole("heading", { name: "Crie seu espaço." }).waitFor();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await auditAccessibility("Sign-up desktop");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await auditAccessibility("Sign-up mobile");
+
   await page.getByRole("button", { name: "Voltar para o início" }).click();
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
