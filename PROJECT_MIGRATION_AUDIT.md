@@ -4,7 +4,7 @@
 
 Conferência realizada em 18/11/2026:
 - Banco Supabase conectado: **42 migrations aplicadas** no histórico remoto.
-- Repositório: **16 arquivos SQL** em `supabase/migrations/`.
+- Repositório: **19 arquivos SQL** em `supabase/migrations/`.
 - Existem versões locais duplicadas:
   - `20261116090000_connect_recurring_plans.sql`
   - `20261116090000_subscription_gifts_only.sql`
