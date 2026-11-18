@@ -20,16 +20,16 @@ jobs:
       - name: Install exact dependencies from package-lock.json
         run: npm ci
       - run: npm run build
+      - name: Audit dependencies
+        run: |
+          npm audit --json > /tmp/connect-npm-audit.json || true
+          node -e 'const a=require("/tmp/connect-npm-audit.json"); const v=a.metadata?.vulnerabilities||{}; console.log(JSON.stringify({info:v.info||0,low:v.low||0,moderate:v.moderate||0,high:v.high||0,critical:v.critical||0},null,2)); for(const [name,item] of Object.entries(a.vulnerabilities||{})) console.log(JSON.stringify({package:name,severity:item.severity,range:item.range,fixAvailable:item.fixAvailable,via:(item.via||[]).map(x=>typeof x==="string"?x:x.title)})); if((v.high||0)+(v.critical||0)>0) process.exit(1)'
       - name: Install browser test runtime
         run: npm install --no-save --package-lock=false playwright@1.56.1 axe-core@4.10.3
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run responsive browser smoke tests
         run: node scripts/smoke-e2e.mjs
-      - name: Audit dependencies
-        run: |
-          npm audit --json > /tmp/connect-npm-audit.json || true
-          node -e 'const a=require("/tmp/connect-npm-audit.json"); const v=a.metadata?.vulnerabilities||{}; console.log(JSON.stringify({info:v.info||0,low:v.low||0,moderate:v.moderate||0,high:v.high||0,critical:v.critical||0},null,2)); for(const [name,item] of Object.entries(a.vulnerabilities||{})) console.log(JSON.stringify({package:name,severity:item.severity,range:item.range,fixAvailable:item.fixAvailable,via:(item.via||[]).map(x=>typeof x==="string"?x:x.title)})); if((v.high||0)+(v.critical||0)>0) process.exit(1)'
       - name: Verify static export
         run: |
           test -s ./out/index.html
