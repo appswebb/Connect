@@ -1000,3 +1000,8 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
 .connect-auth .entry-overline{color:#3f5e45}
 .connect-auth .entry-form>p{color:#3f5044}
 .connect-auth .entry-terms{color:#46574a}
+
+html[data-theme="dark"] .connect-auth .entry-back{color:#dce7d7}
+html[data-theme="dark"] .connect-auth .entry-overline{color:#dce7d7}
+html[data-theme="dark"] .connect-auth .entry-form>p{color:#d0dfd0}
+html[data-theme="dark"] .connect-auth .entry-terms{color:#c5d3c7}
