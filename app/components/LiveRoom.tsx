@@ -69,6 +69,7 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   const [battle,setBattle]=useState<any>(null);
   const [acceptedGuests,setAcceptedGuests]=useState<any[]>([]);
   const [battleSeconds,setBattleSeconds]=useState(0);
+  const finishBattleRequestedRef=useRef<string|null>(null);
 
   const addTrack = useCallback((track: LiveTrack, participant: string, local: boolean) => {
     const key = (local ? "local-" : participant+"-") + (track as any).sid;
@@ -185,9 +186,18 @@ export default function LiveRoom({ liveId, isHost, onLeave }: { liveId: string; 
   },[liveId]);
   useEffect(()=>{
     if(!battle||battle.status!=="active"||!battle.ends_at)return;
-    const tick=()=>{const left=Math.max(0,Math.ceil((new Date(battle.ends_at).getTime()-Date.now())/1000));setBattleSeconds(left);if(left===0){void supabase.rpc("finish_live_battle",{p_battle_id:battle.id});}};
+    const tick=()=>{
+      const left=Math.max(0,Math.ceil((new Date(battle.ends_at).getTime()-Date.now())/1000));
+      setBattleSeconds(left);
+      if(left===0&&isHost&&finishBattleRequestedRef.current!==battle.id){
+        finishBattleRequestedRef.current=battle.id;
+        void supabase.rpc("finish_live_battle",{p_battle_id:battle.id}).then(({error})=>{
+          if(error){setError(error.message);finishBattleRequestedRef.current=null;}
+        });
+      }
+    };
     tick();const timer=window.setInterval(tick,1000);return()=>window.clearInterval(timer);
-  },[battle?.id,battle?.status,battle?.ends_at]);
+  },[battle?.id,battle?.status,battle?.ends_at,isHost]);
   async function startBattle(challengerId:string){
     const {data,error:e}=await supabase.rpc("create_live_battle",{p_live_id:liveId,p_challenger_user_id:challengerId,p_duration_seconds:300});
     if(e)setError(e.message);
