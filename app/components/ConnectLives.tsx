@@ -1,6 +1,13 @@
+"use client";
+
 import type { FormEvent } from "react";
 import { ArrowRight, Camera, Flag, Radio, Trash2 } from "lucide-react";
-import LiveRoom from "./LiveRoom";
+import dynamic from "next/dynamic";
+
+const LiveRoom = dynamic(() => import("./LiveRoom"), {
+  ssr: false,
+  loading: () => <div className="live-module-loading" role="status">Preparando transmissão...</div>,
+});
 import type { LiveSessionRow } from "../types/connect";
 
 type ConnectLivesProps = {
