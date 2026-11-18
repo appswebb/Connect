@@ -1160,7 +1160,17 @@ html,body{background:var(--cx-bg);color:var(--cx-ink)}
 .connect-home .landing-feature-grid article p,.connect-home .landing-step-list p{color:#d2c4cc}
 .connect-home .landing-feature-grid article>small{color:#ffc0bd}
 .connect-home .landing-feature-icon.violet,.connect-home .landing-feature-icon.peach,.connect-home .landing-feature-icon.blue,.connect-home .landing-feature-icon.lime{background:#563044;color:#ffb5a6}
-.connect-home .landing-footer{border-color:#59404c;color:#d2c4cc}.connect-home .landing-footer nav a{color:#d2c4cc}.connect-home .landing-footer .landing-brand{color:#fff}
+.connect-home .landing-brand{color:#fff}
+.connect-home .landing-steps{background:#241b28}
+.connect-home .landing-more{background:#fff8f5}
+.connect-home .landing-more-copy .landing-kicker{color:#c93655}
+.connect-home .landing-more-copy h2{color:#29212a}
+.connect-home .landing-more-copy h2 span{color:#c93655}
+.connect-home .landing-more-copy p{color:#786d75}
+.connect-home .landing-more-copy .landing-cta{background:linear-gradient(110deg,#ff3d6e,#ff6a3d 58%,#ffb547);color:#fff;border:0}
+.connect-home .landing-footer{border-color:#59404c;color:#d2c4cc}
+.connect-home .landing-footer nav a{color:#d2c4cc}
+.connect-home .landing-footer .landing-brand{color:#fff}
 .entry-layout,.connect-auth{background:#f7f4f2;color:#29212a}
 .entry-layout .entry-story,.connect-auth .entry-story{background:#241b28;color:#fff}
 .entry-story-copy>span,.entry-overline{color:#ffb5a6}.entry-story-copy h1 em{color:#ffad9d}.entry-story-copy>p{color:#d2c4cc}
