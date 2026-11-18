@@ -995,3 +995,8 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
 .entry-layout .entry-tabs button{color:#405347}
 .entry-layout .entry-tabs button.active{color:#214936}
 .entry-layout .entry-terms{color:#46574a}
+
+.connect-auth .entry-back{color:#344d3c}
+.connect-auth .entry-overline{color:#3f5e45}
+.connect-auth .entry-form>p{color:#3f5044}
+.connect-auth .entry-terms{color:#46574a}
