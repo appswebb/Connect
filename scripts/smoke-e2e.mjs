@@ -134,9 +134,31 @@ try {
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
   await auditAccessibility("Demo entry");
+
+  const downloadResponse = await page.goto("http://127.0.0.1:4173/Connect/download/", { waitUntil: "domcontentloaded" });
+  assert.equal(downloadResponse?.status(), 200, "Download page must return HTTP 200");
+  await page.locator(".app-download-hero").waitFor();
+  await page.getByRole("heading", { name: /Baixe o CONNECT/ }).waitFor();
+  await page.addScriptTag({ content: axe.source });
+  await auditAccessibility("Download desktop");
+  for (const width of viewports) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.waitForTimeout(80);
+    const metrics = await page.evaluate(() => ({
+      viewport: window.innerWidth,
+      document: document.documentElement.scrollWidth,
+      body: document.body.scrollWidth,
+    }));
+    assert.ok(
+      metrics.document <= metrics.viewport + 1 && metrics.body <= metrics.viewport + 1,
+      `Download horizontal overflow at ${width}px: ${JSON.stringify(metrics)}`,
+    );
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await auditAccessibility("Download mobile");
   assert.equal(pageErrors.length, 0, `Browser runtime errors: ${pageErrors.join(" | ")}`);
 
-  process.stdout.write(`PASS: landing, sign-in, demo entry and responsive overflow checks at ${viewports.join(", ")} px.\n`);
+  process.stdout.write(`PASS: landing, sign-in, sign-up, demo entry, download hub, WCAG 2.2 AA and responsive overflow checks at ${viewports.join(", ")} px.\n`);
 } finally {
   await browser.close();
   await new Promise((resolveClose) => server.close(resolveClose));
