@@ -28,7 +28,7 @@ A consulta de privilégios confirmou que `anon` e `authenticated` não possuem S
 
 ### Funções SECURITY DEFINER
 
-O advisor continua sinalizando 17 funções expostas a `authenticated`. A sinalização é baseada na concessão de EXECUTE, não prova isoladamente uma falha: RPCs de produto precisam validar identidade e autorização dentro da função. A consulta posterior não encontrou função `SECURITY DEFINER` executável por `authenticated` sem referência a `auth.uid()`. A autorização por objeto/participante ainda deve ser revisada função por função; a exceção encontrada foi `finish_live_battle`, corrigida nesta etapa.
+O advisor continua sinalizando 17 funções expostas a `authenticated`. A sinalização é baseada na concessão de EXECUTE, não prova isoladamente uma falha: RPCs de produto precisam validar identidade e autorização dentro da função. A consulta posterior não encontrou função `SECURITY DEFINER` executável por `authenticated` sem referência a `auth.uid()`. O advisor ainda lista 17 funções deste tipo porque `EXECUTE` continua concedido a usuários autenticados; as definições foram verificadas quanto à presença de identidade, mas a autorização por objeto/participante deve continuar sendo revisada função por função. A exceção encontrada foi `finish_live_battle`, corrigida nesta etapa.
 
 A lista deve continuar sendo revisada função por função. O aviso não foi ocultado nem tratado como resolvido apenas porque a chamada é autenticada.
 
@@ -44,7 +44,7 @@ Após as migrations `20261118023249_optimize_rls_auth_initplans` e `202611180233
 Achados restantes:
 - 29 chaves estrangeiras sem índice de cobertura.
 - 13 índices ainda não utilizados segundo as estatísticas atuais.
-- Advisor de saúde: nenhum achado.
+- Advisor de saúde: nenhum achado.\n- Advisor de segurança: 4 tabelas server-only com RLS sem policies (grants diretos de usuários verificados como ausentes), 17 funções `SECURITY DEFINER` executáveis por `authenticated` que seguem exigindo revisão contínua e proteção contra senhas vazadas desabilitada.
 
 As tabelas avaliadas tinham volume muito baixo no momento da auditoria. Índices adicionais devem ser priorizados com base nas consultas e no crescimento; remover índices ainda não utilizados agora pode prejudicar funcionalidades futuras.
 
