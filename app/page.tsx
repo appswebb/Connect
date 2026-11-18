@@ -72,7 +72,7 @@ import ConnectQueue from "./components/ConnectQueue";
 import ConnectOverlays from "./components/ConnectOverlays";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
-import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
+import { essentialNotificationTypes } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
