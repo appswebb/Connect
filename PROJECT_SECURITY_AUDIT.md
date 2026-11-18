@@ -39,14 +39,14 @@ A lista deve continuar sendo revisada função por função. O aviso não foi oc
 
 ## Performance e manutenção
 
-Resultado do advisor:
+Após as migrations `20261118023249_optimize_rls_auth_initplans` e `20261118023313_consolidate_permissive_rls_policies`, o advisor deixou de apontar as 10 policies com chamadas de auth reavaliadas por linha e os 3 conjuntos de policies permissivas sobrepostas. As regras foram reescritas preservando os mesmos critérios de acesso e combinando as permissões por OR.
+
+Achados restantes:
 - 29 chaves estrangeiras sem índice de cobertura.
-- 10 policies com chamadas de auth reavaliadas por linha; o advisor recomenda encapsular chamadas estáveis como `(select auth.uid())`.
 - 13 índices ainda não utilizados segundo as estatísticas atuais.
-- 3 conjuntos de policies permissivas sobrepostas.
 - Advisor de saúde: nenhum achado.
 
-Esses itens não foram alterados automaticamente: criar ou remover índices e combinar policies sem analisar consultas, volume e semântica de autorização pode piorar desempenho ou mudar acesso. Devem ser priorizados com métricas reais e testes de RLS.
+As tabelas avaliadas tinham volume muito baixo no momento da auditoria. Índices adicionais devem ser priorizados com base nas consultas e no crescimento; remover índices ainda não utilizados agora pode prejudicar funcionalidades futuras.
 
 ## Verificações de RLS
 
