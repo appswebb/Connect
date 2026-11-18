@@ -964,3 +964,8 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
   .entry-form{padding:22px;border-radius:22px}
   .entry-mark{margin:18px 0 14px}
 }
+
+/* Deferred feature chunks keep the initial shell responsive while modules load */
+.module-loading,.live-module-loading{display:flex;align-items:center;justify-content:center;min-height:160px;padding:24px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--muted);font-size:12px;font-weight:650}
+.live-module-loading{min-height:260px;background:var(--surface-2)}
+@media(prefers-reduced-motion:reduce){.module-loading,.live-module-loading{scroll-behavior:auto}}
