@@ -2567,6 +2567,7 @@ export default function Home() {
             </section>
           </>
         )}
+        {tab === "chat" && (
         <ConnectChat
           currentUserId={session.user.id}
           isDemo={isDemo}
@@ -2603,6 +2604,7 @@ export default function Home() {
           setTab={setTab}
         />
 
+        )}
         {messageRecipient && (
           <div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Enviar mensagem">
             <form className="report-dialog" onSubmit={sendDirectMessage}>
