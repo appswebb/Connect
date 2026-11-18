@@ -2641,9 +2641,9 @@ export default function Home() {
               </footer>
             </form>
           </div>
-        )
+        )}
 
-                {tab === "settings" && (
+        {tab === "settings" && (
           <ConnectSettings
             busy={busy}
             displayNameSetting={displayNameSetting}
