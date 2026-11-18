@@ -6,6 +6,13 @@
 - [ ] Run `npm run build`.
 - [ ] Review GitHub Actions results.
 
+## Refactored module map
+- [ ] `useConnectFeed`: feed, likes, comments and post upload.
+- [ ] `useConnectRooms`: regional room loading, replies and message deletion.
+- [ ] `useConnectLives`: LiveKit readiness and live session lifecycle.
+- [ ] `useConnectNotifications`: notification read state, navigation and browser permissions.
+- [ ] UI modules: landing, authentication gate, rooms, lives and avatar.
+
 ## Functional regression matrix
 - [ ] Public landing, signup, signin, password recovery and demo entry.
 - [ ] Authenticated shell, desktop navigation, mobile navigation and theme.

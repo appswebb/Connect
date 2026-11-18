@@ -14,6 +14,7 @@
 - Pure formatting helpers: `app/lib/connect-utils.ts`.
 - Navigation metadata: `app/lib/connect-navigation.ts`.
 - Shared presentational UI: `app/components/`.
+- Feature data/state orchestration: `app/hooks/` (for example feed, regional rooms, live lifecycle and notifications). Keep hooks focused on one domain and preserve their existing Supabase contracts.
 - Keep payment, LiveKit and Supabase service contracts stable during UI refactors.
 
 ## React quality
