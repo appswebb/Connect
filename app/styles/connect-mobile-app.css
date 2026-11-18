@@ -894,3 +894,10 @@ html[data-theme="dark"] .connect-pay-mp{background:#263b32!important;border-colo
 .connect-app .people-directory-card:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(28,48,40,.1)!important}
 html[data-theme="dark"] .connect-app .people-directory-search>button{background:#2a4032;color:#dce7d7}
 html[data-theme="dark"] .connect-app .people-filter-row button[aria-pressed="true"]{background:#b9d5a6!important;border-color:#b9d5a6!important;color:#172a22!important}
+
+/* Profile banner media now uses an actual image element with a controlled crop */
+.connect-app .profile-card>.banner{position:relative;isolation:isolate;overflow:hidden;background:#dfe8dc!important}
+.connect-app .profile-banner-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;z-index:-1}
+.connect-app .profile-card>.banner:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(180deg,transparent,rgba(14,30,21,.46));pointer-events:none}
+.connect-app .profile-card>.banner>label{position:relative;z-index:1}
+html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e!important}
