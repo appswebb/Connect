@@ -987,3 +987,11 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
 .connect-home .landing-feature-grid article p{color:#526057}
 .connect-home .landing-footer nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .connect-home .landing-footer nav a{display:inline-flex;align-items:center;min-height:32px;padding:6px 8px;color:#d0d9d0}
+
+/* WCAG AA text contrast for sign-in and sign-up surfaces */
+.entry-layout .entry-back{color:#344d3c}
+.entry-layout .entry-overline{color:#3f5e45}
+.entry-layout .entry-form>p{color:#3f5044}
+.entry-layout .entry-tabs button{color:#405347}
+.entry-layout .entry-tabs button.active{color:#214936}
+.entry-layout .entry-terms{color:#46574a}
