@@ -56,6 +56,7 @@ import ConnectRooms from "./components/ConnectRooms";
 import ConnectLanding from "./components/ConnectLanding";
 import ConnectAuthGate from "./components/ConnectAuthGate";
 import { useConnectFeed } from "./hooks/useConnectFeed";
+import { useConnectRooms } from "./hooks/useConnectRooms";
 import ConnectLives from "./components/ConnectLives";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
@@ -182,6 +183,17 @@ export default function Home() {
     setError(s);
     setNotice("");
   }, []);
+
+  const { loadRoomMessages, sendRoomMessage, deleteRoomMessage } = useConnectRooms({
+    userId: session?.user.id,
+    roomCode,
+    roomDraft,
+    roomReply,
+    setRoomDraft,
+    setRoomReply,
+    setRoomMessages,
+    fail,
+  });
 
   const { loadOwnPosts, loadFeed, publish, like, removePost, openComments, comment } = useConnectFeed({
     userId: session?.user.id,
@@ -420,57 +432,6 @@ export default function Home() {
     }
     setActiveLive(null);
     await loadLives();
-  }
-  async function loadRoomMessages(code: string) {
-    const r = await supabase
-      .from("global_room_messages")
-      .select("*")
-      .eq("room_code", code)
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const rows = (r.data || []).reverse();
-    const ids = [...new Set(rows.map((m: any) => m.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setRoomMessages(
-      rows.flatMap((m: any) => {
-        const author = map.get(m.user_id) as Profile | undefined;
-        return author ? [{ ...m, author }] : [];
-      }),
-    );
-  }
-  async function sendRoomMessage(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || !roomDraft.trim()) return;
-    const body = roomDraft.trim();
-    setRoomDraft("");
-    const replyTo = roomReply?.id || null;
-    setRoomReply(null);
-    const r = await supabase
-      .from("global_room_messages")
-      .insert({ room_code: roomCode, user_id: session.user.id, body, reply_to_id: replyTo });
-    if (r.error) {
-      setRoomDraft(body);
-      setRoomReply(roomReply);
-      fail("Não foi possível enviar a mensagem: " + r.error.message);
-      return;
-    }
-    await loadRoomMessages(roomCode);
-  }
-  async function deleteRoomMessage(message: RoomMessage) {
-    if (!session?.user.id || message.user_id !== session.user.id) return;
-    if (!window.confirm("Apagar esta mensagem da sala?")) return;
-    const r = await supabase.from("global_room_messages").delete().eq("id", message.id).eq("user_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível apagar a mensagem: " + r.error.message);
-      return;
-    }
-    setRoomMessages((old) => old.filter((x) => x.id !== message.id));
-    setRoomReply((old) => (old?.id === message.id ? null : old));
   }
   async function loadChatHistory(uid: string) {
     const r = await supabase
