@@ -973,3 +973,17 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
 .connect-home .landing-footer nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .connect-home .landing-footer nav a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 12px;border-radius:10px}
 .connect-home .landing-footer nav a[href$="download/"]{min-height:44px;padding:10px 14px}
+
+/* WCAG AA fixes for the public landing page */
+.connect-home .landing-header nav a{color:#4f5e52}
+.connect-home .landing-kicker{color:#4f6854}
+.connect-home .landing-steps .landing-kicker{color:#dce78b}
+.connect-home .landing-copy>p,
+.connect-home .landing-section-heading>p,
+.connect-home .landing-more-copy p{color:#4d5a50}
+.connect-home .landing-note strong{color:#1c3028}
+.connect-home .landing-note small{color:#536257}
+.connect-home .landing-feature-grid article>small{color:#58665a}
+.connect-home .landing-feature-grid article p{color:#526057}
+.connect-home .landing-footer nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.connect-home .landing-footer nav a{display:inline-flex;align-items:center;min-height:32px;padding:6px 8px;color:#d0d9d0}
