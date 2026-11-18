@@ -1,0 +1,84 @@
+export type Profile = {
+  id: string;
+  created_at?: string;
+  is_demo?: boolean;
+  display_name: string;
+  username: string;
+  gender: string;
+  gender_description: string | null;
+  looking_for: string[];
+  avatar_url: string | null;
+  banner_url: string | null;
+  bio: string;
+  state_code?: string | null;
+  city?: string | null;
+  location_visible?: boolean;
+};
+export type Post = {
+  id: string;
+  user_id: string;
+  body: string;
+  media_url: string | null;
+  media_type: string | null;
+  created_at: string;
+  author: Profile;
+  likes: number;
+  comments: number;
+  liked: boolean;
+};
+export type Comment = { id: string; post_id: string; user_id: string; body: string; created_at: string; author: Profile };
+export type Message = {
+  id: string;
+  match_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+  message_type?: string;
+  attachment_path?: string | null;
+  attachment_name?: string | null;
+  attachment_mime?: string | null;
+  attachment_size?: number | null;
+  duration_seconds?: number | null;
+  attachment_url?: string | null;
+};
+export type ChatHistoryItem = { id: string; created_at: string; partner: Profile };
+export type MessageRequestItem = {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  initial_message: string;
+  status: string;
+  created_at: string;
+  sender: Profile;
+};
+export type RoomMessage = {
+  id: string;
+  room_code: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+  reply_to_id?: string | null;
+  author: Profile;
+};
+export type LiveSessionRow = {
+  id: string;
+  host_user_id: string;
+  title: string;
+  room_name: string;
+  status: string;
+  created_at: string;
+  host?: Profile;
+};
+export type NotificationItem = {
+  id: string;
+  recipient_id: string;
+  actor_id: string | null;
+  type: string;
+  title: string;
+  body: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  read_at: string | null;
+  created_at: string;
+  actor?: Profile | null;
+};

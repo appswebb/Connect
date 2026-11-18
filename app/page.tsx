@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -47,171 +47,23 @@ import {
 } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import ImageCropper from "./components/ImageCropper";
-import LiveRoom from "./components/LiveRoom";
 import SubscriptionPlans from "./components/SubscriptionPlans";
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
-
-type Profile = {
-  id: string;
-  created_at?: string;
-  is_demo?: boolean;
-  display_name: string;
-  username: string;
-  gender: string;
-  gender_description: string | null;
-  looking_for: string[];
-  avatar_url: string | null;
-  banner_url: string | null;
-  bio: string;
-  state_code?: string | null;
-  city?: string | null;
-  location_visible?: boolean;
-};
-type Post = {
-  id: string;
-  user_id: string;
-  body: string;
-  media_url: string | null;
-  media_type: string | null;
-  created_at: string;
-  author: Profile;
-  likes: number;
-  comments: number;
-  liked: boolean;
-};
-type Comment = { id: string; post_id: string; user_id: string; body: string; created_at: string; author: Profile };
-type Message = {
-  id: string;
-  match_id: string;
-  sender_id: string;
-  body: string;
-  created_at: string;
-  message_type?: string;
-  attachment_path?: string | null;
-  attachment_name?: string | null;
-  attachment_mime?: string | null;
-  attachment_size?: number | null;
-  duration_seconds?: number | null;
-  attachment_url?: string | null;
-};
-type ChatHistoryItem = { id: string; created_at: string; partner: Profile };
-type MessageRequestItem = {
-  id: string;
-  sender_id: string;
-  recipient_id: string;
-  initial_message: string;
-  status: string;
-  created_at: string;
-  sender: Profile;
-};
-type RoomMessage = {
-  id: string;
-  room_code: string;
-  user_id: string;
-  body: string;
-  created_at: string;
-  reply_to_id?: string | null;
-  author: Profile;
-};
-type LiveSessionRow = {
-  id: string;
-  host_user_id: string;
-  title: string;
-  room_name: string;
-  status: string;
-  created_at: string;
-  host?: Profile;
-};
-type NotificationItem = {
-  id: string;
-  recipient_id: string;
-  actor_id: string | null;
-  type: string;
-  title: string;
-  body: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  read_at: string | null;
-  created_at: string;
-  actor?: Profile | null;
-};
-const essentialNotificationTypes = [
-  "message",
-  "message_request",
-  "message_request_accepted",
-  "new_follower",
-  "match",
-  "match_accepted",
-  "match_closed",
-  "live",
-  "post",
-  "site_update",
-  "subscription_gift_received",
-] as const;
-const genders: Record<string, string> = {
-  woman: "Mulher",
-  man: "Homem",
-  non_binary: "Pessoa não binária",
-  self_described: "Outro gênero",
-  prefer_not_to_say: "Prefiro não informar",
-};
-const preferences: Record<string, string> = {
-  woman: "Mulheres",
-  man: "Homens",
-  non_binary: "Pessoas não binárias",
-  self_described: "Outros gêneros",
-  prefer_not_to_say: "Pessoas que preferem não informar",
-  any: "Qualquer gênero",
-};
-const stateFlags: Record<string, string> = {
-  AC: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg",
-  AL: "https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg",
-  AP: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Bandeira_do_Amap%C3%A1.svg",
-  AM: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Bandeira_do_Amazonas.svg",
-  BA: "https://upload.wikimedia.org/wikipedia/commons/2/28/Bandeira_da_Bahia.svg",
-  CE: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Bandeira_do_Cear%C3%A1.svg",
-  DF: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Bandeira_do_Distrito_Federal_%28Brasil%29.svg",
-  ES: "https://upload.wikimedia.org/wikipedia/commons/4/43/Bandeira_do_Esp%C3%ADrito_Santo.svg",
-  GO: "https://upload.wikimedia.org/wikipedia/commons/b/be/Flag_of_Goi%C3%A1s.svg",
-  MA: "https://upload.wikimedia.org/wikipedia/commons/4/45/Bandeira_do_Maranh%C3%A3o.svg",
-  MT: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Bandeira_de_Mato_Grosso.svg",
-  MS: "https://upload.wikimedia.org/wikipedia/commons/6/64/Bandeira_de_Mato_Grosso_do_Sul.svg",
-  MG: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg",
-  PA: "https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Par%C3%A1.svg",
-  PB: "https://upload.wikimedia.org/wikipedia/commons/b/bb/Bandeira_da_Para%C3%ADba.svg",
-  PR: "https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg",
-  PE: "https://upload.wikimedia.org/wikipedia/commons/5/59/Bandeira_de_Pernambuco.svg",
-  PI: "https://upload.wikimedia.org/wikipedia/commons/3/33/Bandeira_do_Piau%C3%AD.svg",
-  RJ: "https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg",
-  RN: "https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg",
-  RS: "https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg",
-  RO: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg",
-  RR: "https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_de_Roraima.svg",
-  SC: "https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg",
-  SP: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg",
-  SE: "https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg",
-  TO: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg",
-  BR: "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg",
-};
-const initials = (s: string) =>
-  s
-    .split(" ")
-    .slice(0, 2)
-    .map((x) => x[0] || "")
-    .join("")
-    .toUpperCase();
-const ago = (d: string) => {
-  const n = Math.max(0, Date.now() - new Date(d).getTime());
-  return n < 60000
-    ? "agora"
-    : n < 3600000
-      ? Math.floor(n / 60000) + " min"
-      : n < 86400000
-        ? Math.floor(n / 3600000) + " h"
-        : Math.floor(n / 86400000) + " d";
-};
+import Avatar from "./components/ConnectAvatar";
+import ConnectRooms from "./components/ConnectRooms";
+import ConnectLanding from "./components/ConnectLanding";
+import ConnectAuthGate from "./components/ConnectAuthGate";
+import { useConnectFeed } from "./hooks/useConnectFeed";
+import { useConnectRooms } from "./hooks/useConnectRooms";
+import { useConnectLives } from "./hooks/useConnectLives";
+import ConnectLives from "./components/ConnectLives";
+import { useConnectNotifications } from "./hooks/useConnectNotifications";
+import { connectNavigationItems as items } from "./lib/connect-navigation";
+import { ago } from "./lib/connect-utils";
+import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
+import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null),
@@ -328,149 +180,81 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("connect-theme", theme);
   }, [theme, themeReady]);
-  const fail = (s: string) => {
+  const fail = useCallback((s: string) => {
     setError(s);
     setNotice("");
-  };
+  }, []);
 
-  async function loadNotifications(uid: string) {
-    const r = await supabase
-      .from("notifications")
-      .select("id,recipient_id,actor_id,type,title,body,entity_type,entity_id,read_at,created_at")
-      .eq("recipient_id", uid)
-      .in("type", [...essentialNotificationTypes])
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (r.error) {
-      fail("Não foi possível carregar suas notificações: " + r.error.message);
-      return;
-    }
-    const rows = (r.data || []) as NotificationItem[];
-    const actorIds = [...new Set(rows.map((x) => x.actor_id).filter(Boolean) as string[])];
-    const people = actorIds.length ? await supabase.from("profiles").select("*").in("id", actorIds) : { data: [] };
-    const map = new Map((people.data || []).map((x: any) => [x.id, x as Profile]));
-    setNotifications(rows.map((x) => ({ ...x, actor: x.actor_id ? map.get(x.actor_id) || null : null })));
-  }
-  async function markNotificationRead(item: NotificationItem) {
-    if (!session?.user.id || item.read_at) return;
-    const now = new Date().toISOString();
-    const r = await supabase.from("notifications").update({ read_at: now }).eq("id", item.id).eq("recipient_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível marcar a notificação como lida: " + r.error.message);
-      return;
-    }
-    setNotifications((old) => old.map((x) => (x.id === item.id ? { ...x, read_at: now } : x)));
-  }
-  async function markAllNotificationsRead() {
-    if (!session?.user.id) return;
-    const r = await supabase
-      .from("notifications")
-      .update({ read_at: new Date().toISOString() })
-      .eq("recipient_id", session.user.id)
-      .is("read_at", null);
-    if (r.error) {
-      fail("Não foi possível marcar todas como lidas: " + r.error.message);
-      return;
-    }
-    await loadNotifications(session.user.id);
-  }
-  async function clearReadNotifications() {
-    if (!session?.user.id) return;
-    if (!window.confirm("Apagar todas as suas notificações? Essa ação não afeta notificações de outras pessoas.")) return;
-    const r = await supabase.from("notifications").delete().eq("recipient_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível limpar suas notificações: " + r.error.message);
-      return;
-    }
-    setNotifications([]);
-    setNotice("Todas as suas notificações foram limpas.");
-  }
-  async function openNotification(item: NotificationItem) {
-    await markNotificationRead(item);
-    setNotificationsOpen(false);
-    if ((item.type === "message" || item.type === "new_message" || item.type === "message_request_accepted") && item.entity_id) {
-      setMatchId(item.entity_id);
-      setChatReadOnly(false);
-      setChatInboxTab("conversations");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "message_request") {
-      setChatInboxTab("requests");
-      setChatView("direct");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "new_follower" && item.actor_id) {
-      setTab("people");
-      void openProfile(item.actor_id);
-      return;
-    }
-    if (item.type === "match" && item.entity_id) {
-      await loadPendingMatch(item.entity_id);
-      setTab("queue");
-      return;
-    }
-    if (item.type === "match_accepted" && item.entity_id) {
-      setMatchId(item.entity_id);
-      setChatReadOnly(false);
-      setQueue("matched");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "match_closed") {
-      setTab("chat");
-      return;
-    }
-    if (item.type === "subscription_gift_received") {
-      setTab("profile");
-      return;
-    }
-    if (item.type === "live") {
-      setTab("lives");
-      void loadLives();
-      return;
-    }
-    if (item.type === "site_update") {
-      setTab("feed");
-      return;
-    }
-    setTab("feed");
-    if (item.type === "comment" && item.entity_id) void openComments(item.entity_id);
-  }
-  async function enableBrowserNotifications() {
-    if (!("Notification" in window)) {
-      setNotice("Este navegador não oferece notificações do sistema.");
-      return;
-    }
-    const permission = await Notification.requestPermission();
-    setBrowserNotificationPermission(permission);
-    if (permission === "granted" && "serviceWorker" in navigator) {
-      try {
-        await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
-      } catch {
-        setNotice("Permissão ativada, mas não foi possível preparar os alertas em segundo plano.");
-        return;
-      }
-    }
-    setNotice(
-      permission === "granted" ? "Notificações do navegador ativadas." : "A permissão para notificações do navegador não foi concedida.",
-    );
-  }
-  async function showBrowserNotification(item: NotificationItem) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    if ("serviceWorker" in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
-        await navigator.serviceWorker.ready;
-        await registration.showNotification(item.title, { body: item.body, tag: item.id });
-        return;
-      } catch {}
-    }
-    try {
-      new Notification(item.title, { body: item.body, tag: item.id });
-    } catch {}
-  }
+  const { loadLives, createLive, joinLive, endLiveSession, leaveLive } = useConnectLives({
+    userId: session?.user.id,
+    liveTitle,
+    activeLive,
+    setLives,
+    setActiveLive,
+    setLiveTitle,
+    setTab,
+    setBusy,
+    setNotice,
+    fail,
+  });
+
+  const { loadRoomMessages, sendRoomMessage, deleteRoomMessage } = useConnectRooms({
+    userId: session?.user.id,
+    roomCode,
+    roomDraft,
+    roomReply,
+    setRoomDraft,
+    setRoomReply,
+    setRoomMessages,
+    fail,
+  });
+
+  const { loadOwnPosts, loadFeed, publish, like, removePost, openComments, comment } = useConnectFeed({
+    userId: session?.user.id,
+    body,
+    file,
+    setBody,
+    setFile,
+    commentPost,
+    commentText,
+    setCommentPost,
+    setCommentText,
+    setPosts,
+    setOwnPosts,
+    setComments,
+    setBusy,
+    setNotice,
+    fail,
+    upload,
+  });
+
+  const {
+    loadNotifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    clearReadNotifications,
+    openNotification,
+    enableBrowserNotifications,
+    showBrowserNotification,
+  } = useConnectNotifications({
+    userId: session?.user.id,
+    setNotifications,
+    setNotificationsOpen,
+    setBrowserNotificationPermission,
+    setNotice,
+    fail,
+    setTab,
+    setMatchId,
+    setChatReadOnly,
+    setChatInboxTab,
+    setChatView,
+    setQueue,
+    loadPendingMatch,
+    loadLives,
+    openProfile,
+    openComments,
+  });
+
   async function detectAndSaveLocation(uid: string, force = false) {
     if (locationDetectionStartedRef.current.has(uid) && !force) return;
     locationDetectionStartedRef.current.add(uid);
@@ -580,140 +364,6 @@ export default function Home() {
     setQueue("matched");
     setTab("queue");
   }
-  async function loadLives() {
-    const r = await supabase
-      .from("live_sessions")
-      .select("id,host_user_id,title,room_name,status,created_at")
-      .eq("status", "live")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const rows = (r.data || []) as LiveSessionRow[];
-    const ids = [...new Set(rows.map((x) => x.host_user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((x: any) => [x.id, x]));
-    setLives(rows.map((x) => ({ ...x, host: map.get(x.host_user_id) as Profile | undefined })));
-  }
-  async function createLive(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || liveTitle.trim().length < 3) return;
-    setBusy(true);
-    try {
-      const ready = await supabase.functions.invoke("livekit-token", { body: { action: "check" } });
-      if (ready.error) throw ready.error;
-      if (!ready.data?.ready) throw new Error(ready.data?.error || "O serviço de transmissão ainda não está pronto.");
-      const r = await supabase
-        .from("live_sessions")
-        .insert({ host_user_id: session.user.id, title: liveTitle.trim(), status: "live" })
-        .select("id,host_user_id,title,room_name,status,created_at")
-        .single();
-      if (r.error) throw r.error;
-      const row = r.data as LiveSessionRow;
-      setActiveLive(row);
-      setTab("lives");
-      setLiveTitle("");
-      await loadLives();
-    } catch (x) {
-      const message = x instanceof Error ? x.message : String((x as any)?.message || "");
-      if (message.includes("LIVEKIT_NOT_CONFIGURED") || message.includes("503"))
-        fail(
-          "As transmissões ainda não foram ativadas. Falta configurar LIVEKIT_URL, LIVEKIT_API_KEY e LIVEKIT_API_SECRET nos Secrets das Edge Functions do Supabase. Nenhuma live falsa foi criada.",
-        );
-      else fail("Não foi possível preparar a live: " + (message || "verifique a conexão e tente novamente."));
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function joinLive(live: LiveSessionRow) {
-    setActiveLive(live);
-  }
-  async function endLiveSession(liveId: string) {
-    if (!session?.user.id) return;
-    setBusy(true);
-    const r = await supabase
-      .from("live_sessions")
-      .update({ status: "ended", ended_at: new Date().toISOString() })
-      .eq("id", liveId)
-      .eq("host_user_id", session.user.id)
-      .eq("status", "live")
-      .select("id")
-      .maybeSingle();
-    setBusy(false);
-    if (r.error) {
-      fail("Não foi possível encerrar a live: " + r.error.message);
-      return;
-    }
-    if (!r.data) {
-      fail("A live já foi encerrada ou você não é a pessoa responsável por ela.");
-      return;
-    }
-    if (activeLive?.id === liveId) setActiveLive(null);
-    setNotice("Transmissão encerrada. Ela não aparece mais na lista de lives.");
-    await loadLives();
-  }
-  async function leaveLive() {
-    const current = activeLive;
-    if (current && current.host_user_id === session?.user.id) {
-      await endLiveSession(current.id);
-      return;
-    }
-    setActiveLive(null);
-    await loadLives();
-  }
-  async function loadRoomMessages(code: string) {
-    const r = await supabase
-      .from("global_room_messages")
-      .select("*")
-      .eq("room_code", code)
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const rows = (r.data || []).reverse();
-    const ids = [...new Set(rows.map((m: any) => m.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setRoomMessages(
-      rows.flatMap((m: any) => {
-        const author = map.get(m.user_id) as Profile | undefined;
-        return author ? [{ ...m, author }] : [];
-      }),
-    );
-  }
-  async function sendRoomMessage(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || !roomDraft.trim()) return;
-    const body = roomDraft.trim();
-    setRoomDraft("");
-    const replyTo = roomReply?.id || null;
-    setRoomReply(null);
-    const r = await supabase
-      .from("global_room_messages")
-      .insert({ room_code: roomCode, user_id: session.user.id, body, reply_to_id: replyTo });
-    if (r.error) {
-      setRoomDraft(body);
-      setRoomReply(roomReply);
-      fail("Não foi possível enviar a mensagem: " + r.error.message);
-      return;
-    }
-    await loadRoomMessages(roomCode);
-  }
-  async function deleteRoomMessage(message: RoomMessage) {
-    if (!session?.user.id || message.user_id !== session.user.id) return;
-    if (!window.confirm("Apagar esta mensagem da sala?")) return;
-    const r = await supabase.from("global_room_messages").delete().eq("id", message.id).eq("user_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível apagar a mensagem: " + r.error.message);
-      return;
-    }
-    setRoomMessages((old) => old.filter((x) => x.id !== message.id));
-    setRoomReply((old) => (old?.id === message.id ? null : old));
-  }
   async function loadChatHistory(uid: string) {
     const r = await supabase
       .from("matches")
@@ -782,82 +432,6 @@ export default function Home() {
       return;
     }
     setCommunityProfiles((r.data || []) as Profile[]);
-  }
-  async function loadOwnPosts(uid: string) {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*")
-      .eq("user_id", uid)
-      .order("created_at", { ascending: false })
-      .limit(200);
-    if (error) {
-      fail("Não foi possível carregar suas publicações: " + error.message);
-      return;
-    }
-    const rows = data || [];
-    if (!rows.length) {
-      setOwnPosts([]);
-      return;
-    }
-    const ids = [...new Set(rows.map((p: any) => p.user_id))],
-      postIds = rows.map((p: any) => p.id);
-    const [people, likes, comments] = await Promise.all([
-      supabase.from("profiles").select("*").in("id", ids),
-      supabase.from("post_likes").select("post_id,user_id").in("post_id", postIds),
-      supabase.from("comments").select("post_id").in("post_id", postIds),
-    ]);
-    const authorMap = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setOwnPosts(
-      rows.flatMap((p: any) => {
-        const author = authorMap.get(p.user_id) as Profile | undefined;
-        if (!author) return [];
-        return [
-          {
-            ...p,
-            author,
-            likes: (likes.data || []).filter((l: any) => l.post_id === p.id).length,
-            comments: (comments.data || []).filter((c: any) => c.post_id === p.id).length,
-            liked: (likes.data || []).some((l: any) => l.post_id === p.id && l.user_id === uid),
-          },
-        ];
-      }),
-    );
-  }
-  async function loadFeed(uid: string) {
-    const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(50);
-    if (error) {
-      fail(error.message);
-      return;
-    }
-    const rows = data || [];
-    if (!rows.length) {
-      setPosts([]);
-      return;
-    }
-    const ids = [...new Set(rows.map((p: any) => p.user_id))],
-      postIds = rows.map((p: any) => p.id);
-    const [people, likes, comments] = await Promise.all([
-      supabase.from("profiles").select("*").in("id", ids),
-      supabase.from("post_likes").select("post_id,user_id").in("post_id", postIds),
-      supabase.from("comments").select("post_id").in("post_id", postIds),
-    ]);
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setPosts(
-      rows.flatMap((p: any) => {
-        const author = map.get(p.user_id) as Profile | undefined;
-        if (!author) return [];
-        const liked = (likes.data || []).some((l: any) => l.post_id === p.id && l.user_id === uid);
-        return [
-          {
-            ...p,
-            author,
-            likes: (likes.data || []).filter((l: any) => l.post_id === p.id).length,
-            comments: (comments.data || []).filter((c: any) => c.post_id === p.id).length,
-            liked,
-          },
-        ];
-      }),
-    );
   }
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -1358,82 +932,6 @@ export default function Home() {
       .upload(path, f, { upsert: false, contentType: f.type, cacheControl: "31536000" });
     if (r.error) throw r.error;
     return supabase.storage.from("connect-media").getPublicUrl(path).data.publicUrl;
-  }
-  async function publish(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || (!body.trim() && !file)) return;
-    setBusy(true);
-    try {
-      let url: string | null = null,
-        type: string | null = null;
-      if (file) {
-        url = await upload(file, "posts");
-        type = file.type.startsWith("video/") ? "video" : "image";
-      }
-      const r = await supabase.from("posts").insert({ user_id: session.user.id, body: body.trim(), media_url: url, media_type: type });
-      if (r.error) throw r.error;
-      setBody("");
-      setFile(null);
-      await loadFeed(session.user.id);
-      setNotice("Publicação enviada.");
-    } catch (x) {
-      fail(x instanceof Error ? x.message : "Falha ao publicar.");
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function like(p: Post) {
-    if (!session?.user.id) return;
-    const r = p.liked
-      ? await supabase.from("post_likes").delete().eq("post_id", p.id).eq("user_id", session.user.id)
-      : await supabase.from("post_likes").insert({ post_id: p.id, user_id: session.user.id });
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setPosts((old) => old.map((x) => (x.id === p.id ? { ...x, liked: !p.liked, likes: x.likes + (p.liked ? -1 : 1) } : x)));
-  }
-  async function removePost(id: string) {
-    if (!window.confirm("Apagar esta publicação?")) return;
-    const r = await supabase.from("posts").delete().eq("id", id);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setPosts((old) => old.filter((x) => x.id !== id));
-    setOwnPosts((old) => old.filter((x) => x.id !== id));
-  }
-  async function openComments(id: string) {
-    if (commentPost === id) {
-      setCommentPost("");
-      return;
-    }
-    setCommentPost(id);
-    const r = await supabase.from("comments").select("*").eq("post_id", id).order("created_at");
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const ids = [...new Set((r.data || []).map((x: any) => x.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setComments((r.data || []).flatMap((x: any) => (map.has(x.user_id) ? [{ ...x, author: map.get(x.user_id) }] : [])) as Comment[]);
-  }
-  async function comment(e: FormEvent, id: string) {
-    e.preventDefault();
-    if (!session?.user.id || !commentText.trim()) return;
-    const r = await supabase.from("comments").insert({ post_id: id, user_id: session.user.id, body: commentText.trim() });
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setCommentText("");
-    const rows = await supabase.from("comments").select("*").eq("post_id", id).order("created_at");
-    const ids = [...new Set((rows.data || []).map((x: any) => x.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setComments((rows.data || []).flatMap((x: any) => (map.has(x.user_id) ? [{ ...x, author: map.get(x.user_id) }] : [])) as Comment[]);
-    await loadFeed(session.user.id);
   }
   async function saveLocation(e: FormEvent): Promise<boolean> {
     e.preventDefault();
@@ -2030,18 +1528,8 @@ export default function Home() {
       setBusy(false);
     }
   }
-  const Avatar = ({ p, size = "" }: { p: Profile; size?: string }) => (
-    <div className={"avatar " + size}>{p.avatar_url ? <img src={p.avatar_url} alt={p.display_name} /> : initials(p.display_name)}</div>
-  );
   const isDemo = Boolean(session?.user.app_metadata?.connect_demo);
-  const items = [
-    ["feed", "Início", Compass],
-    ["queue", "Conectar", UserSearch],
-    ["chat", "Chat", MessageCircle],
-    ["people", "Pessoas", Users],
-    ["rooms", "Salas", Globe2],
-    ["lives", "Ao vivo", Radio],
-  ] as const;
+
   if (loading)
     return (
       <main className="loading">
@@ -2049,390 +1537,81 @@ export default function Home() {
         <span>Preparando o CONNECT...</span>
       </main>
     );
-  if (!session && authScreen === "home")
+  if (!session && authScreen === "home") {
     return (
-      <main className="connect-home" data-screen="marketing">
-        <header className="landing-header">
-          <a className="landing-brand" href="#inicio">
-            <img src="/Connect/connect-mark.svg" alt="" />
-            <span>CONNECT</span>
-          </a>
-          <nav>
-            <a href="#experiencia">Experiência</a>
-            <a href="#como">Como funciona</a>
-            <a href="#possibilidades">Histórias</a>
-          </nav>
-          <div className="landing-actions">
-            <button
-              className="landing-login"
-              onClick={() => {
-                setMode("signin");
-                setAuthScreen("auth");
-              }}
-            >
-              Entrar
-            </button>
-            <button
-              className="landing-cta"
-              onClick={() => {
-                setMode("signup");
-                setAuthScreen("auth");
-              }}
-            >
-              Criar conta <ArrowRight size={16} />
-            </button>
-          </div>
-        </header>
-        <section className="landing-hero" id="inicio">
-          <div className="landing-copy">
-            <span className="landing-kicker">
-              <i /> CONEXÕES QUE ACONTECEM DE VERDADE
-            </span>
-            <h1>
-              Seu próximo
-              <br />
-              <span>encontro começa</span>
-              <br />
-              com uma conexão.
-            </h1>
-            <p>Um espaço para conhecer pessoas, conversar sem pressa e compartilhar os momentos que merecem ser vividos juntos.</p>
-            <div className="landing-buttons">
-              <button
-                className="landing-cta landing-cta-big"
-                onClick={() => {
-                  setMode("signup");
-                  setAuthScreen("auth");
-                }}
-              >
-                Faça parte do CONNECT <ArrowRight size={18} />
-              </button>
-              <button className="landing-demo" onClick={() => setAuthScreen("demo")}>
-                <Eye size={16} /> Conhecer por dentro
-              </button>
-            </div>
-            <div className="landing-note">
-              <span className="landing-note-icon">
-                <ShieldCheck size={17} />
-              </span>
-              <span>
-                <strong>Seu espaço, suas escolhas.</strong>
-                <small>Privacidade e preferências respeitadas.</small>
-              </span>
-            </div>
-          </div>
-          <div className="landing-art">
-            <img className="landing-photo" src="/Connect/images/hero-friends.webp" alt="Amigos rindo juntos com seus celulares ao pôr do sol" width={1024} height={1280} fetchPriority="high" />
-            <div className="landing-art-caption">
-              <span className="landing-art-dot" />
-              <div>
-                <strong>Um lugar para todo mundo.</strong>
-                <small>Pessoas · conversas · comunidades</small>
-              </div>
-              <span className="landing-art-arrow">
-                <ArrowRight size={18} />
-              </span>
-            </div>
-          </div>
-        </section>
-        <section className="landing-experience" id="experiencia">
-          <div className="landing-section-heading">
-            <span className="landing-kicker">UMA EXPERIÊNCIA COMPLETA</span>
-            <h2>
-              Tudo o que aproxima.
-              <br />
-              <span>Em um só lugar.</span>
-            </h2>
-            <p>Do primeiro oi à próxima amizade, o CONNECT reúne ferramentas para você se sentir parte.</p>
-          </div>
-          <div className="landing-feature-grid">
-            <article>
-              <span className="landing-feature-icon violet">
-                <Users />
-              </span>
-              <small>01 / PESSOAS</small>
-              <h3>Encontre sua turma</h3>
-              <p>Descubra perfis, siga pessoas e conheça quem combina com você.</p>
-            </article>
-            <article>
-              <span className="landing-feature-icon lime">
-                <MessageCircle />
-              </span>
-              <small>02 / CONVERSAS</small>
-              <h3>Fique por perto</h3>
-              <p>Converse em privado, responda mensagens e compartilhe arquivos.</p>
-            </article>
-            <article>
-              <span className="landing-feature-icon peach">
-                <Globe2 />
-              </span>
-              <small>03 / COMUNIDADES</small>
-              <h3>Faça parte</h3>
-              <p>Entre nas salas do Brasil e dos estados para trocar ideias.</p>
-            </article>
-            <article>
-              <span className="landing-feature-icon blue">
-                <Radio />
-              </span>
-              <small>04 / AO VIVO</small>
-              <h3>Viva o agora</h3>
-              <p>Assista a transmissões e entre ao vivo com a comunidade.</p>
-            </article>
-          </div>
-        </section>
-        <section className="landing-steps" id="como">
-          <div className="landing-section-heading">
-            <span className="landing-kicker">COMO FUNCIONA</span>
-            <h2>
-              Três passos.
-              <br />
-              <span>E você já está dentro.</span>
-            </h2>
-          </div>
-          <ol className="landing-step-list">
-            <li>
-              <span>01</span>
-              <h3>Crie seu espaço</h3>
-              <p>Abra sua conta, escolha como quer aparecer e defina suas preferências.</p>
-            </li>
-            <li>
-              <span>02</span>
-              <h3>Encontre gente</h3>
-              <p>Descubra pessoas, salas do Brasil e transmissões ao vivo no mesmo lugar.</p>
-            </li>
-            <li>
-              <span>03</span>
-              <h3>Continue a conversa</h3>
-              <p>Fale no privado, publique no feed e acompanhe o que importa para você.</p>
-            </li>
-          </ol>
-        </section>
-        <section className="landing-more" id="possibilidades">
-          <div className="landing-more-visual">
-            <img className="landing-more-photo" src="/Connect/images/community.webp" alt="Amigos reunidos ao pôr do sol" loading="lazy" width={1600} height={1000} />
-          </div>
-          <div className="landing-more-copy">
-            <span className="landing-kicker">MAIS DO QUE UMA REDE SOCIAL</span>
-            <h2>
-              Compartilhe momentos.
-              <br />
-              <span>Crie novas histórias.</span>
-            </h2>
-            <p>Perfil, feed, notificações, conexões e assinatura continuam juntos — agora com uma casa mais clara.</p>
-            <button
-              className="landing-cta"
-              onClick={() => {
-                setMode("signup");
-                setAuthScreen("auth");
-              }}
-            >
-              Começar agora <ArrowRight size={16} />
-            </button>
-          </div>
-        </section>
-        <footer className="landing-footer">
-          <a className="landing-brand" href="#inicio">
-            <img src="/Connect/connect-mark.svg" alt="" />
-            <span>CONNECT</span>
-          </a>
-          <nav>
-            <a href="#experiencia">Experiência</a>
-            <a href="#como">Como funciona</a>
-            <a href="/Connect/download/">Baixar o app</a>
-          </nav>
-          <span>© CONNECT 2026 · FEITO PARA CONECTAR PESSOAS</span>
-        </footer>
-      </main>
+      <ConnectLanding
+        onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
+        onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
+        onDemo={() => setAuthScreen("demo")}
+      />
     );
-  if (!session && authScreen === "demo")
+  }
+  if (!session && authScreen === "demo") {
     return (
-      <main className="connect-auth" data-screen="authentication">
-        <section className="entry-story">
-          <a className="entry-brand">
-            <img src="/Connect/connect-mark.svg" alt="" />
-            CONNECT
-          </a>
-          <div className="entry-story-copy">
-            <span>CONNECT / DEMONSTRAÇÃO</span>
-            <h1>
-              Entre e descubra
-              <br />
-              um novo jeito de
-              <br />
-              <em>se conectar.</em>
-            </h1>
-            <p>Explore a experiência com uma conta de demonstração. O acesso é somente para visualizar e não altera dados de usuários.</p>
-            <img className="entry-photo" src="/Connect/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
-          </div>
-          <footer>CONNECT © 2026 · PRIVACIDADE · RESPEITO</footer>
-        </section>
-        <section className="entry-form-wrap">
-          <div className="entry-form">
-            <button type="button" className="entry-back" onClick={() => setAuthScreen("home")}>
-              ← Voltar para o início
-            </button>
-            <div className="entry-mark">
-              <Eye />
-            </div>
-            <span className="entry-overline">ACESSO DE TESTE</span>
-            <h2>Conheça por dentro.</h2>
-            <p>Use as credenciais de demonstração.</p>
-            <form onSubmit={demoLogin}>
-              <label>
-                Usuário
-                <input
-                  required
-                  autoComplete="username"
-                  value={demoUsername}
-                  onChange={(e) => setDemoUsername(e.target.value)}
-                  placeholder="Usuário"
-                />
-              </label>
-              <label>
-                Senha
-                <input
-                  required
-                  type="password"
-                  autoComplete="current-password"
-                  value={demoPassword}
-                  onChange={(e) => setDemoPassword(e.target.value)}
-                  placeholder="Senha"
-                />
-              </label>
-              {error && <p className="error">{error}</p>}
-              {notice && <p className="success">{notice}</p>}
-              <button className="entry-submit" disabled={busy}>
-                {busy ? "Entrando..." : "Entrar na demonstração"} <ArrowRight size={17} />
-              </button>
-            </form>
-            <small className="entry-terms">
-              Acesso somente para visualizar. Cadastro e recursos de escrita não são liberados nesta conta.
-            </small>
-          </div>
-        </section>
-      </main>
+      <ConnectAuthGate
+        demoMode
+        onBack={() => setAuthScreen("home")}
+        mode={mode}
+        setMode={setMode}
+        demoUsername={demoUsername}
+        setDemoUsername={setDemoUsername}
+        demoPassword={demoPassword}
+        setDemoPassword={setDemoPassword}
+        demoLogin={demoLogin}
+        name={name}
+        setName={setName}
+        username={username}
+        setUsername={setUsername}
+        gender={gender}
+        setGender={setGender}
+        looking={looking}
+        setLooking={setLooking}
+        description={description}
+        setDescription={setDescription}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        auth={auth}
+        busy={busy}
+        error={error}
+        notice={notice}
+      />
     );
-  if (!session)
+  }
+  if (!session) {
     return (
-      <main className="entry-layout">
-        <section className="entry-story">
-          <a className="entry-brand">
-            <img src="/Connect/connect-mark.svg" alt="" />
-            CONNECT
-          </a>
-          <div className="entry-story-copy">
-            <span>SEU ESPAÇO COMEÇA AQUI</span>
-            <h1>
-              Conexões reais.
-              <br />
-              Conversas leves.
-              <br />
-              <em>Novas histórias.</em>
-            </h1>
-            <p>Conheça pessoas, encontre comunidades e compartilhe momentos em um espaço feito para aproximar.</p>
-            <img className="entry-photo" src="/Connect/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
-          </div>
-          <footer>CONNECT © 2026 · PRIVACIDADE · RESPEITO</footer>
-        </section>
-        <section className="entry-form-wrap">
-          <div className="entry-form">
-            <button type="button" className="entry-back" onClick={() => setAuthScreen("home")}>
-              ← Voltar para o início
-            </button>
-            <div className="entry-mark">
-              <Users />
-            </div>
-            <span className="entry-overline">{mode === "signup" ? "BEM-VINDO À COMUNIDADE" : "BOM TER VOCÊ DE VOLTA"}</span>
-            <h2>{mode === "signup" ? "Crie seu espaço." : "Entre no CONNECT."}</h2>
-            <p>{mode === "signup" ? "Seu próximo capítulo pode começar com uma nova conexão." : "Continue de onde suas conexões estão."}</p>
-            <div className="entry-tabs">
-              <button type="button" className={mode === "signup" ? "active" : ""} onClick={() => setMode("signup")}>
-                Criar conta
-              </button>
-              <button type="button" className={mode === "signin" ? "active" : ""} onClick={() => setMode("signin")}>
-                Entrar
-              </button>
-            </div>
-            <form onSubmit={auth}>
-              {mode === "signup" && (
-                <>
-                  <label>
-                    Seu nome
-                    <input
-                      required
-                      minLength={2}
-                      maxLength={40}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Como quer ser chamado(a)"
-                    />
-                  </label>
-                  <label>
-                    Seu @ exclusivo
-                    <input
-                      required
-                      minLength={1}
-                      maxLength={20}
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value.replace(/^@/, ""))}
-                      placeholder="seuusuario"
-                    />
-                  </label>
-                  <div className="form-grid">
-                    <label>
-                      Como se identifica?
-                      <select value={gender} onChange={(e) => setGender(e.target.value)}>
-                        {Object.entries(genders).map(([v, l]) => (
-                          <option key={v} value={v}>
-                            {l}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Quer conhecer?
-                      <select value={looking} onChange={(e) => setLooking(e.target.value)}>
-                        {Object.entries(preferences).map(([v, l]) => (
-                          <option key={v} value={v}>
-                            {l}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                  {gender === "self_described" && (
-                    <label>
-                      Descreva seu gênero
-                      <input required value={description} onChange={(e) => setDescription(e.target.value)} />
-                    </label>
-                  )}
-                </>
-              )}
-              <label>
-                E-mail
-                <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" />
-              </label>
-              <label>
-                Senha
-                <input
-                  required
-                  type="password"
-                  minLength={mode === "signup" ? 8 : 1}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Sua senha"
-                />
-              </label>
-              {error && <p className="error">{error}</p>}
-              {notice && <p className="success">{notice}</p>}
-              <button className="entry-submit" disabled={busy}>
-                {busy ? "Aguarde..." : mode === "signup" ? "Criar minha conta" : "Entrar"} <ArrowRight size={17} />
-              </button>
-            </form>
-            <p className="entry-terms">Ao continuar, você concorda em usar o CONNECT com respeito e responsabilidade.</p>
-          </div>
-        </section>
-      </main>
+      <ConnectAuthGate
+        demoMode={false}
+        onBack={() => setAuthScreen("home")}
+        mode={mode}
+        setMode={setMode}
+        demoUsername={demoUsername}
+        setDemoUsername={setDemoUsername}
+        demoPassword={demoPassword}
+        setDemoPassword={setDemoPassword}
+        demoLogin={demoLogin}
+        name={name}
+        setName={setName}
+        username={username}
+        setUsername={setUsername}
+        gender={gender}
+        setGender={setGender}
+        looking={looking}
+        setLooking={setLooking}
+        description={description}
+        setDescription={setDescription}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        auth={auth}
+        busy={busy}
+        error={error}
+        notice={notice}
+      />
     );
+  }
   if (!profile)
     return (
       <main className="loading">
@@ -2440,233 +1619,38 @@ export default function Home() {
       </main>
     );
   const room = (
-    <>
-      {
-        <section className="people-state-rooms">
-          <div className="people-state-rooms-heading">
-            <div>
-              <small>COMUNIDADE POR REGIÃO</small>
-              <h2>Salas do Brasil</h2>
-              <p>Converse com pessoas de todo o país ou escolha seu estado.</p>
-            </div>
-            <span>
-              <Globe2 size={16} /> 27 salas
-            </span>
-          </div>
-          <section className="rooms-panel">
-            <div className="room-select">
-              <button className={roomCode === "BR" ? "active" : ""} onClick={() => setRoomCode("BR")}>
-                <img src={stateFlags.BR} alt="Bandeira do Brasil" /> Brasil inteiro
-              </button>
-              <span>Salas estaduais</span>
-            </div>
-            <div className="state-room-grid">
-              {Object.entries(brazilStates).map(([code, label]) => (
-                <button key={code} className={roomCode === code ? "active" : ""} onClick={() => setRoomCode(code)}>
-                  <img src={stateFlags[code]} alt={"Bandeira de " + label} />
-                  <span>{code}</span>
-                </button>
-              ))}
-            </div>
-            <div className="room-title">
-              <img
-                className="room-title-flag"
-                src={stateFlags[roomCode] || stateFlags.BR}
-                alt={roomCode === "BR" ? "Bandeira do Brasil" : "Bandeira de " + brazilStates[roomCode]}
-              />
-              <div>
-                <strong>{roomCode === "BR" ? "Chat Global do Brasil" : "Chat de " + brazilStates[roomCode] + " · " + roomCode}</strong>
-                <small>{roomMessages.length} mensagens recentes carregadas · respeito em primeiro lugar</small>
-              </div>
-            </div>
-            <div className="room-message-list">
-              {roomMessages.map((m) => (
-                <article key={m.id}>
-                  <Avatar p={m.author} size="small" />
-                  <div className="room-message-content">
-                    {m.reply_to_id && (
-                      <div className="room-reply-quote">
-                        ↳ Respondendo: {roomMessages.find((x) => x.id === m.reply_to_id)?.body || "mensagem anterior"}
-                      </div>
-                    )}
-                    <strong>
-                      <button type="button" className="profile-open-name" onClick={() => void openProfile(m.author.id)}>
-                        {m.author.display_name}
-                      </button>{" "}
-                      <small>
-                        @{m.author.username} · {ago(m.created_at)}
-                      </small>
-                    </strong>
-                    <p>{m.body}</p>
-                    <div className="room-message-actions">
-                      <button type="button" onClick={() => setRoomReply(m)}>
-                        <MessageCircle size={13} /> Responder
-                      </button>
-                      {m.user_id === session.user.id && !isDemo && (
-                        <button type="button" onClick={() => void deleteRoomMessage(m)}>
-                          <Trash2 size={13} /> Apagar
-                        </button>
-                      )}
-                      {!isDemo && m.user_id !== session.user.id && (
-                        <button type="button" onClick={() => openReport(m.user_id, "room_message", m.id)}>
-                          <Flag size={13} /> Denunciar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-              {!roomMessages.length && (
-                <div className="empty">
-                  <MessageCircle />
-                  <h3>Esta sala está começando.</h3>
-                  <p>Seja a primeira pessoa a mandar uma mensagem.</p>
-                </div>
-              )}
-            </div>
-            {!isDemo && (
-              <>
-                {roomReply && (
-                  <div className="room-replying">
-                    <span>
-                      Respondendo a {roomReply.author.display_name}: {roomReply.body}
-                    </span>
-                    <button type="button" onClick={() => setRoomReply(null)} aria-label="Cancelar resposta">
-                      <X size={15} />
-                    </button>
-                  </div>
-                )}
-                <form className="room-compose" onSubmit={sendRoomMessage}>
-                  <input
-                    value={roomDraft}
-                    onChange={(e) => setRoomDraft(e.target.value)}
-                    maxLength={2000}
-                    placeholder={"Mensagem para " + (roomCode === "BR" ? "todo o Brasil" : brazilStates[roomCode]) + "..."}
-                  />
-                  <button className="primary" disabled={!roomDraft.trim()}>
-                    Enviar <Send size={15} />
-                  </button>
-                </form>
-              </>
-            )}
-            {isDemo && <p className="demo-readonly-note">Mensagens nas salas ficam desativadas no acesso de demonstração.</p>}
-          </section>
-        </section>
-      }
-    </>
+    <ConnectRooms
+      roomCode={roomCode}
+      setRoomCode={setRoomCode}
+      roomMessages={roomMessages}
+      roomReply={roomReply}
+      setRoomReply={setRoomReply}
+      roomDraft={roomDraft}
+      setRoomDraft={setRoomDraft}
+      sendRoomMessage={sendRoomMessage}
+      deleteRoomMessage={deleteRoomMessage}
+      openProfile={openProfile}
+      openReport={openReport}
+      currentUserId={session.user.id}
+      isDemo={isDemo}
+    />
   );
   const live = (
-    <>
-      {
-        <section className="people-live-section">
-          <div className="people-live-section-heading">
-            <div>
-              <small>CONNECT LIVE</small>
-              <h2>Ao vivo na comunidade</h2>
-              <p>Assista às transmissões ou comece a sua.</p>
-            </div>
-            <span>
-              <i className="people-live-dot" /> {lives.length} {lives.length === 1 ? "transmissão ativa" : "transmissões ativas"}
-            </span>
-          </div>
-          <div className="people-live-intro">
-            <Radio size={17} />
-            <span>
-              <strong>Sua próxima transmissão começa aqui</strong>
-              <small>Defina um título, confira câmera e microfone e entre ao vivo quando estiver pronto.</small>
-            </span>
-          </div>
-          {activeLive ? (
-            <LiveRoom liveId={activeLive.id} isHost={activeLive.host_user_id === session.user.id} onLeave={() => void leaveLive()} />
-          ) : (
-            <>
-              {!isDemo && (
-                <form className="live-create live-create-enhanced" onSubmit={createLive}>
-                  <div className="live-create-copy">
-                    <span className="live-create-icon">
-                      <Camera size={22} />
-                    </span>
-                    <div>
-                      <strong>Prepare sua live</strong>
-                      <small>Escolha um título que convide as pessoas para participar.</small>
-                    </div>
-                  </div>
-                  <label>
-                    Nome da transmissão
-                    <input
-                      value={liveTitle}
-                      onChange={(e) => setLiveTitle(e.target.value)}
-                      minLength={3}
-                      maxLength={90}
-                      required
-                      placeholder="Ex.: Conversando com a galera"
-                    />
-                  </label>
-                  <button className="primary" disabled={busy || liveTitle.trim().length < 3}>
-                    <Radio size={16} />
-                    {busy ? "Preparando..." : "Iniciar uma live"}
-                  </button>
-                </form>
-              )}
-              {isDemo && (
-                <div className="demo-readonly-note">
-                  No modo de demonstração, você pode assistir às lives, mas não iniciar nem encerrar transmissões.
-                </div>
-              )}
-              <div className="live-list-heading">
-                <strong>Transmissões ao vivo</strong>
-                <button className="secondary" onClick={() => void loadLives()}>
-                  Atualizar
-                </button>
-              </div>
-              <div className="live-list">
-                {lives.map((live) => (
-                  <article key={live.id}>
-                    <div className="live-list-icon">
-                      <Radio />
-                    </div>
-                    <div>
-                      <strong>{live.title}</strong>
-                      <span>
-                        {live.host?.display_name || "Pessoa da comunidade"} · @{live.host?.username || "connect"}
-                      </span>
-                      <small>
-                        AO VIVO · {new Date(live.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                      </small>
-                    </div>
-                    {live.host_user_id === session.user.id ? (
-                      <button type="button" className="live-end-list" disabled={busy} onClick={() => void endLiveSession(live.id)}>
-                        <Trash2 size={14} /> Encerrar live
-                      </button>
-                    ) : (
-                      <div className="live-card-actions">
-                        <button
-                          type="button"
-                          className="content-report-action"
-                          onClick={() => openReport(live.host_user_id, "live", live.id)}
-                        >
-                          <Flag size={12} /> Denunciar
-                        </button>
-                        <button className="primary" onClick={() => void joinLive(live)}>
-                          Assistir <ArrowRight size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </article>
-                ))}
-                {!lives.length && (
-                  <div className="empty empty-live">
-                    <img src="/Connect/images/live-creator.webp" alt="" loading="lazy" width={1024} height={1024} />
-                    <h3>Ninguém está ao vivo agora.</h3>
-                    <p>Seja a primeira pessoa a iniciar uma transmissão.</p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </section>
-      }
-    </>
+    <ConnectLives
+      lives={lives}
+      activeLive={activeLive}
+      currentUserId={session.user.id}
+      leaveLive={leaveLive}
+      isDemo={isDemo}
+      liveTitle={liveTitle}
+      setLiveTitle={setLiveTitle}
+      createLive={createLive}
+      busy={busy}
+      loadLives={loadLives}
+      endLiveSession={endLiveSession}
+      joinLive={joinLive}
+      openReport={openReport}
+    />
   );
   return (
     <main className="connect-app" data-screen="workspace">
