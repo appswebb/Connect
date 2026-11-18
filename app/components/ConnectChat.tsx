@@ -373,46 +373,6 @@ export default function ConnectChat(props: Props) {
               </>
             )}
           </>
-        )}
-        {messageRecipient && (
-          <div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Enviar mensagem">
-            <form className="report-dialog" onSubmit={sendDirectMessage}>
-              <header>
-                <div>
-                  <small>{relationship.mutual ? "CONVERSA DIRETA" : "PEDIDO DE MENSAGEM"}</small>
-                  <h2>Mensagem para {messageRecipient.display_name}</h2>
-                </div>
-                <button type="button" onClick={() => setMessageRecipient(null)}>
-                  <X />
-                </button>
-              </header>
-              <p>
-                {relationship.mutual
-                  ? "Vocês se seguem. Sua mensagem vai direto para a conversa."
-                  : "Vocês ainda não se seguem mutuamente. Sua mensagem será enviada como pedido e a pessoa poderá aceitar ou recusar."}
-              </p>
-              <label>
-                Mensagem
-                <textarea
-                  value={directMessageDraft}
-                  onChange={(e) => setDirectMessageDraft(e.target.value)}
-                  maxLength={4000}
-                  rows={4}
-                  required
-                  placeholder="Escreva sua primeira mensagem..."
-                />
-              </label>
-              <footer>
-                <button type="button" className="secondary" onClick={() => setMessageRecipient(null)}>
-                  Cancelar
-                </button>
-                <button className="primary" disabled={busy || !directMessageDraft.trim()}>
-                  {busy ? "Enviando..." : "Enviar mensagem"} <Send size={15} />
-                </button>
-              </footer>
-            </form>
-          </div>
-        )
     </>
   );
 }
