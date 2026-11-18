@@ -57,3 +57,8 @@ Não copie tokens privados para arquivos versionados, código cliente, issues ou
 ## Auditoria funcional
 
 Consulte [PROJECT_FUNCTIONALITY_MATRIX.md](./PROJECT_FUNCTIONALITY_MATRIX.md) para inventário funcional, [PROJECT_SECURITY_AUDIT.md](./PROJECT_SECURITY_AUDIT.md) para achados de segurança e [PROJECT_MIGRATION_AUDIT.md](./PROJECT_MIGRATION_AUDIT.md) para o estado do histórico de migrations.
+
+
+## Verificação pública da evolução 3.0
+
+A execução Chromium [44226848936](https://github.com/appswebb/Connect/actions/runs/44226848936) validou landing, login, cadastro, demonstração e download, com axe-core/WCAG 2.2 AA e sem overflow em 11 larguras (320–1920 px). O npm audit reportou zero vulnerabilidades. CRUD autenticado, Mercado Pago e LiveKit permanecem explicitamente pendentes de contas e credenciais de teste.
