@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { chromium } from "playwright";
+import axe from "axe-core";
 
 const output = resolve(process.cwd(), "out");
 assert.ok(existsSync(join(output, "index.html")), "Next.js static export must contain out/index.html");
@@ -57,6 +58,22 @@ try {
   assert.equal(response?.status(), 200, "Marketing homepage must return HTTP 200");
   await page.locator('[data-screen="marketing"]').waitFor();
   await page.getByRole("heading", { name: /Seu próximo/ }).waitFor();
+  await page.addScriptTag({ content: axe.source });
+  const auditAccessibility = async (label) => {
+    const violations = await page.evaluate(async () => {
+      const result = await window.axe.run(document, {
+        runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
+      });
+      return result.violations.map((violation) => ({
+        id: violation.id,
+        impact: violation.impact,
+        help: violation.help,
+        targets: violation.nodes.map((node) => node.target),
+      }));
+    });
+    assert.equal(violations.length, 0, `${label} accessibility violations: ${JSON.stringify(violations)}`);
+  };
+  await auditAccessibility("Landing desktop");
 
   const heroImage = page.locator(".landing-photo");
   await heroImage.waitFor();
@@ -80,9 +97,9 @@ try {
     );
   }
 
-  await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
+  await page.setViewportSize({ width: 390, height: 844 });\n  await auditAccessibility("Landing mobile");\n\n  await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
   await page.locator(".entry-form").waitFor();
-  await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();
+  await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();\n  await page.setViewportSize({ width: 1440, height: 900 });\n  await auditAccessibility("Sign-in desktop");
 
   for (const width of viewports) {
     await page.setViewportSize({ width, height: 900 });
@@ -98,7 +115,7 @@ try {
     );
   }
 
-  await page.getByRole("button", { name: "Voltar para o início" }).click();
+  await page.setViewportSize({ width: 390, height: 844 });\n  await auditAccessibility("Sign-in mobile");\n\n  await page.getByRole("button", { name: "Voltar para o início" }).click();
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
