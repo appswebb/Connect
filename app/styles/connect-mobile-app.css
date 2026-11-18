@@ -26,10 +26,10 @@ button:disabled{opacity:.55;cursor:not-allowed}
 a{color:inherit;text-decoration:none}
 img{max-width:100%}
 svg{flex-shrink:0}
-:focus-visible{outline:3px solid rgba(49,95,80,.48);outline-offset:3px}
-::selection{background:#d8e7dc;color:#203b31}
+:focus-visible{outline:3px solid rgba(233,79,104,.58);outline-offset:3px}
+::selection{background:#ffd8df;color:#572638}
 h1,h2,h3,h4{font-family:'Outfit',sans-serif;letter-spacing:-.035em}
-.primary,.entry-submit,.landing-cta{background:var(--cx-primary);color:#fff;border:1px solid var(--cx-primary);border-radius:14px;box-shadow:0 8px 22px rgba(49,95,80,.2)}
+.primary,.entry-submit,.landing-cta{background:var(--cx-primary);color:#fff;border:1px solid var(--cx-primary);border-radius:14px;box-shadow:0 8px 22px rgba(233,79,104,.2)}
 .primary:hover,.entry-submit:hover,.landing-cta:hover{background:var(--cx-primary-dark);border-color:var(--cx-primary-dark)}
 .secondary{border:1px solid var(--cx-line);background:#fff;color:#4f556c;border-radius:13px}
 .loading{min-height:100svh;display:flex;align-items:center;justify-content:center;gap:12px;flex-direction:column;color:var(--cx-muted)}
@@ -342,10 +342,11 @@ h1,h2,h3,h4{font-family:'Outfit',sans-serif;letter-spacing:-.035em}
 }
 html[data-theme="dark"]{
  color-scheme:dark;
- --cx-bg:#111d17;--cx-surface:#1b2b22;--cx-surface-2:#24372b;
- --cx-ink:#f0f3e9;--cx-muted:#b4c2b2;--cx-line:#3b5041;
- --cx-primary:#b9d5a6;--cx-primary-dark:#d2e2c5;--cx-primary-soft:#2d4634;
- --cx-night:#13231b;--brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);
+ --cx-bg:#17131b;--cx-surface:#241b28;--cx-surface-2:#302432;
+ --cx-ink:#f7eef2;--cx-muted:#c7b7c0;--cx-line:#493746;
+ --cx-primary:#ff6b83;--cx-primary-dark:#e94f68;--cx-primary-soft:#492634;
+ --cx-lime:#ffc36b;--cx-coral:#ff8b72;--cx-night:#17111b;
+ --brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);
  --brand-soft:var(--cx-primary-soft);--bg:var(--cx-bg);--surface:var(--cx-surface);
  --surface-2:var(--cx-surface-2);--ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line);
 }
@@ -1193,3 +1194,58 @@ html,body{background:var(--cx-bg);color:var(--cx-ink)}
 .connect-home .landing-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:1000px){.connect-home .landing-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.connect-home .landing-feature-grid{grid-template-columns:1fr}}
+
+/* Final palette pass: remove legacy forest-green literals from dark mode and download surfaces. */
+html[data-theme="dark"] body,html[data-theme="dark"] .connect-app,html[data-theme="dark"] .connect-app .connect-main{background:#17131b;color:#f7eef2}
+html[data-theme="dark"] .connect-app .connect-rail{background:#17111b}
+html[data-theme="dark"] .connect-app .topbar{background:rgba(36,27,40,.96);border-color:#493746}
+html[data-theme="dark"] .connect-app .connect-rail .brand-icon,html[data-theme="dark"] .connect-app .connect-rail nav button.selected{background:#492634;color:#fff}
+html[data-theme="dark"] .connect-app .connect-rail nav button.selected{box-shadow:inset 3px 0 #ffad9d}
+html[data-theme="dark"] .connect-app .connect-discover{background:#241b28;border-color:#493746}
+html[data-theme="dark"] .connect-app .connect-discover .rail-card,html[data-theme="dark"] .connect-app .connect-discover .rail-tip,html[data-theme="dark"] .connect-app .settings-section,html[data-theme="dark"] .connect-app .messages{background:#302432;border-color:#493746}
+html[data-theme="dark"] .connect-app .connect-discover .rail-card h2,html[data-theme="dark"] .connect-app .heading h1,html[data-theme="dark"] .connect-app .section-heading strong,html[data-theme="dark"] .connect-app .post>header strong,html[data-theme="dark"] .connect-app .profile-ident h2,html[data-theme="dark"] .connect-app .settings-section>div:first-child strong,html[data-theme="dark"] .connect-app .chat-history h2{color:#f7eef2}
+html[data-theme="dark"] .connect-app .heading p,html[data-theme="dark"] .connect-app .section-heading span,html[data-theme="dark"] .connect-app .connect-discover .rail-card p,html[data-theme="dark"] .connect-app .connect-discover .rail-tip p{color:#c7b7c0}
+html[data-theme="dark"] .connect-app .people-page-hero{background:linear-gradient(120deg,#382633,#302432);border-color:#59404c}
+html[data-theme="dark"] .connect-app .people-hero-copy h2{color:#f7eef2}
+html[data-theme="dark"] .connect-app .people-hero-copy p{color:#c7b7c0}
+html[data-theme="dark"] .connect-app .notification-panel,html[data-theme="dark"] .connect-app .location-panel,html[data-theme="dark"] .connect-app .user-menu-panel,html[data-theme="dark"] .connect-app .mobile-more-menu{background:#241b28;border-color:#493746;color:#f7eef2}
+html[data-theme="dark"] .connect-app .notification-trigger,html[data-theme="dark"] .connect-app .location-trigger,html[data-theme="dark"] .connect-app .user-menu-trigger,html[data-theme="dark"] .connect-app .theme-toggle,html[data-theme="dark"] .connect-app .mobile-more-menu button{background:#302432;border-color:#493746;color:#eadde3}
+html[data-theme="dark"] .connect-app .connect-bottom-nav{background:rgba(36,27,40,.97);border-color:#493746}
+html[data-theme="dark"] .connect-app .connect-bottom-nav>button{color:#c7b7c0}
+html[data-theme="dark"] .connect-app .connect-bottom-nav>button.active{background:#492634;color:#ffad9d}
+html[data-theme="dark"] .connect-app .profile-facts>div{background:#302432}
+html[data-theme="dark"] .connect-app .people-directory-search>button,html[data-theme="dark"] .connect-app .people-filter-row button[aria-pressed="true"]{background:#492634;border-color:#e94f68;color:#fff}
+html[data-theme="dark"] .connect-app .profile-card>.banner{background:#382633}
+html[data-theme="dark"] .connect-auth .entry-form-wrap{background:#17131b}
+html[data-theme="dark"] .connect-auth .entry-form{background:#241b28;border-color:#493746}
+html[data-theme="dark"] .connect-auth .entry-form h2{color:#f7eef2}
+html[data-theme="dark"] .connect-auth .entry-form>p,html[data-theme="dark"] .connect-auth .entry-form label{color:#c7b7c0}
+html[data-theme="dark"] .connect-auth .entry-form input,html[data-theme="dark"] .connect-auth .entry-form select,html[data-theme="dark"] .connect-auth .entry-form textarea{background:#302432;border-color:#59404c;color:#f7eef2}
+html[data-theme="dark"] .connect-auth .entry-tabs{background:#302432;border-color:#493746}
+html[data-theme="dark"] .connect-auth .entry-tabs button.active{background:#492634;color:#ffad9d}
+html[data-theme="dark"] .connect-auth .entry-mark{background:#492634;color:#ff8b9b}
+html[data-theme="dark"] .connect-auth .entry-submit{background:linear-gradient(110deg,#ff3d6e,#ff6a3d 58%,#ffb547);border-color:transparent;color:#fff}
+html[data-theme="dark"] .connect-auth .entry-back,html[data-theme="dark"] .connect-auth .entry-overline,html[data-theme="dark"] .connect-auth .entry-terms{color:#ffb5a6}
+.download-page{background:#f7f4f2;color:#29212a}
+.app-download-hero{background:radial-gradient(circle at 78% 42%,rgba(255,195,107,.16),transparent 30%),linear-gradient(135deg,#241b28,#382633 68%,#513044);color:#fff}
+.app-download-eyebrow,.app-download-hero h2 em,.app-download-benefits svg,.app-download-float svg{color:#ffc36b}
+.app-download-hero .primary{background:linear-gradient(110deg,#ff3d6e,#ff6a3d 58%,#ffb547);border-color:transparent;color:#fff}
+.app-download-device{border-color:#eadfe1;background:linear-gradient(155deg,#fff,#fff0ed);color:#29212a}
+.app-download-device-camera{background:#29212a}
+.app-download-device small{color:#786d75}
+.app-download-device-dots i{background:#e94f68}
+.app-download-device-dots i:nth-child(2){background:#ffc36b}
+.app-download-float{background:rgba(36,27,40,.88);color:#fff;border-color:#59404c}
+.app-download-platform-card .app-download-eyebrow{color:#c93655}
+.app-download-platform-card>p,.app-download-platform-card ol,.app-download-platform-card>small,.app-download-status,.app-download-updates .section-heading>div>span,.app-release time,.app-release p,.app-release>small,.app-download-footnote{color:#786d75}
+.app-download-status i{background:#e94f68}
+.app-live-update{background:#ffedf0;border-color:#f0d7d8;color:#c93655}
+.app-release{background:#fff8f5;border-color:#eadfe1}
+.app-site-release{background:#fff0ed;border-color:#f0d7d8}
+.app-site-release header strong{color:#c93655}
+html[data-theme="dark"] .download-page{background:#17131b;color:#f7eef2}
+html[data-theme="dark"] .app-download-platform-card,html[data-theme="dark"] .app-download-updates{background:#241b28;border-color:#493746}
+html[data-theme="dark"] .app-release{background:#302432;border-color:#493746}
+html[data-theme="dark"] .app-download-platform-card h3,html[data-theme="dark"] .app-download-updates .section-heading h2,html[data-theme="dark"] .app-release header strong{color:#f7eef2}
+html[data-theme="dark"] .app-download-platform-card>p,html[data-theme="dark"] .app-download-platform-card ol,html[data-theme="dark"] .app-download-platform-card>small,html[data-theme="dark"] .app-download-updates .section-heading>div>span,html[data-theme="dark"] .app-release p,html[data-theme="dark"] .app-release time,html[data-theme="dark"] .app-download-footnote{color:#c7b7c0}
+html[data-theme="dark"] .app-live-update{background:#492634;border-color:#59404c;color:#ffad9d}
