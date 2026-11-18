@@ -97,9 +97,13 @@ try {
     );
   }
 
-  await page.setViewportSize({ width: 390, height: 844 });\n  await auditAccessibility("Landing mobile");\n\n  await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await auditAccessibility("Landing mobile");\n
+  await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
   await page.locator(".entry-form").waitFor();
-  await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();\n  await page.setViewportSize({ width: 1440, height: 900 });\n  await auditAccessibility("Sign-in desktop");
+  await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await auditAccessibility("Sign-in desktop");
 
   for (const width of viewports) {
     await page.setViewportSize({ width, height: 900 });
@@ -115,7 +119,9 @@ try {
     );
   }
 
-  await page.setViewportSize({ width: 390, height: 844 });\n  await auditAccessibility("Sign-in mobile");\n\n  await page.getByRole("button", { name: "Voltar para o início" }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await auditAccessibility("Sign-in mobile");\n
+  await page.getByRole("button", { name: "Voltar para o início" }).click();
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
