@@ -33,9 +33,3 @@ jobs:
           test -d ./out/_next/static
           find ./out/_next/static -type f -name "*.js" | grep -q .
 
-      - name: Upload resolved dependency lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: connect-package-lock
-          path: package-lock.json
-          if-no-files-found: error
