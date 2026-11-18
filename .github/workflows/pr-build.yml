@@ -25,9 +25,16 @@ jobs:
       - name: Audit dependencies
         run: |
           npm audit --json > /tmp/connect-npm-audit.json || true
-          node -e 'const a=require("/tmp/connect-npm-audit.json"); const v=a.metadata?.vulnerabilities||{}; console.log(JSON.stringify({info:v.info||0,low:v.low||0,moderate:v.moderate||0,high:v.high||0,critical:v.critical||0},null,2))'
+          node -e 'const a=require("/tmp/connect-npm-audit.json"); const v=a.metadata?.vulnerabilities||{}; console.log(JSON.stringify({info:v.info||0,low:v.low||0,moderate:v.moderate||0,high:v.high||0,critical:v.critical||0},null,2)); for(const [name,item] of Object.entries(a.vulnerabilities||{})) console.log(JSON.stringify({package:name,severity:item.severity,range:item.range,fixAvailable:item.fixAvailable,via:(item.via||[]).map(x=>typeof x==="string"?x:x.title)}))'
       - name: Verify static export
         run: |
           test -s ./out/index.html
           test -d ./out/_next/static
           find ./out/_next/static -type f -name "*.js" | grep -q .
+
+      - name: Upload resolved dependency lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: connect-package-lock
+          path: package-lock.json
+          if-no-files-found: error
