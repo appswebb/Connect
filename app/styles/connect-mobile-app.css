@@ -1128,3 +1128,5 @@ html[data-theme="dark"] .connect-auth .entry-terms{color:#c5d3c7}
  .app-download-updates{padding:16px}
 }
 @media(prefers-reduced-motion:reduce){.download-page *{scroll-behavior:auto;transition:none}}
+
+.download-page-content>.heading p{color:#59695e}
