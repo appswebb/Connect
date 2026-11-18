@@ -26,7 +26,7 @@ Aplicativo social para conhecer pessoas, conversar em privado, participar de sal
 Requisitos: Node.js 22 e npm.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
