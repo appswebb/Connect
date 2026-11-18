@@ -59,8 +59,8 @@ import { useConnectFeed } from "./hooks/useConnectFeed";
 import { useConnectRooms } from "./hooks/useConnectRooms";
 import { useConnectLives } from "./hooks/useConnectLives";
 import ConnectLives from "./components/ConnectLives";
+import ConnectNavigation from "./components/ConnectNavigation";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
-import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
@@ -1663,27 +1663,7 @@ export default function Home() {
   );
   return (
     <main className="connect-app" data-screen="workspace">
-      <aside className="connect-rail" aria-label="Navegação do CONNECT">
-        <a className="brand" href="#" aria-label="CONNECT" onClick={(e) => { e.preventDefault(); setTab("feed"); }}>
-          <span className="brand-icon">
-            <img className="connect-brand-symbol" src="/Connect/connect-mark.svg" alt="" />
-          </span>
-          <span>CONNECT</span>
-        </a>
-        <nav aria-label="Navegação principal">
-          {items.map(([id, label, Icon]) => (
-            <button type="button" key={id} className={tab === id ? "selected" : ""} onClick={() => setTab(id)}>
-              <Icon size={17} />
-              <span>{label}</span>
-              {id === "queue" && queue === "waiting" && <i />}
-            </button>
-          ))}
-        </nav>
-        <span className="sidebar-spacer" />
-        <span className="sidebar-caption">
-          <i /> SUA COMUNIDADE, SEU ESPAÇO
-        </span>
-      </aside>
+      <ConnectNavigation tab={tab} setTab={setTab} queue={queue} mobileMoreOpen={mobileMoreOpen} setMobileMoreOpen={setMobileMoreOpen} />
       <section className="connect-main">
         <header className="topbar">
           <div className="mobile-brand">
@@ -3684,52 +3664,6 @@ export default function Home() {
           CONNECT © 2026 <span>FEITO PARA APROXIMAR</span>
         </footer>
       </aside>
-      <nav className="connect-bottom-nav" aria-label="Navegação principal">
-        {items.filter(([id]) => ["feed", "queue", "chat", "people"].includes(id)).map(([id, label, Icon]) => (
-          <button
-            type="button"
-            key={id}
-            title={label}
-            aria-label={label}
-            aria-current={tab === id ? "page" : undefined}
-            className={tab === id ? "active" : ""}
-            onClick={() => { setTab(id); setMobileMoreOpen(false); }}
-          >
-            <Icon />
-            <span>{label}</span>
-            {id === "queue" && queue === "waiting" && <i />}
-          </button>
-        ))}
-        <button
-          type="button"
-          title="Mais opções"
-          aria-label="Mais opções"
-          aria-expanded={mobileMoreOpen}
-          aria-haspopup="menu"
-          className={mobileMoreOpen || ["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
-          onClick={() => setMobileMoreOpen(value => !value)}
-        >
-          <Menu />
-          <span>Mais</span>
-        </button>
-        {mobileMoreOpen && (
-          <div className="mobile-more-menu" role="menu" aria-label="Mais áreas do CONNECT">
-            {items.filter(([id]) => ["rooms", "lives"].includes(id)).map(([id, label, Icon]) => (
-              <button type="button" role="menuitem" key={id} className={tab === id ? "active" : ""} onClick={() => { setTab(id); setMobileMoreOpen(false); }}>
-                <Icon size={18} /><span>{label}</span>
-              </button>
-            ))}
-            <button type="button" role="menuitem" className={tab === "subscription" ? "active" : ""} onClick={() => { setTab("subscription"); setMobileMoreOpen(false); }}>
-              <CreditCard size={18} /><span>Assinatura</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "profile" ? "active" : ""} onClick={() => { setTab("profile"); setMobileMoreOpen(false); }}>
-              <UserRound size={18} /><span>Meu perfil</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "settings" ? "active" : ""} onClick={() => { setTab("settings"); setMobileMoreOpen(false); }}>
-              <Settings size={18} /><span>Configurações</span>
-            </button>
-          </div>
-        )}
-      </nav>    </main>
+    </main>
   );
 }
