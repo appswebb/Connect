@@ -335,13 +335,13 @@ html[data-theme="dark"] .connect-app .flash.success{background:#492634;border-co
 .connect-home .landing-header nav a:hover{color:#5b2842}
 .connect-home .landing-actions{display:flex;align-items:center;gap:10px}
 .connect-home .landing-login{border:0;background:transparent;color:#573144;font-size:12px;font-weight:700;padding:12px 15px}
-.connect-home .landing-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:1px solid #5b2842;border-radius:999px;padding:13px 19px;background:#5b2842;color:#fff;font-size:12px;font-weight:750;box-shadow:0 8px 22px rgba(91,40,66,.17);transition:transform .18s,background .18s}
-.connect-home .landing-cta:hover{background:#441d31;transform:translateY(-2px)}
-.connect-home .landing-hero{width:min(calc(100% - 64px),1440px);min-height:650px;grid-template-columns:minmax(0,1fr) minmax(420px,.88fr);align-items:center;gap:clamp(36px,7vw,110px);padding:clamp(64px,8vw,116px) 0;margin:0 auto}
+.connect-home .landing-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:999px;padding:13px 19px;background:var(--grad);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 22px rgba(233,79,104,.22);transition:transform .18s,filter .18s}
+.connect-home .landing-cta:hover{filter:brightness(.96);transform:translateY(-2px)}
+.connect-home .landing-hero{display:grid;width:min(calc(100% - 64px),1440px);min-height:650px;grid-template-columns:minmax(0,1fr) minmax(420px,.88fr);align-items:center;gap:clamp(36px,7vw,110px);padding:clamp(64px,8vw,116px) 0;margin:0 auto}
 .connect-home .landing-kicker{color:#6b4f5d;font-size:10px;letter-spacing:.17em;font-weight:800}
 .connect-home .landing-kicker i{background:#9b6c84;box-shadow:0 0 0 5px #9b6c841c}
 .connect-home .landing-copy h1{color:#301c26;font:700 clamp(54px,6.4vw,88px)/.98 'Outfit',sans-serif;letter-spacing:-.065em;margin:24px 0}
-.connect-home .landing-copy h1 span{color:#825b6f}
+.connect-home .landing-copy h1 span{color:#d94b68}
 .connect-home .landing-copy>p{max-width:520px;color:#695861;font-size:16px;line-height:1.8}
 .connect-home .landing-buttons{display:flex;align-items:center;gap:12px;margin-top:30px}
 .connect-home .landing-cta-big{min-height:54px;padding:0 23px}
@@ -360,9 +360,9 @@ html[data-theme="dark"] .connect-app .flash.success{background:#492634;border-co
 .connect-home .landing-experience{background:#fffdfa;border-top:1px solid #e2ded8;border-bottom:1px solid #e2ded8}
 .connect-home .landing-section-heading{max-width:660px;margin:0 auto 42px;text-align:center}
 .connect-home .landing-section-heading h2,.connect-home .landing-more-copy h2{color:#301c26;font:700 clamp(38px,5vw,62px)/1.02 'Outfit',sans-serif;letter-spacing:-.055em}
-.connect-home .landing-section-heading h2 span,.connect-home .landing-more-copy h2 span{color:#866274}
+.connect-home .landing-section-heading h2 span,.connect-home .landing-more-copy h2 span{color:#d94b68}
 .connect-home .landing-section-heading p{color:#695961;font-size:14px;line-height:1.75}
-.connect-home .landing-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1440px;margin:0 auto}
+.connect-home .landing-feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:1440px;margin:0 auto}
 .connect-home .landing-feature-grid article{min-height:245px;padding:25px;border:1px solid #e3dfd9;border-radius:22px;background:#fbf8f4;box-shadow:none}
 .connect-home .landing-feature-grid article>small{color:#6b5e65;font-size:9px;letter-spacing:.14em}
 .connect-home .landing-feature-grid article h3{color:#3a242f;font:700 21px 'Outfit',sans-serif}
@@ -375,8 +375,8 @@ html[data-theme="dark"] .connect-app .flash.success{background:#492634;border-co
 .connect-home .landing-steps{background:#2a1721;color:#fff}
 .connect-home .landing-steps .landing-section-heading h2{color:#f5f0e9}
 .connect-home .landing-steps .landing-section-heading h2 span{color:#e7bf8b}
-.connect-home .landing-step-list{max-width:1200px;margin:0 auto;gap:0}
-.connect-home .landing-step-list li{border-top:1px solid #ffffff24;padding:28px 20px}
+.connect-home .landing-step-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:1200px;margin:0 auto;padding:0;list-style:none;gap:18px}
+.connect-home .landing-step-list li{border:1px solid #ffffff24;border-radius:20px;padding:26px 22px;background:rgba(255,255,255,.035)}
 .connect-home .landing-step-list li>span{color:#e7bf8b}
 .connect-home .landing-step-list li h3{color:#fff;font:700 22px 'Outfit',sans-serif}
 .connect-home .landing-step-list li p{color:#cbbdc4;font-size:12px;line-height:1.7}
@@ -387,8 +387,8 @@ html[data-theme="dark"] .connect-app .flash.success{background:#492634;border-co
 .connect-home .landing-more-copy p{color:#695861;font-size:14px;line-height:1.8}
 .connect-home .landing-footer{background:#23131b;color:#d5c8cf;padding:30px max(32px,calc((100% - 1440px)/2))}
 .connect-home .landing-footer .landing-brand{color:#fff}
-@media(max-width:980px){.connect-home .landing-hero{grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);gap:34px}.connect-home .landing-art>img{height:490px}.connect-home .landing-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.connect-home .landing-header{width:calc(100% - 32px);height:70px}.connect-home .landing-header nav{display:none}.connect-home .landing-brand{font-size:16px}.connect-home .landing-brand img{width:33px;height:33px}.connect-home .landing-hero{width:calc(100% - 32px);min-height:0;padding:48px 0 58px;grid-template-columns:1fr;gap:30px}.connect-home .landing-copy h1{font-size:clamp(46px,12vw,66px)}.connect-home .landing-copy>p{font-size:14px}.connect-home .landing-buttons{align-items:stretch;flex-direction:column}.connect-home .landing-buttons button{width:100%;min-height:52px}.connect-home .landing-art>img{height:auto;aspect-ratio:4/4.2}.connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-more{padding:64px 16px}.connect-home .landing-feature-grid{grid-template-columns:1fr}.connect-home .landing-feature-grid article{min-height:0;padding:22px}.connect-home .landing-more{grid-template-columns:1fr;gap:28px}.connect-home .landing-more-photo{height:auto;aspect-ratio:4/3}.connect-home .landing-footer{padding:25px 18px}}
+@media(max-width:980px){.connect-home .landing-hero{grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);gap:34px}.connect-home .landing-art>img{height:490px}.connect-home .landing-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.connect-home .landing-step-list{grid-template-columns:1fr}}
+@media(max-width:760px){.connect-home .landing-header{width:calc(100% - 32px);height:70px}.connect-home .landing-header nav{display:none}.connect-home .landing-brand{font-size:16px}.connect-home .landing-brand img{width:33px;height:33px}.connect-home .landing-hero{width:calc(100% - 32px);min-height:0;padding:48px 0 58px;grid-template-columns:1fr;gap:30px}.connect-home .landing-copy h1{font-size:clamp(46px,12vw,66px)}.connect-home .landing-copy>p{font-size:14px}.connect-home .landing-buttons{align-items:stretch;flex-direction:column}.connect-home .landing-buttons button{width:100%;min-height:52px}.connect-home .landing-art>img{height:auto;aspect-ratio:4/4.2}.connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-more{padding:64px 16px}.connect-home .landing-feature-grid{grid-template-columns:1fr}.connect-home .landing-step-list{grid-template-columns:1fr;gap:0}.connect-home .landing-feature-grid article{min-height:0;padding:22px}.connect-home .landing-more{grid-template-columns:1fr;gap:28px}.connect-home .landing-more-photo{height:auto;aspect-ratio:4/3}.connect-home .landing-footer{padding:25px 18px}}
 @media(prefers-reduced-motion:reduce){.connect-home *{animation-duration:.01ms;transition-duration:.01ms}}
 
 /* Payment surfaces — shared CONNECT checkout language */
@@ -640,7 +640,8 @@ html[data-theme="dark"] .connect-auth .entry-terms{color:#d3c5cc}
 .download-page-content{width:min(1320px,calc(100% - 64px));margin:0 auto;padding:34px 0 76px}
 .download-page-content>.heading{margin:0 0 22px}
 .download-page-content>.heading>div>small{color:#a42c4a;font-size:10px;font-weight:850;letter-spacing:.15em}
-.download-page-content>.heading h1{font-size:clamp(34px,4vw,48px);letter-spacing:-.055em}
+.download-page-content>.heading h1{font-size:clamp(34px,4vw,48px);letter-spacing:-.055em;color:var(--cx-ink)}
+.download-page-content>.heading h1 em{color:var(--cx-primary);font-style:normal}
 .app-download{display:grid;gap:22px}
 .app-download-hero{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);align-items:center;gap:clamp(24px,5vw,72px);min-height:470px;padding:clamp(28px,5vw,64px);border:1px solid rgba(255,255,255,.08);border-radius:30px;background:radial-gradient(circle at 78% 42%,rgba(231,191,139,.12),transparent 30%),linear-gradient(135deg,#2a1721,#452435 68%,#5d3147);color:#fffdfa;box-shadow:0 24px 60px rgba(42,23,33,.13)}
 .app-download-hero-copy{position:relative;z-index:2;max-width:650px}
@@ -650,8 +651,9 @@ html[data-theme="dark"] .connect-auth .entry-terms{color:#d3c5cc}
 .app-download-hero h2 em{color:#e7bf8b;font-style:normal}
 .app-download-hero-copy>p{max-width:540px;margin:0;color:#dcd0d6;font-size:13px;line-height:1.85}
 .app-download-hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:26px}
-.app-download-hero .primary{min-height:48px;padding:12px 18px;border-radius:13px;background:#c93655;border-color:#c93655;color:#fff;box-shadow:none}
-.app-download-hero .primary:hover{background:#efd4b0;border-color:#efd4b0}
+.app-download-hero .primary{min-height:48px;padding:12px 18px;border-radius:13px;background:#a42c4a;border-color:#a42c4a;color:#fff;box-shadow:none}
+.download-page .primary{background:#a42c4a;border-color:#a42c4a;color:#fff}
+.download-page .primary:hover,.app-download-hero .primary:hover{background:#84213d;border-color:#84213d}
 .app-download-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 12px;color:#f2e9ee;font-size:11px;font-weight:750}
 .app-install-hint,.app-installed-label{display:inline-flex;align-items:center;gap:9px;min-height:44px;color:#ebdfe5;font-size:11px;line-height:1.5}
 .app-installed-label{color:#e7bf8b;font-weight:800}
