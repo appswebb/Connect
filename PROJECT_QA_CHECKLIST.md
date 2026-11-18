@@ -4,7 +4,7 @@
 - [ ] Install from the committed lockfile (if present).
 - [ ] Run `npx tsc --noEmit`.
 - [ ] Run `npm run build`.
-- [ ] Review GitHub Actions results.
+- [x] Review GitHub Actions results: build, TypeScript and static export passed on the verified branch commit.\n- [x] Run Chromium smoke test for landing, sign-in and demo entry at 320, 360, 375, 390, 430, 768, 1024, 1280, 1440 and 1920 px.\n- [x] Confirm no horizontal overflow in the tested public/authentication views.\n- [ ] Run authenticated E2E with a dedicated test account and isolated test data.\n- [ ] Validate Mercado Pago and LiveKit against their sandbox credentials.
 
 ## Refactored module map
 - [ ] `useConnectFeed`: feed, likes, comments and post upload.
@@ -28,9 +28,9 @@
 - [ ] PWA install, service-worker update and Android packaging.
 
 ## Viewports
-- [ ] 320 px  [ ] 375 px  [ ] 768 px  [ ] 1024 px  [ ] 1440 px
+- [x] 320 px  [x] 360 px  [x] 375 px  [x] 390 px  [x] 430 px  [x] 768 px  [x] 1024 px  [x] 1280 px  [x] 1440 px  [x] 1920 px
 
-## Regression guardrails
+## Browser smoke test\n- Script: `scripts/smoke-e2e.mjs`.\n- CI installs Chromium and runs the static export locally before merge.\n- The test covers public landing, sign-in, demo entry, hero asset loading and horizontal overflow; it does not claim authenticated CRUD or provider integration coverage.\n\n## Regression guardrails
 - [ ] No schema, RLS, API contract or secret changes in a visual refactor.
 - [ ] No fake data replacing Supabase-backed data.
 - [ ] No visible action without a real handler.
