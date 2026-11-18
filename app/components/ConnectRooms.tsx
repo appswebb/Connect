@@ -4,7 +4,7 @@ import Avatar from "./ConnectAvatar";
 import { ago } from "../lib/connect-utils";
 import { stateFlags } from "../lib/connect-data";
 import { brazilStates } from "../lib/brazil";
-import type { Profile, RoomMessage } from "../types/connect";
+import type { RoomMessage } from "../types/connect";
 
 type ConnectRoomsProps = {
   roomCode: string;
