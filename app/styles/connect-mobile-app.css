@@ -3,42 +3,19 @@
 */
 
 :root{
-  color-scheme:light;
-  --cx-bg:#f4f1e9;
-  --cx-surface:#fffdf8;
-  --cx-surface-2:#fbf9f3;
-  --cx-ink:#1e2a24;
-  --cx-muted:#6f786f;
-  --cx-line:#e5e1d6;
-  --cx-primary:#315f50;
-  --cx-primary-dark:#22483d;
-  --cx-primary-soft:#e7f0eb;
-  --cx-lime:#dce78b;
-  --cx-coral:#e8785e;
-  --cx-night:#182b25;
-  --cx-shadow:0 18px 48px rgba(30,42,36,.09);
-  --cx-radius:20px;
-  --bg:var(--cx-bg);
-  --surface:var(--cx-surface);
-  --surface-2:var(--cx-surface-2);
-  --ink:var(--cx-ink);
-  --muted:var(--cx-muted);
-  --line:var(--cx-line);
-  --brand:var(--cx-primary);
-  --brand-dark:var(--cx-primary-dark);
-  --brand-soft:var(--cx-primary-soft);
-  --lime:var(--cx-lime);
-  --peach:#f6ded2;
-  --blue-soft:#e6eee8;
-  --green:#4d8a68;
-  --danger:#c85f59;
-  --shadow:var(--cx-shadow);
-  --radius:var(--cx-radius);
-  --grad:linear-gradient(135deg,#315f50,#5d8b72);
-  --grad-soft:linear-gradient(135deg,#e7f0eb,#f5f4e9);
-  --night:var(--cx-night);
-  --glow:0 12px 32px rgba(49,95,80,.2);
-  --font-display:'Outfit',sans-serif;
+ color-scheme:light;
+ --cx-bg:#f2f0e8;--cx-surface:#fffefa;--cx-surface-2:#f8f6ef;
+ --cx-ink:#1c3028;--cx-muted:#718076;--cx-line:#dedfd3;
+ --cx-primary:#285b49;--cx-primary-dark:#1d4437;--cx-primary-soft:#e5eee6;
+ --cx-lime:#dce78b;--cx-coral:#dc795f;--cx-night:#172a22;
+ --cx-shadow:0 16px 42px rgba(28,48,40,.075);--cx-radius:22px;
+ --bg:var(--cx-bg);--surface:var(--cx-surface);--surface-2:var(--cx-surface-2);
+ --ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line);
+ --brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);--brand-soft:var(--cx-primary-soft);
+ --lime:var(--cx-lime);--peach:#f6e7dc;--blue-soft:#e3ece8;--green:#4d8a68;
+ --danger:#c85f59;--shadow:var(--cx-shadow);--radius:var(--cx-radius);
+ --grad:linear-gradient(135deg,#285b49,#6d9877);--grad-soft:linear-gradient(135deg,#e5eee6,#f7f3e7);
+ --night:var(--cx-night);--glow:0 12px 32px rgba(40,91,73,.18);--font-display:'Outfit',sans-serif;
 }
 *{box-sizing:border-box}
 html{min-height:100%;scroll-behavior:smooth;background:var(--cx-bg)}
@@ -365,7 +342,12 @@ h1,h2,h3,h4{font-family:'Outfit',sans-serif;letter-spacing:-.035em}
 }
 html[data-theme="dark"]{
  color-scheme:dark;
- --cx-bg:#101d18;--cx-surface:#1b1e30;--cx-surface-2:#22382f;--cx-ink:#f4f4fc;--cx-muted:#a5abc0;--cx-line:#3b5549;--cx-primary:#a9cbb5;--cx-primary-dark:#83aa91;--cx-primary-soft:#294b40;--cx-night:#101d18;--brand:#a9cbb5;--brand-dark:#83aa91;--brand-soft:#294b40;--bg:var(--cx-bg);--surface:var(--cx-surface);--surface-2:var(--cx-surface-2);--ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line)
+ --cx-bg:#111d17;--cx-surface:#1b2b22;--cx-surface-2:#24372b;
+ --cx-ink:#f0f3e9;--cx-muted:#b4c2b2;--cx-line:#3b5041;
+ --cx-primary:#b9d5a6;--cx-primary-dark:#d2e2c5;--cx-primary-soft:#2d4634;
+ --cx-night:#13231b;--brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);
+ --brand-soft:var(--cx-primary-soft);--bg:var(--cx-bg);--surface:var(--cx-surface);
+ --surface-2:var(--cx-surface-2);--ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line);
 }
 html[data-theme="dark"] body{background:var(--cx-bg);color:var(--cx-ink)}
 html[data-theme="dark"] .connect-app,html[data-theme="dark"] .connect-app .connect-main{background:var(--cx-bg)!important;color:var(--cx-ink)!important}
@@ -451,36 +433,7 @@ html[data-theme="dark"] .connect-auth .entry-form input,html[data-theme="dark"] 
    centered work canvas, no competing right-hand rail. Mobile keeps the
    dedicated bottom-tab navigation and safe-area behavior.
    ------------------------------------------------------------------------- */
-:root{
-  --cx-bg:#f2f0e8;
-  --cx-surface:#fffefa;
-  --cx-surface-2:#f8f6ef;
-  --cx-ink:#1c3028;
-  --cx-muted:#718076;
-  --cx-line:#dedfd3;
-  --cx-primary:#285b49;
-  --cx-primary-dark:#1d4437;
-  --cx-primary-soft:#e5eee6;
-  --cx-lime:#dce78b;
-  --cx-coral:#dc795f;
-  --cx-night:#172a22;
-  --cx-shadow:0 16px 42px rgba(28,48,40,.075);
-  --cx-radius:22px;
-  --bg:var(--cx-bg);
-  --surface:var(--cx-surface);
-  --surface-2:var(--cx-surface-2);
-  --ink:var(--cx-ink);
-  --muted:var(--cx-muted);
-  --line:var(--cx-line);
-  --brand:var(--cx-primary);
-  --brand-dark:var(--cx-primary-dark);
-  --brand-soft:var(--cx-primary-soft);
-  --shadow:var(--cx-shadow);
-  --radius:var(--cx-radius);
-  --night:var(--cx-night);
-  --grad:linear-gradient(135deg,#285b49,#6d9877);
-  --grad-soft:linear-gradient(135deg,#e5eee6,#f7f3e7);
-}
+
 html,body{background:var(--cx-bg)}
 body{color:var(--cx-ink);font-family:'DM Sans',sans-serif}
 button,input,textarea,select{font-family:'DM Sans',sans-serif}
@@ -702,14 +655,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(prefers-reduced-motion:reduce){
   .connect-app *, .connect-home *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
-html[data-theme="dark"]{
-  --cx-bg:#111d17;--cx-surface:#1b2b22;--cx-surface-2:#24372b;
-  --cx-ink:#f0f3e9;--cx-muted:#b4c2b2;--cx-line:#3b5041;
-  --cx-primary:#b9d5a6;--cx-primary-dark:#d2e2c5;--cx-primary-soft:#2d4634;
-  --brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);
-  --brand-soft:var(--cx-primary-soft);--bg:var(--cx-bg);--surface:var(--cx-surface);
-  --surface-2:var(--cx-surface-2);--ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line);
-}
+
 html[data-theme="dark"] body,html[data-theme="dark"] .connect-app{background:var(--cx-bg)!important;color:var(--cx-ink)!important}
 html[data-theme="dark"] .connect-app .connect-rail{background:#13231b!important}
 html[data-theme="dark"] .connect-app .connect-main{background:transparent!important}
@@ -923,3 +869,12 @@ html[data-theme="dark"] .subscription-empty p,html[data-theme="dark"] .subscript
 html[data-theme="dark"] .subscription-message,html[data-theme="dark"] .pix-feedback{background:#3c3424;border-color:#665637;color:#f1d9a7}
 html[data-theme="dark"] .subscription-close,html[data-theme="dark"] .payment-method-switch button{background:#203428;border-color:#3b5041;color:#dce7d7}
 html[data-theme="dark"] .payment-method-switch button.active{background:#b9d5a6;border-color:#b9d5a6;color:#172a22}
+
+html[data-theme="dark"] .connect-pay-panel,html[data-theme="dark"] .connect-pay-plan{background:#1b2b22!important;border-color:#3b5041!important;color:#edf2e8!important}
+html[data-theme="dark"] .connect-pay-summary{background:#263b2d!important}
+html[data-theme="dark"] .connect-pay-heading,html[data-theme="dark"] .connect-pay-price,html[data-theme="dark"] .connect-pay-field{color:#edf2e8!important}
+html[data-theme="dark"] .connect-pay-sub,html[data-theme="dark"] .connect-pay-benefit,html[data-theme="dark"] .connect-pay-foot{color:#b4c2b2!important}
+html[data-theme="dark"] .connect-pay-field,html[data-theme="dark"] .connect-pay-mpfield{background:#203428!important;border-color:#3b5041!important;color:#edf2e8!important}
+html[data-theme="dark"] .connect-pay-back{background:#203428!important;border-color:#3b5041!important;color:#dce7d7!important}
+html[data-theme="dark"] .connect-pay-trust{background:#203b2d!important;border-color:#49634c!important;color:#d8ead7!important}
+html[data-theme="dark"] .connect-pay-mp{background:#263b32!important;border-color:#49634c!important;color:#d8ead7!important}
