@@ -64,6 +64,7 @@ import ConnectFeed from "./components/ConnectFeed";
 import ConnectPeopleDirectory from "./components/ConnectPeopleDirectory";
 import ConnectSettings from "./components/ConnectSettings";
 import ConnectProfile from "./components/ConnectProfile";
+import ConnectChat from "./components/ConnectChat";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
@@ -2566,367 +2567,42 @@ export default function Home() {
             </section>
           </>
         )}
-        {tab === "chat" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>CONVERSAS</small>
-                <h1>
-                  Suas <em>conexões.</em>
-                </h1>
-                <p>Conversas privadas e salas públicas do Brasil.</p>
-              </div>
-              <div className="chat-mode-switch">
-                <button
-                  className={chatView === "direct" && chatInboxTab === "conversations" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("conversations");
-                  }}
-                >
-                  <MessageCircle size={15} /> Conversas
-                </button>
-                <button
-                  className={chatView === "direct" && chatInboxTab === "requests" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("requests");
-                  }}
-                >
-                  <Mail size={15} /> Pedidos {messageRequests.length > 0 && <b>{messageRequests.length}</b>}
-                </button>
-                <button
-                  className={chatView === "direct" && chatInboxTab === "archived" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("archived");
-                    if (session?.user.id) void loadChatHistory(session.user.id);
-                  }}
-                >
-                  <Archive size={15} /> Arquivadas
-                </button>
-              </div>
-            </div>
-            {chatView === "direct" && (
-              <>
-                {chatInboxTab === "requests" ? (
-                  <section className="message-requests">
-                    {messageRequests.map((item) => (
-                      <article key={item.id}>
-                        <Avatar p={item.sender} size="small" />
-                        <div className="message-request-copy">
-                          <strong>{item.sender.display_name}</strong>
-                          <small>
-                            @{item.sender.username} · {ago(item.created_at)}
-                          </small>
-                          <p>{item.initial_message}</p>
-                        </div>
-                        <div className="message-request-actions">
-                          <button className="primary" onClick={() => void respondMessageRequest(item.id, true)}>
-                            Aceitar
-                          </button>
-                          <button className="secondary" onClick={() => void respondMessageRequest(item.id, false)}>
-                            Recusar
-                          </button>
-                          {!isDemo && (
-                            <button
-                              type="button"
-                              className="content-report-action"
-                              onClick={() => openReport(item.sender_id, "chat_message", item.id)}
-                            >
-                              <Flag size={12} /> Denunciar mensagem
-                            </button>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                    {!messageRequests.length && (
-                      <div className="empty">
-                        <MessageCircle />
-                        <h3>Nenhum pedido de mensagem.</h3>
-                        <p>Quando alguém que não é seu amigo mandar mensagem, o pedido aparecerá aqui.</p>
-                      </div>
-                    )}
-                  </section>
-                ) : (
-                  <>
-                    {matchId && partner ? (
-                      chatMinimized ? (
-                        <section className="chat-minimized">
-                          <div>
-                            <Avatar p={partner} size="small" />
-                            <span>
-                              <strong>{partner.display_name}</strong>
-                              <small>Conversa minimizada · mensagens continuam chegando</small>
-                            </span>
-                          </div>
-                          <button className="secondary" onClick={() => setChatMinimized(false)}>
-                            Reabrir conversa
-                          </button>
-                          <button className="chat-close-mini" onClick={() => void endChat()} title="Encerrar conversa">
-                            <X />
-                          </button>
-                        </section>
-                      ) : (
-                        <section className="chat">
-                          <header>
-                            <button
-                              type="button"
-                              className="profile-open-avatar"
-                              onClick={() => void openProfile(partner.id)}
-                              aria-label={"Ver perfil de " + partner.display_name}
-                            >
-                              <Avatar p={partner} />
-                            </button>
-                            <div className="chat-person-info">
-                              <button type="button" className="profile-open-name" onClick={() => void openProfile(partner.id)}>
-                                {partner.display_name}
-                              </button>
-                              <span>
-                                @{partner.username} · {chatReadOnly ? "histórico salvo" : "match confirmado"}
-                              </span>
-                            </div>
-                            {!isDemo && (
-                              <>
-                                {!chatReadOnly && (
-                                  <>
-                                    <button title="Denunciar pessoa" onClick={() => openReport(partner.id)}>
-                                      <Flag />
-                                    </button>
-                                    <button title="Bloquear pessoa" onClick={() => void blockUser(partner.id)}>
-                                      <Ban />
-                                    </button>
-                                  </>
-                                )}
-                                {!chatReadOnly && (
-                                  <button onClick={() => setChatMinimized(true)} title="Minimizar conversa">
-                                    <Minus />
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => void endChat()}
-                                  title={chatReadOnly ? "Voltar ao histórico" : "Fechar e salvar conversa"}
-                                >
-                                  <X />
-                                </button>
-                              </>
-                            )}
-                          </header>
-                          <div className="messages">
-                            {messages.map((m) => (
-                              <div key={m.id} className={"bubble " + (m.sender_id === session.user.id ? "mine" : "")}>
-                                {m.attachment_path && m.attachment_url ? (
-                                  <div className="chat-attachment">
-                                    {m.attachment_mime?.startsWith("image/") ? (
-                                      <a href={m.attachment_url} target="_blank" rel="noreferrer">
-                                        <img src={m.attachment_url} alt={m.attachment_name || "Imagem enviada"} />
-                                      </a>
-                                    ) : m.message_type === "audio" || m.attachment_mime?.startsWith("audio/") ? (
-                                      <audio src={m.attachment_url} controls preload="metadata" />
-                                    ) : m.attachment_mime?.startsWith("video/") ? (
-                                      <video src={m.attachment_url} controls />
-                                    ) : (
-                                      <a className="chat-file" href={m.attachment_url} download={m.attachment_name || "arquivo"}>
-                                        <FileText />
-                                        <span>
-                                          {m.attachment_name || "Arquivo"}
-                                          <small>
-                                            {m.attachment_size ? Math.max(1, Math.round(m.attachment_size / 1024)) + " KB" : "Anexo"}
-                                          </small>
-                                        </span>
-                                        <Download />
-                                      </a>
-                                    )}
-                                    {m.body && <p>{m.body}</p>}
-                                  </div>
-                                ) : (
-                                  m.body
-                                )}
-                                {!isDemo && m.sender_id !== session.user.id && (
-                                  <button
-                                    type="button"
-                                    className="content-report-action"
-                                    onClick={() => openReport(m.sender_id, "chat_message", m.id)}
-                                  >
-                                    <Flag size={12} /> Denunciar mensagem
-                                  </button>
-                                )}
-                                <small>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</small>
-                              </div>
-                            ))}
-                            {!messages.length && <p className="chat-empty">Vocês foram conectados! Que tal começar com um oi?</p>}
-                          </div>
-                          {!chatReadOnly && !isDemo ? (
-                            <>
-                              <form className="chat-compose" onSubmit={send}>
-                                <div className="chat-tools">
-                                  <button
-                                    type="button"
-                                    onClick={() => chatFileRef.current?.click()}
-                                    title="Enviar foto ou arquivo"
-                                    disabled={busy}
-                                  >
-                                    <Paperclip />
-                                  </button>
-                                  <input
-                                    ref={chatFileRef}
-                                    type="file"
-                                    hidden
-                                    accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip"
-                                    onChange={(e) => {
-                                      const f = e.target.files?.[0];
-                                      if (f) {
-                                        if (f.type.startsWith("image/")) openImageCrop(f, "chat");
-                                        else void sendAttachment(f, f.type.startsWith("audio/") ? "audio" : "file");
-                                      }
-                                      e.currentTarget.value = "";
-                                    }}
-                                  />
-                                  <button
-                                    type="button"
-                                    className={recording ? "recording" : ""}
-                                    onClick={() => void toggleRecording()}
-                                    title={recording ? "Parar gravação" : "Gravar áudio"}
-                                    disabled={busy}
-                                  >
-                                    {recording ? <Square /> : <Mic />}
-                                  </button>
-                                </div>
-                                <input
-                                  value={draft}
-                                  onChange={(e) => setDraft(e.target.value)}
-                                  placeholder={recording ? "Gravando áudio..." : "Escreva uma mensagem..."}
-                                  maxLength={4000}
-                                />
-                                <button disabled={!draft.trim() || busy}>
-                                  <Send />
-                                </button>
-                              </form>
-                              <small className="chat-upload-hint">
-                                {recording ? "Toque no quadrado para finalizar o áudio." : "Fotos, vídeos, áudio e arquivos · até 50 MB"}
-                              </small>
-                            </>
-                          ) : (
-                            <div className="chat-archived-note">
-                              {isDemo
-                                ? "Modo de demonstração: mensagens e anexos estão desativados."
-                                : "Esta conversa está salva no seu histórico. Ela não recebe novas mensagens."}
-                            </div>
-                          )}
-                        </section>
-                      )
-                    ) : (
-                      <>
-                        {chatHistory.length > 0 ? (
-                          <section className="chat-history">
-                            <h2>{chatInboxTab === "archived" ? "Conversas arquivadas" : "Conversas"}</h2>
-                            {chatHistory.map((item) => (
-                              <article className="chat-history-item" key={item.id}>
-                                <button
-                                  className="chat-history-open"
-                                  onClick={() => {
-                                    setMatchId(item.id);
-                                    setChatReadOnly(true);
-                                    setChatMinimized(false);
-                                  }}
-                                >
-                                  <Avatar p={item.partner} size="small" />
-                                  <span>
-                                    <strong>{item.partner.display_name}</strong>
-                                    <small>
-                                      @{item.partner.username} · {new Date(item.created_at).toLocaleDateString("pt-BR")}
-                                    </small>
-                                  </span>
-                                  <MessageCircle />
-                                </button>
-                                <div className="chat-history-actions">
-                                  {chatInboxTab === "archived" ? (
-                                    <button
-                                      type="button"
-                                      title="Restaurar conversa"
-                                      onClick={() => void setChatHistoryStatus(item.id, "active")}
-                                    >
-                                      <MessageSquare size={15} /> Restaurar
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      title="Arquivar conversa"
-                                      onClick={() => void setChatHistoryStatus(item.id, "archived")}
-                                    >
-                                      <Minus size={15} /> Arquivar
-                                    </button>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="delete-chat-action"
-                                    title="Apagar do meu histórico"
-                                    onClick={() => void setChatHistoryStatus(item.id, "deleted")}
-                                  >
-                                    <Trash2 size={15} /> Apagar
-                                  </button>
-                                </div>
-                              </article>
-                            ))}
-                          </section>
-                        ) : (
-                          <div className="empty">
-                            <MessageCircle />
-                            <h3>Nenhuma conversa ativa.</h3>
-                            <p>Entre na fila para encontrar alguém que também esteja online.</p>
-                            <button className="primary" onClick={() => setTab("queue")}>
-                              Encontrar alguém <ArrowRight />
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
-        {messageRecipient && (
-          <div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Enviar mensagem">
-            <form className="report-dialog" onSubmit={sendDirectMessage}>
-              <header>
-                <div>
-                  <small>{relationship.mutual ? "CONVERSA DIRETA" : "PEDIDO DE MENSAGEM"}</small>
-                  <h2>Mensagem para {messageRecipient.display_name}</h2>
-                </div>
-                <button type="button" onClick={() => setMessageRecipient(null)}>
-                  <X />
-                </button>
-              </header>
-              <p>
-                {relationship.mutual
-                  ? "Vocês se seguem. Sua mensagem vai direto para a conversa."
-                  : "Vocês ainda não se seguem mutuamente. Sua mensagem será enviada como pedido e a pessoa poderá aceitar ou recusar."}
-              </p>
-              <label>
-                Mensagem
-                <textarea
-                  value={directMessageDraft}
-                  onChange={(e) => setDirectMessageDraft(e.target.value)}
-                  maxLength={4000}
-                  rows={4}
-                  required
-                  placeholder="Escreva sua primeira mensagem..."
-                />
-              </label>
-              <footer>
-                <button type="button" className="secondary" onClick={() => setMessageRecipient(null)}>
-                  Cancelar
-                </button>
-                <button className="primary" disabled={busy || !directMessageDraft.trim()}>
-                  {busy ? "Enviando..." : "Enviar mensagem"} <Send size={15} />
-                </button>
-              </footer>
-            </form>
-          </div>
-        )}
-        {tab === "settings" && (
+        <ConnectChat
+          currentUserId={session.user.id}
+          isDemo={isDemo}
+          chatView={chatView}
+          setChatView={setChatView}
+          chatInboxTab={chatInboxTab}
+          setChatInboxTab={setChatInboxTab}
+          messageRequests={messageRequests}
+          loadChatHistory={loadChatHistory}
+          respondMessageRequest={respondMessageRequest}
+          openReport={openReport}
+          matchId={matchId}
+          partner={partner}
+          chatMinimized={chatMinimized}
+          setChatMinimized={setChatMinimized}
+          openProfile={openProfile}
+          chatReadOnly={chatReadOnly}
+          blockUser={blockUser}
+          endChat={endChat}
+          messages={messages}
+          send={send}
+          chatFileRef={chatFileRef}
+          recording={recording}
+          toggleRecording={toggleRecording}
+          busy={busy}
+          draft={draft}
+          setDraft={setDraft}
+          openImageCrop={openImageCrop}
+          sendAttachment={sendAttachment}
+          chatHistory={chatHistory}
+          setMatchId={setMatchId}
+          setChatReadOnly={setChatReadOnly}
+          setChatHistoryStatus={setChatHistoryStatus}
+          setTab={setTab}
+        />
+                {tab === "settings" && (
           <ConnectSettings
             busy={busy}
             displayNameSetting={displayNameSetting}
