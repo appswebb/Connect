@@ -23,10 +23,10 @@ export default function AppDownload() {
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     setInstalled(window.matchMedia("(display-mode: standalone)").matches);
-    fetch("/Connect/app-version.json", { cache: "no-store", signal: controller.signal }).then(r => r.ok ? r.json() as Promise<SiteVersion> : null).then(v => { if (v) setSiteVersion(v); }).catch(() => {});
+    fetch("/Connect/app-version.json", { cache: "no-store", signal: controller.signal }).then(r => r.ok ? r.json() as Promise<SiteVersion> : null).then(v => { if (v && !controller.signal.aborted) setSiteVersion(v); }).catch(() => {});
     fetch("https://api.github.com/repos/appswebb/Connect/releases?per_page=8", { cache: "no-store", signal: controller.signal })
       .then(async r => { if (!r.ok) throw new Error("Não foi possível consultar as versões agora."); return r.json() as Promise<Release[]>; })
-      .then(data => setReleases(Array.isArray(data) ? data : []))
+      .then(data => { if (!controller.signal.aborted) setReleases(Array.isArray(data) ? data : []); })
       .catch(() => { if (!controller.signal.aborted) setError("Não foi possível carregar as versões agora. Você ainda pode instalar a versão web pelo navegador."); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => { controller.abort(); window.removeEventListener("beforeinstallprompt", onPrompt); window.removeEventListener("appinstalled", onInstalled); };
