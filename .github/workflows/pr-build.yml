@@ -1,5 +1,8 @@
 name: CONNECT pull request build
 # Ensures subscription and social features compile before merge
+concurrency:
+  group: connect-pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 on:
   pull_request:
     branches: ["main"]
