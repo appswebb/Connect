@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -47,7 +48,10 @@ import {
 } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import ImageCropper from "./components/ImageCropper";
-import SubscriptionPlans from "./components/SubscriptionPlans";
+const SubscriptionPlans = dynamic(() => import("./components/SubscriptionPlans"), {
+  ssr: false,
+  loading: () => <div className="module-loading" role="status">Carregando assinaturas...</div>,
+});
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
