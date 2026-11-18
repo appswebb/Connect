@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { CreditCard, Menu, Settings, UserRound } from "lucide-react";
+import { Menu } from "lucide-react";
 import { connectNavigationItems } from "../lib/connect-navigation";
 
 type Props = {
@@ -79,15 +79,7 @@ export default function ConnectNavigation({ tab, setTab, queue, mobileMoreOpen, 
                 <Icon size={18} /><span>{label}</span>
               </button>
             ))}
-            <button type="button" role="menuitem" className={tab === "subscription" ? "active" : ""} onClick={() => { setTab("subscription"); setMobileMoreOpen(false); }}>
-              <CreditCard size={18} /><span>Assinatura</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "profile" ? "active" : ""} onClick={() => { setTab("profile"); setMobileMoreOpen(false); }}>
-              <UserRound size={18} /><span>Meu perfil</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "settings" ? "active" : ""} onClick={() => { setTab("settings"); setMobileMoreOpen(false); }}>
-              <Settings size={18} /><span>Configurações</span>
-            </button>
+
           </div>
         )}
       </nav>
