@@ -20,6 +20,7 @@ jobs:
       - name: Install exact dependencies from package-lock.json
         run: npm ci
       - run: npm run build
+      - run: npx tsc --noEmit
       - name: Audit dependencies
         run: |
           npm audit --json > /tmp/connect-npm-audit.json || true
@@ -33,6 +34,7 @@ jobs:
       - name: Verify static export
         run: |
           test -s ./out/index.html
+          test -s ./out/download/index.html
           test -d ./out/_next/static
           find ./out/_next/static -type f -name "*.js" | grep -q .
 
