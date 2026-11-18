@@ -47,7 +47,6 @@ import {
 } from "lucide-react";
 import { supabase } from "./lib/supabase";
 import ImageCropper from "./components/ImageCropper";
-import LiveRoom from "./components/LiveRoom";
 import SubscriptionPlans from "./components/SubscriptionPlans";
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
@@ -57,7 +56,7 @@ import ConnectRooms from "./components/ConnectRooms";
 import ConnectLives from "./components/ConnectLives";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
-import { essentialNotificationTypes, genders, preferences, stateFlags } from "./lib/connect-data";
+import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
