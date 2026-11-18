@@ -878,3 +878,19 @@ html[data-theme="dark"] .connect-pay-field,html[data-theme="dark"] .connect-pay-
 html[data-theme="dark"] .connect-pay-back{background:#203428!important;border-color:#3b5041!important;color:#dce7d7!important}
 html[data-theme="dark"] .connect-pay-trust{background:#203b2d!important;border-color:#49634c!important;color:#d8ead7!important}
 html[data-theme="dark"] .connect-pay-mp{background:#263b32!important;border-color:#49634c!important;color:#d8ead7!important}
+
+/* Directory controls and profile cover media */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.connect-app .people-directory-search label{display:grid;place-items:center;color:#7b897d;flex:0 0 auto}
+.connect-app .people-directory-search input[type="search"]{min-width:0}
+.connect-app .people-directory-search input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none}
+.connect-app .people-directory-search>button{width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:10px;background:#edf1e9;color:#536b58}
+.connect-app .people-filter-row button[aria-pressed="true"]{background:#285b49!important;border-color:#285b49!important;color:#fff!important}
+.connect-app .people-directory-card{display:block;width:100%;min-width:0;padding:0;text-align:left;color:inherit;cursor:pointer}
+.connect-app .people-card-cover{position:relative;isolation:isolate;overflow:hidden}
+.connect-app .people-card-cover-image{position:absolute;inset:0;z-index:-1;width:100%;height:100%;object-fit:cover;object-position:center}
+.connect-app .people-card-cover:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(180deg,transparent,rgba(15,31,22,.42));pointer-events:none}
+.connect-app .people-card-cover>span{position:relative;z-index:1}
+.connect-app .people-directory-card:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(28,48,40,.1)!important}
+html[data-theme="dark"] .connect-app .people-directory-search>button{background:#2a4032;color:#dce7d7}
+html[data-theme="dark"] .connect-app .people-filter-row button[aria-pressed="true"]{background:#b9d5a6!important;border-color:#b9d5a6!important;color:#172a22!important}
