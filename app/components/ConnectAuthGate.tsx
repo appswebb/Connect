@@ -108,10 +108,10 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
   return (
     <main className="entry-layout">
             <section className="entry-story">
-              <a className="entry-brand">
+              <div className="entry-brand">
                 <img src="/Connect/connect-mark.svg" alt="" />
                 CONNECT
-              </a>
+              </div>
               <div className="entry-story-copy">
                 <span>SEU ESPAÇO COMEÇA AQUI</span>
                 <h1>
