@@ -50,6 +50,12 @@ jobs:
           test -s ./out/index.html
           test -d ./out/_next/static
           find ./out/_next/static -type f -name "*.js" | grep -q .
+      - name: Install browser audit tools
+        run: |
+          npm install --no-save playwright axe-core
+          npx playwright install --with-deps chromium
+      - name: Run browser, accessibility and responsive visual audit
+        run: node scripts/smoke-e2e.mjs
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload site
@@ -59,3 +65,11 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: connect-visual-audit
+          path: artifacts/connect-visual-audit/*.png
+          if-no-files-found: warn
+          retention-days: 14
