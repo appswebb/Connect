@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { chromium } from "playwright";
 import axe from "axe-core";
@@ -52,11 +52,17 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 const pageErrors = [];
 page.on("pageerror", (error) => pageErrors.push(error.message));
+const screenshotDir = resolve(process.cwd(), process.env.CONNECT_SCREENSHOT_DIR ?? "artifacts/connect-visual-audit");
+mkdirSync(screenshotDir, { recursive: true });
+const capture = async (name) => {
+  await page.screenshot({ path: join(screenshotDir, `${name}.png`), fullPage: true, animations: "disabled" });
+};
 
 try {
   const response = await page.goto("http://127.0.0.1:4173/Connect/", { waitUntil: "domcontentloaded" });
   assert.equal(response?.status(), 200, "Marketing homepage must return HTTP 200");
   await page.locator('[data-screen="marketing"]').waitFor();
+  await capture("01-home-desktop");
   await page.getByRole("heading", { name: /Seu próximo/ }).waitFor();
   await page.addScriptTag({ content: axe.source });
   const auditAccessibility = async (label) => {
@@ -98,10 +104,12 @@ try {
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
+  await capture("02-home-mobile");
   await auditAccessibility("Landing mobile");
   await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
   await page.locator(".entry-form").waitFor();
   await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();
+  await capture("03-login-desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
   await auditAccessibility("Sign-in desktop");
 
@@ -120,25 +128,30 @@ try {
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
+  await capture("04-login-mobile");
   await auditAccessibility("Sign-in mobile");
 
   await page.getByRole("button", { name: "Criar conta", exact: true }).click();
   await page.getByRole("heading", { name: "Crie seu espaço." }).waitFor();
+  await capture("05-signup-desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
   await auditAccessibility("Sign-up desktop");
   await page.setViewportSize({ width: 390, height: 844 });
+  await capture("06-signup-mobile");
   await auditAccessibility("Sign-up mobile");
 
   await page.getByRole("button", { name: "Voltar para o início" }).click();
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
+  await capture("07-demo-entry-mobile");
   await auditAccessibility("Demo entry");
 
   const downloadResponse = await page.goto("http://127.0.0.1:4173/Connect/download/", { waitUntil: "domcontentloaded" });
   assert.equal(downloadResponse?.status(), 200, "Download page must return HTTP 200");
   await page.locator(".app-download-hero").waitFor();
   await page.getByRole("heading", { name: /Baixe o CONNECT/ }).waitFor();
+  await capture("08-download-desktop");
   await page.addScriptTag({ content: axe.source });
   await auditAccessibility("Download desktop");
   for (const width of viewports) {
@@ -155,6 +168,7 @@ try {
     );
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await capture("09-download-mobile");
   await auditAccessibility("Download mobile");
   assert.equal(pageErrors.length, 0, `Browser runtime errors: ${pageErrors.join(" | ")}`);
 
