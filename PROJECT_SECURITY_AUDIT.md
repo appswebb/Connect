@@ -28,7 +28,7 @@ A consulta de privilégios confirmou que `anon` e `authenticated` não possuem S
 
 ### Funções SECURITY DEFINER
 
-O advisor continua sinalizando 17 funções expostas a `authenticated`. A sinalização é baseada na concessão de EXECUTE, não prova isoladamente uma falha: RPCs de produto precisam validar identidade e autorização dentro da função. A inspeção de código identificou verificações de `auth.uid()` nas funções de fila, match, chat, bloqueio e exclusão; a exceção encontrada foi `finish_live_battle`, corrigida nesta etapa.
+O advisor continua sinalizando 17 funções expostas a `authenticated`. A sinalização é baseada na concessão de EXECUTE, não prova isoladamente uma falha: RPCs de produto precisam validar identidade e autorização dentro da função. A consulta posterior não encontrou função `SECURITY DEFINER` executável por `authenticated` sem referência a `auth.uid()`. A autorização por objeto/participante ainda deve ser revisada função por função; a exceção encontrada foi `finish_live_battle`, corrigida nesta etapa.
 
 A lista deve continuar sendo revisada função por função. O aviso não foi ocultado nem tratado como resolvido apenas porque a chamada é autenticada.
 
