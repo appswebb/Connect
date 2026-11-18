@@ -39,7 +39,7 @@ A lista deve continuar sendo revisada função por função. O aviso não foi oc
 
 ## Dependências
 
-A primeira auditoria npm encontrou avisos críticos/altos em Capacitor e PostCSS. As versões foram atualizadas para Capacitor 7.6.10 e PostCSS 8.5.25 via override, sem promover o Next.js 15 para uma nova major. O CI agora usa `npm ci`, mantém `package-lock.json` versionado e falha se restarem vulnerabilidades high/critical. A auditoria final após as atualizações está em execução.
+A primeira auditoria npm encontrou 2 vulnerabilidades críticas, 2 altas e 1 moderada em Capacitor/PostCSS. Foram atualizados Capacitor para 7.6.10 e PostCSS para 8.5.25 via override, sem promover o Next.js 15 para uma nova major. A auditoria final no CI passou com **0 info, 0 low, 0 moderate, 0 high e 0 critical**. O CI usa `npm ci`, mantém `package-lock.json` versionado e falha se restarem vulnerabilidades high/critical.
 
 ## Performance e manutenção
 
@@ -61,4 +61,4 @@ Consulta a todas as tabelas ordinárias de `public` não encontrou tabela com RL
 - A proteção contra senhas vazadas depende de configuração no painel, não de código.
 - As verificações de banco confirmam grants e definições atuais, mas não substituem testes de autorização com duas contas reais e tentativas de acesso cruzado.
 - As integrações Mercado Pago e LiveKit precisam de testes sandbox/produção com eventos e credenciais válidas.
-- A auditoria npm do CI ainda precisa identificar e tratar as dependências afetadas; nenhuma atualização forçada foi aplicada.
+- Auditoria npm final: zero vulnerabilidades em todas as severidades após as atualizações registradas.
