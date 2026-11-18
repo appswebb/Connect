@@ -61,6 +61,7 @@ import { useConnectLives } from "./hooks/useConnectLives";
 import ConnectLives from "./components/ConnectLives";
 import ConnectNavigation from "./components/ConnectNavigation";
 import ConnectFeed from "./components/ConnectFeed";
+import ConnectPeopleDirectory from "./components/ConnectPeopleDirectory";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
@@ -2256,194 +2257,18 @@ export default function Home() {
             comment={comment}
           />
         )}
-        {tab === "people" &&
-          (() => {
-            const term = peopleSearch.trim().toLowerCase().replace(/^@/, "");
-            const filtered = communityProfiles
-              .filter((person) => {
-                const text = [person.display_name, person.username, person.bio, person.city, person.state_code, person.gender]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase();
-                if (term && !text.includes(term)) return false;
-                if (peopleFilter === "online" && !onlinePeople.includes(person.id)) return false;
-                if (peopleFilter === "new" && (!person.created_at || Date.now() - new Date(person.created_at).getTime() > 7 * 86400000))
-                  return false;
-                if (
-                  peopleFilter === "near" &&
-                  !(
-                    profile?.location_visible &&
-                    profile.city &&
-                    profile.state_code &&
-                    person.location_visible &&
-                    person.city === profile.city &&
-                    person.state_code === profile.state_code
-                  )
-                )
-                  return false;
-                return true;
-              })
-              .sort((a, b) => {
-                if (peopleFilter === "online") return onlinePeople.indexOf(b.id) - onlinePeople.indexOf(a.id);
-                const onlineDiff = Number(onlinePeople.includes(b.id)) - Number(onlinePeople.includes(a.id));
-                if (onlineDiff) return onlineDiff;
-                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-              });
-            return (
-              <>
-                <section className="people-page-hero">
-                  <div className="people-hero-copy">
-                    <small>
-                      <Users size={14} /> CONNECT · COMUNIDADE EM TEMPO REAL
-                    </small>
-                    <h1>
-                      Conexões que <em>acontecem aqui.</em>
-                    </h1>
-                    <p>Descubra pessoas, participe das conversas e encontre novas histórias pelo Brasil.</p>
-                    <div className="people-hero-stats">
-                      <span>
-                        <strong>{communityProfiles.length + (profile ? 1 : 0)}</strong>
-                        <small>MEMBROS</small>
-                        <em>Na comunidade</em>
-                      </span>
-                      <span>
-                        <strong>{onlinePeople.length}</strong>
-                        <small>ONLINE AGORA</small>
-                        <em>Conectados neste momento</em>
-                      </span>
-                      <span>
-                        <strong>
-                          {communityProfiles.filter((x) => x.created_at && Date.now() - new Date(x.created_at).getTime() < 7 * 86400000)
-                            .length + (profile?.created_at && Date.now() - new Date(profile.created_at).getTime() < 7 * 86400000 ? 1 : 0)}
-                        </strong>
-                        <small>NOVOS ESTA SEMANA</small>
-                        <em>Chegaram recentemente</em>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="people-hero-art">
-                    <div className="people-hero-avatar p1">
-                      <Users />
-                    </div>
-                    <div className="people-hero-avatar p2">
-                      <Heart />
-                    </div>
-                    <div className="people-hero-avatar p3">
-                      <MessageCircle />
-                    </div>
-                    <div className="people-hero-core">
-                      <Activity size={27} />
-                    </div>
-                  </div>
-                </section>
-                <label id="people-directory" className="people-directory-search">
-                  <Compass size={18} />
-                  <input
-                    value={peopleSearch}
-                    onChange={(e) => setPeopleSearch(e.target.value)}
-                    placeholder="Busque por nome, @, cidade ou interesse..."
-                  />
-                  {peopleSearch && (
-                    <button type="button" onClick={() => setPeopleSearch("")} aria-label="Limpar busca">
-                      <X size={16} />
-                    </button>
-                  )}
-                </label>
-                <div className="people-filter-row">
-                  {[
-                    { id: "all", label: "Todos" },
-                    { id: "online", label: "Online agora" },
-                    { id: "new", label: "Novos membros" },
-                    { id: "near", label: "Da minha cidade" },
-                  ].map((f) => (
-                    <button
-                      type="button"
-                      key={f.id}
-                      className={peopleFilter === f.id ? "active" : ""}
-                      onClick={() => setPeopleFilter(f.id)}
-                    >
-                      {f.id === "online" && <i className="people-live-dot" />}
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="people-directory-results">
-                  <span>
-                    {filtered.length} {filtered.length === 1 ? "pessoa encontrada" : "pessoas encontradas"}
-                  </span>
-                  <span>Comunidade CONNECT</span>
-                </div>
-                <div className="people-directory-grid">
-                  {filtered.map((person) => (
-                    <button type="button" className="people-directory-card" key={person.id} onClick={() => void openProfile(person.id)}>
-                      <div
-                        className="people-card-cover"
-                        style={
-                          person.banner_url
-                            ? { backgroundImage: "linear-gradient(0deg,#0b1117aa,transparent),url(" + person.banner_url + ")" }
-                            : {}
-                        }
-                      >
-                        <span>
-                          <ShieldCheck size={12} /> CONNECT
-                        </span>
-                      </div>
-                      <div className="people-card-content">
-                        <Avatar p={person} size="large" />
-                        <div className="people-card-identity">
-                          <div className="people-card-badges">
-                            {person.created_at && Date.now() - new Date(person.created_at).getTime() < 7 * 86400000 && <b>NOVO</b>}
-                            <i className={onlinePeople.includes(person.id) ? "people-status-online" : "people-status-offline"}>
-                              {onlinePeople.includes(person.id) ? "ONLINE" : "MEMBRO"}
-                            </i>
-                          </div>
-                          <strong>{person.display_name}</strong>
-                          <small>@{person.username}</small>
-                        </div>
-                        <p>{person.bio || "Ainda não adicionou uma apresentação."}</p>
-                        <div className="people-card-meta">
-                          {person.location_visible && person.city && person.state_code ? (
-                            <span>
-                              <MapPin size={12} />
-                              {person.city} · {person.state_code}
-                            </span>
-                          ) : (
-                            <span>
-                              <Users size={12} /> Comunidade CONNECT
-                            </span>
-                          )}
-                          <i>
-                            <span>Ver perfil</span>
-                            <ArrowRight size={15} />
-                          </i>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                  {filtered.length === 0 && (
-                    <div className="empty people-directory-empty">
-                      <Compass />
-                      <h3>{peopleFilter === "near" ? "Não encontramos membros da sua cidade." : "Nenhuma pessoa encontrada."}</h3>
-                      <p>
-                        {peopleFilter === "online"
-                          ? "Quando alguém estiver online, vai aparecer aqui em tempo real."
-                          : "Tente mudar os filtros ou buscar por outro termo."}
-                      </p>
-                      <button
-                        className="secondary"
-                        onClick={() => {
-                          setPeopleFilter("all");
-                          setPeopleSearch("");
-                        }}
-                      >
-                        Mostrar todo mundo
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            );
-          })()}
+        {tab === "people" && (
+          <ConnectPeopleDirectory
+            communityProfiles={communityProfiles}
+            profile={profile}
+            onlinePeople={onlinePeople}
+            peopleSearch={peopleSearch}
+            setPeopleSearch={setPeopleSearch}
+            peopleFilter={peopleFilter}
+            setPeopleFilter={setPeopleFilter}
+            openProfile={openProfile}
+          />
+        )}
         {tab === "rooms" && <>{room}</>}
         {tab === "lives" && <>{live}</>}
         {tab === "queue" && (
