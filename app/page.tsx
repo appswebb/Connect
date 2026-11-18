@@ -53,6 +53,8 @@ import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
 import Avatar from "./components/ConnectAvatar";
+import ConnectRooms from "./components/ConnectRooms";
+import ConnectLives from "./components/ConnectLives";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences, stateFlags } from "./lib/connect-data";
@@ -2333,233 +2335,38 @@ export default function Home() {
       </main>
     );
   const room = (
-    <>
-      {
-        <section className="people-state-rooms">
-          <div className="people-state-rooms-heading">
-            <div>
-              <small>COMUNIDADE POR REGIÃO</small>
-              <h2>Salas do Brasil</h2>
-              <p>Converse com pessoas de todo o país ou escolha seu estado.</p>
-            </div>
-            <span>
-              <Globe2 size={16} /> 27 salas
-            </span>
-          </div>
-          <section className="rooms-panel">
-            <div className="room-select">
-              <button className={roomCode === "BR" ? "active" : ""} onClick={() => setRoomCode("BR")}>
-                <img src={stateFlags.BR} alt="Bandeira do Brasil" /> Brasil inteiro
-              </button>
-              <span>Salas estaduais</span>
-            </div>
-            <div className="state-room-grid">
-              {Object.entries(brazilStates).map(([code, label]) => (
-                <button key={code} className={roomCode === code ? "active" : ""} onClick={() => setRoomCode(code)}>
-                  <img src={stateFlags[code]} alt={"Bandeira de " + label} />
-                  <span>{code}</span>
-                </button>
-              ))}
-            </div>
-            <div className="room-title">
-              <img
-                className="room-title-flag"
-                src={stateFlags[roomCode] || stateFlags.BR}
-                alt={roomCode === "BR" ? "Bandeira do Brasil" : "Bandeira de " + brazilStates[roomCode]}
-              />
-              <div>
-                <strong>{roomCode === "BR" ? "Chat Global do Brasil" : "Chat de " + brazilStates[roomCode] + " · " + roomCode}</strong>
-                <small>{roomMessages.length} mensagens recentes carregadas · respeito em primeiro lugar</small>
-              </div>
-            </div>
-            <div className="room-message-list">
-              {roomMessages.map((m) => (
-                <article key={m.id}>
-                  <Avatar p={m.author} size="small" />
-                  <div className="room-message-content">
-                    {m.reply_to_id && (
-                      <div className="room-reply-quote">
-                        ↳ Respondendo: {roomMessages.find((x) => x.id === m.reply_to_id)?.body || "mensagem anterior"}
-                      </div>
-                    )}
-                    <strong>
-                      <button type="button" className="profile-open-name" onClick={() => void openProfile(m.author.id)}>
-                        {m.author.display_name}
-                      </button>{" "}
-                      <small>
-                        @{m.author.username} · {ago(m.created_at)}
-                      </small>
-                    </strong>
-                    <p>{m.body}</p>
-                    <div className="room-message-actions">
-                      <button type="button" onClick={() => setRoomReply(m)}>
-                        <MessageCircle size={13} /> Responder
-                      </button>
-                      {m.user_id === session.user.id && !isDemo && (
-                        <button type="button" onClick={() => void deleteRoomMessage(m)}>
-                          <Trash2 size={13} /> Apagar
-                        </button>
-                      )}
-                      {!isDemo && m.user_id !== session.user.id && (
-                        <button type="button" onClick={() => openReport(m.user_id, "room_message", m.id)}>
-                          <Flag size={13} /> Denunciar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-              {!roomMessages.length && (
-                <div className="empty">
-                  <MessageCircle />
-                  <h3>Esta sala está começando.</h3>
-                  <p>Seja a primeira pessoa a mandar uma mensagem.</p>
-                </div>
-              )}
-            </div>
-            {!isDemo && (
-              <>
-                {roomReply && (
-                  <div className="room-replying">
-                    <span>
-                      Respondendo a {roomReply.author.display_name}: {roomReply.body}
-                    </span>
-                    <button type="button" onClick={() => setRoomReply(null)} aria-label="Cancelar resposta">
-                      <X size={15} />
-                    </button>
-                  </div>
-                )}
-                <form className="room-compose" onSubmit={sendRoomMessage}>
-                  <input
-                    value={roomDraft}
-                    onChange={(e) => setRoomDraft(e.target.value)}
-                    maxLength={2000}
-                    placeholder={"Mensagem para " + (roomCode === "BR" ? "todo o Brasil" : brazilStates[roomCode]) + "..."}
-                  />
-                  <button className="primary" disabled={!roomDraft.trim()}>
-                    Enviar <Send size={15} />
-                  </button>
-                </form>
-              </>
-            )}
-            {isDemo && <p className="demo-readonly-note">Mensagens nas salas ficam desativadas no acesso de demonstração.</p>}
-          </section>
-        </section>
-      }
-    </>
+    <ConnectRooms
+      roomCode={roomCode}
+      setRoomCode={setRoomCode}
+      roomMessages={roomMessages}
+      roomReply={roomReply}
+      setRoomReply={setRoomReply}
+      roomDraft={roomDraft}
+      setRoomDraft={setRoomDraft}
+      sendRoomMessage={sendRoomMessage}
+      deleteRoomMessage={deleteRoomMessage}
+      openProfile={openProfile}
+      openReport={openReport}
+      currentUserId={session.user.id}
+      isDemo={isDemo}
+    />
   );
   const live = (
-    <>
-      {
-        <section className="people-live-section">
-          <div className="people-live-section-heading">
-            <div>
-              <small>CONNECT LIVE</small>
-              <h2>Ao vivo na comunidade</h2>
-              <p>Assista às transmissões ou comece a sua.</p>
-            </div>
-            <span>
-              <i className="people-live-dot" /> {lives.length} {lives.length === 1 ? "transmissão ativa" : "transmissões ativas"}
-            </span>
-          </div>
-          <div className="people-live-intro">
-            <Radio size={17} />
-            <span>
-              <strong>Sua próxima transmissão começa aqui</strong>
-              <small>Defina um título, confira câmera e microfone e entre ao vivo quando estiver pronto.</small>
-            </span>
-          </div>
-          {activeLive ? (
-            <LiveRoom liveId={activeLive.id} isHost={activeLive.host_user_id === session.user.id} onLeave={() => void leaveLive()} />
-          ) : (
-            <>
-              {!isDemo && (
-                <form className="live-create live-create-enhanced" onSubmit={createLive}>
-                  <div className="live-create-copy">
-                    <span className="live-create-icon">
-                      <Camera size={22} />
-                    </span>
-                    <div>
-                      <strong>Prepare sua live</strong>
-                      <small>Escolha um título que convide as pessoas para participar.</small>
-                    </div>
-                  </div>
-                  <label>
-                    Nome da transmissão
-                    <input
-                      value={liveTitle}
-                      onChange={(e) => setLiveTitle(e.target.value)}
-                      minLength={3}
-                      maxLength={90}
-                      required
-                      placeholder="Ex.: Conversando com a galera"
-                    />
-                  </label>
-                  <button className="primary" disabled={busy || liveTitle.trim().length < 3}>
-                    <Radio size={16} />
-                    {busy ? "Preparando..." : "Iniciar uma live"}
-                  </button>
-                </form>
-              )}
-              {isDemo && (
-                <div className="demo-readonly-note">
-                  No modo de demonstração, você pode assistir às lives, mas não iniciar nem encerrar transmissões.
-                </div>
-              )}
-              <div className="live-list-heading">
-                <strong>Transmissões ao vivo</strong>
-                <button className="secondary" onClick={() => void loadLives()}>
-                  Atualizar
-                </button>
-              </div>
-              <div className="live-list">
-                {lives.map((live) => (
-                  <article key={live.id}>
-                    <div className="live-list-icon">
-                      <Radio />
-                    </div>
-                    <div>
-                      <strong>{live.title}</strong>
-                      <span>
-                        {live.host?.display_name || "Pessoa da comunidade"} · @{live.host?.username || "connect"}
-                      </span>
-                      <small>
-                        AO VIVO · {new Date(live.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                      </small>
-                    </div>
-                    {live.host_user_id === session.user.id ? (
-                      <button type="button" className="live-end-list" disabled={busy} onClick={() => void endLiveSession(live.id)}>
-                        <Trash2 size={14} /> Encerrar live
-                      </button>
-                    ) : (
-                      <div className="live-card-actions">
-                        <button
-                          type="button"
-                          className="content-report-action"
-                          onClick={() => openReport(live.host_user_id, "live", live.id)}
-                        >
-                          <Flag size={12} /> Denunciar
-                        </button>
-                        <button className="primary" onClick={() => void joinLive(live)}>
-                          Assistir <ArrowRight size={14} />
-                        </button>
-                      </div>
-                    )}
-                  </article>
-                ))}
-                {!lives.length && (
-                  <div className="empty empty-live">
-                    <img src="/Connect/images/live-creator.webp" alt="" loading="lazy" width={1024} height={1024} />
-                    <h3>Ninguém está ao vivo agora.</h3>
-                    <p>Seja a primeira pessoa a iniciar uma transmissão.</p>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </section>
-      }
-    </>
+    <ConnectLives
+      lives={lives}
+      activeLive={activeLive}
+      currentUserId={session.user.id}
+      leaveLive={leaveLive}
+      isDemo={isDemo}
+      liveTitle={liveTitle}
+      setLiveTitle={setLiveTitle}
+      createLive={createLive}
+      busy={busy}
+      loadLives={loadLives}
+      endLiveSession={endLiveSession}
+      joinLive={joinLive}
+      openReport={openReport}
+    />
   );
   return (
     <main className="connect-app" data-screen="workspace">
