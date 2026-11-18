@@ -31,7 +31,7 @@ Conferência realizada em 18/11/2026:
 
 A reconciliação correta deve ser feita em um ambiente de desenvolvimento isolado:
 1. Obter um dump de schema do banco remoto, incluindo extensões, enums, tabelas, índices, policies, funções, triggers e grants.
-2. Comparar o dump com os 16 arquivos SQL locais e os 42 registros de `supabase_migrations.schema_migrations`.
+2. Comparar o dump com os 19 arquivos SQL locais e os 42 registros de `supabase_migrations.schema_migrations`.
 3. Identificar quais arquivos locais já correspondem a versões remotas e alinhar os nomes/versões sem reaplicar DDL.
 4. Criar uma baseline reproduzível e migrations incrementais com versões únicas.
 5. Executar reset e testes de RLS em um banco descartável antes de alterar o histórico de produção.
