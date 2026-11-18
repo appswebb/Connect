@@ -21,7 +21,8 @@ Este documento diferencia implementação encontrada de validação executada. B
 
 ## Contratos preservados
 
-- Nenhuma tabela, migration, política RLS, Edge Function, webhook ou contrato de API foi alterado nesta etapa.
+- Nenhuma tabela, coluna, Edge Function, webhook ou contrato de API foi removido ou alterado.
+- Três migrations foram aplicadas e versionadas: autorização de `finish_live_battle` pelo host, otimização de 10 policies com `(select auth.uid())` e consolidação de 3 grupos de policies permissivas sem alterar a lógica de acesso.
 - A chave pública Supabase permanece no cliente; segredos Mercado Pago e LiveKit continuam no ambiente das Edge Functions.
 - Os componentes extraídos recebem propriedades tipadas; operações de negócio permanecem no orquestrador/hooks.
 - Navegação desktop e mobile preservam os destinos dos módulos.
