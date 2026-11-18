@@ -62,7 +62,6 @@ try {
   const response = await page.goto("http://127.0.0.1:4173/Connect/", { waitUntil: "domcontentloaded" });
   assert.equal(response?.status(), 200, "Marketing homepage must return HTTP 200");
   await page.locator('[data-screen="marketing"]').waitFor();
-  await capture("01-home-desktop");
   await page.getByRole("heading", { name: /Seu próximo/ }).waitFor();
   await page.addScriptTag({ content: axe.source });
   const auditAccessibility = async (label) => {
@@ -87,6 +86,7 @@ try {
     const image = document.querySelector(".landing-photo");
     return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
   }, null, { timeout: 15000 });
+  await capture("01-home-desktop");
 
   const viewports = [320, 360, 375, 390, 414, 430, 768, 1024, 1280, 1440, 1920];
   for (const width of viewports) {
@@ -145,13 +145,16 @@ try {
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
   await capture("07-demo-entry-mobile");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await capture("08-demo-entry-desktop");
   await auditAccessibility("Demo entry");
 
   const downloadResponse = await page.goto("http://127.0.0.1:4173/Connect/download/", { waitUntil: "domcontentloaded" });
   assert.equal(downloadResponse?.status(), 200, "Download page must return HTTP 200");
   await page.locator(".app-download-hero").waitFor();
   await page.getByRole("heading", { name: /Baixe o CONNECT/ }).waitFor();
-  await capture("08-download-desktop");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await capture("09-download-desktop");
   await page.addScriptTag({ content: axe.source });
   await auditAccessibility("Download desktop");
   for (const width of viewports) {
@@ -168,7 +171,7 @@ try {
     );
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await capture("09-download-mobile");
+  await capture("10-download-mobile");
   await auditAccessibility("Download mobile");
   assert.equal(pageErrors.length, 0, `Browser runtime errors: ${pageErrors.join(" | ")}`);
 
