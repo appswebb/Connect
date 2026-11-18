@@ -11,7 +11,7 @@ type ConnectLivesProps = {
   isDemo: boolean;
   liveTitle: string;
   setLiveTitle: (value: string) => void;
-  createLive: (event: FormEvent<HTMLFormElement>) => void;
+  createLive: (event: FormEvent) => void;
   busy: boolean;
   loadLives: () => void;
   endLiveSession: (liveId: string) => void;

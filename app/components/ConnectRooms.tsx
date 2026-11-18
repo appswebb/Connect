@@ -14,7 +14,7 @@ type ConnectRoomsProps = {
   setRoomReply: (value: RoomMessage | null) => void;
   roomDraft: string;
   setRoomDraft: (value: string) => void;
-  sendRoomMessage: (event: FormEvent<HTMLFormElement>) => void;
+  sendRoomMessage: (event: FormEvent) => void;
   deleteRoomMessage: (message: RoomMessage) => void;
   openProfile: (userId: string) => void;
   openReport: (userId: string, targetType?: string, targetId?: string) => void;
