@@ -40,10 +40,10 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
     return (
       <main className="connect-auth" data-screen="authentication">
               <section className="entry-story">
-                <a className="entry-brand">
+                <div className="entry-brand">
                   <img src="/Connect/connect-mark.svg" alt="" />
                   CONNECT
-                </a>
+                </div>
                 <div className="entry-story-copy">
                   <span>CONNECT / DEMONSTRAÇÃO</span>
                   <h1>
@@ -91,8 +91,8 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
                         placeholder="Senha"
                       />
                     </label>
-                    {error && <p className="error">{error}</p>}
-                    {notice && <p className="success">{notice}</p>}
+                    {error && <p className="error" role="alert">{error}</p>}
+                    {notice && <p className="success" role="status">{notice}</p>}
                     <button className="entry-submit" disabled={busy}>
                       {busy ? "Entrando..." : "Entrar na demonstração"} <ArrowRight size={17} />
                     </button>
