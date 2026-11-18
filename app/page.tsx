@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -57,7 +57,7 @@ import ConnectLives from "./components/ConnectLives";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
-import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
+import { genders, preferences } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
@@ -175,10 +175,10 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("connect-theme", theme);
   }, [theme, themeReady]);
-  const fail = (s: string) => {
+  const fail = useCallback((s: string) => {
     setError(s);
     setNotice("");
-  };
+  }, []);
 
   const {
     loadNotifications,
