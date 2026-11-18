@@ -57,6 +57,7 @@ import ConnectLanding from "./components/ConnectLanding";
 import ConnectAuthGate from "./components/ConnectAuthGate";
 import { useConnectFeed } from "./hooks/useConnectFeed";
 import { useConnectRooms } from "./hooks/useConnectRooms";
+import { useConnectLives } from "./hooks/useConnectLives";
 import ConnectLives from "./components/ConnectLives";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
@@ -183,6 +184,19 @@ export default function Home() {
     setError(s);
     setNotice("");
   }, []);
+
+  const { loadLives, createLive, joinLive, endLiveSession, leaveLive } = useConnectLives({
+    userId: session?.user.id,
+    liveTitle,
+    activeLive,
+    setLives,
+    setActiveLive,
+    setLiveTitle,
+    setTab,
+    setBusy,
+    setNotice,
+    fail,
+  });
 
   const { loadRoomMessages, sendRoomMessage, deleteRoomMessage } = useConnectRooms({
     userId: session?.user.id,
@@ -349,89 +363,6 @@ export default function Home() {
     setPendingOtherAccepted(Boolean(m.data.user_one === session?.user.id ? m.data.user_two_accepted_at : m.data.user_one_accepted_at));
     setQueue("matched");
     setTab("queue");
-  }
-  async function loadLives() {
-    const r = await supabase
-      .from("live_sessions")
-      .select("id,host_user_id,title,room_name,status,created_at")
-      .eq("status", "live")
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const rows = (r.data || []) as LiveSessionRow[];
-    const ids = [...new Set(rows.map((x) => x.host_user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((x: any) => [x.id, x]));
-    setLives(rows.map((x) => ({ ...x, host: map.get(x.host_user_id) as Profile | undefined })));
-  }
-  async function createLive(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || liveTitle.trim().length < 3) return;
-    setBusy(true);
-    try {
-      const ready = await supabase.functions.invoke("livekit-token", { body: { action: "check" } });
-      if (ready.error) throw ready.error;
-      if (!ready.data?.ready) throw new Error(ready.data?.error || "O serviço de transmissão ainda não está pronto.");
-      const r = await supabase
-        .from("live_sessions")
-        .insert({ host_user_id: session.user.id, title: liveTitle.trim(), status: "live" })
-        .select("id,host_user_id,title,room_name,status,created_at")
-        .single();
-      if (r.error) throw r.error;
-      const row = r.data as LiveSessionRow;
-      setActiveLive(row);
-      setTab("lives");
-      setLiveTitle("");
-      await loadLives();
-    } catch (x) {
-      const message = x instanceof Error ? x.message : String((x as any)?.message || "");
-      if (message.includes("LIVEKIT_NOT_CONFIGURED") || message.includes("503"))
-        fail(
-          "As transmissões ainda não foram ativadas. Falta configurar LIVEKIT_URL, LIVEKIT_API_KEY e LIVEKIT_API_SECRET nos Secrets das Edge Functions do Supabase. Nenhuma live falsa foi criada.",
-        );
-      else fail("Não foi possível preparar a live: " + (message || "verifique a conexão e tente novamente."));
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function joinLive(live: LiveSessionRow) {
-    setActiveLive(live);
-  }
-  async function endLiveSession(liveId: string) {
-    if (!session?.user.id) return;
-    setBusy(true);
-    const r = await supabase
-      .from("live_sessions")
-      .update({ status: "ended", ended_at: new Date().toISOString() })
-      .eq("id", liveId)
-      .eq("host_user_id", session.user.id)
-      .eq("status", "live")
-      .select("id")
-      .maybeSingle();
-    setBusy(false);
-    if (r.error) {
-      fail("Não foi possível encerrar a live: " + r.error.message);
-      return;
-    }
-    if (!r.data) {
-      fail("A live já foi encerrada ou você não é a pessoa responsável por ela.");
-      return;
-    }
-    if (activeLive?.id === liveId) setActiveLive(null);
-    setNotice("Transmissão encerrada. Ela não aparece mais na lista de lives.");
-    await loadLives();
-  }
-  async function leaveLive() {
-    const current = activeLive;
-    if (current && current.host_user_id === session?.user.id) {
-      await endLiveSession(current.id);
-      return;
-    }
-    setActiveLive(null);
-    await loadLives();
   }
   async function loadChatHistory(uid: string) {
     const r = await supabase
