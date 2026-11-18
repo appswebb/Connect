@@ -133,6 +133,7 @@ try {
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
   await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
+  await auditAccessibility("Demo entry");
   assert.equal(pageErrors.length, 0, `Browser runtime errors: ${pageErrors.join(" | ")}`);
 
   process.stdout.write(`PASS: landing, sign-in, demo entry and responsive overflow checks at ${viewports.join(", ")} px.\n`);
