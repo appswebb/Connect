@@ -58,7 +58,7 @@ import ConnectLives from "./components/ConnectLives";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
-import { genders, preferences } from "./lib/connect-data";
+import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
