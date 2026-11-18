@@ -60,6 +60,7 @@ import { useConnectRooms } from "./hooks/useConnectRooms";
 import { useConnectLives } from "./hooks/useConnectLives";
 import ConnectLives from "./components/ConnectLives";
 import ConnectNavigation from "./components/ConnectNavigation";
+import ConnectFeed from "./components/ConnectFeed";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
@@ -2230,196 +2231,30 @@ export default function Home() {
           />
         )}
         {tab === "feed" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>SUA REDE, SEU MOMENTO</small>
-                <h1>
-                  O que está <em>acontecendo.</em>
-                </h1>
-                <p>Ideias, momentos e pessoas que fazem a diferença.</p>
-              </div>
-            </div>
-            {!isDemo && (
-              <form className="composer" id="composer" onSubmit={publish}>
-                <div className="compose-row">
-                  <Avatar p={profile} />
-                  <textarea
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder={"Compartilhe algo com a comunidade, " + profile.display_name.split(" ")[0] + "..."}
-                    maxLength={5000}
-                  />
-                </div>
-                {file && (
-                  <div className="file-name">
-                    {file.name}
-                    <button type="button" onClick={() => setFile(null)}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                )}
-                <div className="compose-footer">
-                  <label className="upload-label">
-                    <ImagePlus size={17} /> Foto ou vídeo
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f?.type.startsWith("image/")) openImageCrop(f, "post");
-                        else setFile(f || null);
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                  <button className="primary" disabled={busy || (!body.trim() && !file)}>
-                    {busy ? "Publicando..." : "Publicar"}
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              </form>
-            )}
-            {isDemo && (
-              <div className="demo-readonly-note">
-                Você está visualizando o feed. Publicações, curtidas e comentários ficam desativados no acesso de teste.
-              </div>
-            )}
-            <div className="section-heading">
-              <div>
-                <strong>Feed da comunidade</strong>
-                <span>Publicações reais de pessoas do CONNECT</span>
-              </div>
-              <small>MAIS RECENTES</small>
-            </div>
-            <div className="feed">
-              {posts.map((p) => (
-                <article className="post" key={p.id}>
-                  <header>
-                    <button
-                      type="button"
-                      className="profile-open-avatar"
-                      onClick={() => void openProfile(p.author.id)}
-                      aria-label={"Ver perfil de " + p.author.display_name}
-                    >
-                      <Avatar p={p.author} />
-                    </button>
-                    <div>
-                      <button type="button" className="profile-open-name" onClick={() => void openProfile(p.author.id)}>
-                        {p.author.display_name}
-                      </button>
-                      <span>
-                        @{p.author.username}
-                        {p.author.location_visible && p.author.city && p.author.state_code
-                          ? " · " + p.author.city + " / " + p.author.state_code
-                          : ""}{" "}
-                        · {ago(p.created_at)}
-                      </span>
-                    </div>
-                    {!isDemo &&
-                      (p.user_id === profile.id ? (
-                        <button className="delete" title="Apagar publicação" onClick={() => void removePost(p.id)}>
-                          <Trash2 size={16} />
-                        </button>
-                      ) : (
-                        <div className="post-safety-actions">
-                          <button title="Denunciar publicação" onClick={() => openReport(p.user_id, "post", p.id)}>
-                            <Flag size={14} />
-                          </button>
-                          <button title="Denunciar perfil" onClick={() => openReport(p.user_id)}>
-                            <UserRound size={14} />
-                          </button>
-                          <button title="Bloquear pessoa" onClick={() => void blockUser(p.user_id)}>
-                            <Ban size={14} />
-                          </button>
-                        </div>
-                      ))}
-                  </header>
-                  {p.body && <p className="post-body">{p.body}</p>}
-                  {p.media_url && (
-                    <div className="post-media">
-                      {p.media_type === "video" ? (
-                        <video src={p.media_url} controls />
-                      ) : (
-                        <img src={p.media_url} alt="Imagem da publicação" />
-                      )}
-                    </div>
-                  )}
-                  <div className="post-stats">
-                    <span>{p.likes} curtidas</span>
-                    <span>{p.comments} comentários</span>
-                  </div>
-                  {!isDemo && (
-                    <>
-                      <div className="post-actions">
-                        <button className={p.liked ? "liked" : ""} onClick={() => void like(p)}>
-                          <Heart size={18} fill={p.liked ? "currentColor" : "none"} /> Curtir
-                        </button>
-                        <button onClick={() => void openComments(p.id)}>
-                          <MessageSquare size={18} /> Comentar
-                        </button>
-                      </div>
-                      {commentPost === p.id && (
-                        <div className="comments">
-                          {comments.map((c) => (
-                            <div className="comment" key={c.id}>
-                              <button
-                                type="button"
-                                className="profile-open-avatar"
-                                onClick={() => void openProfile(c.author.id)}
-                                aria-label={"Ver perfil de " + c.author.display_name}
-                              >
-                                <Avatar p={c.author} size="small" />
-                              </button>
-                              <div>
-                                <strong>
-                                  <button type="button" className="profile-open-name" onClick={() => void openProfile(c.author.id)}>
-                                    {c.author.display_name}
-                                  </button>
-                                </strong>
-                                <p>{c.body}</p>
-                                <small>{ago(c.created_at)}</small>
-                                {!isDemo && c.user_id !== session.user.id && (
-                                  <button
-                                    type="button"
-                                    className="content-report-action"
-                                    onClick={() => openReport(c.user_id, "comment", c.id)}
-                                  >
-                                    <Flag size={12} /> Denunciar comentário
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                          {!comments.length && <p className="no-comments">Ainda não há comentários. Comece a conversa.</p>}
-                          <form onSubmit={(e) => void comment(e, p.id)}>
-                            <Avatar p={profile} size="small" />
-                            <input
-                              value={commentText}
-                              onChange={(e) => setCommentText(e.target.value)}
-                              placeholder="Escreva um comentário..."
-                              maxLength={1500}
-                            />
-                            <button disabled={!commentText.trim()}>
-                              <Send size={16} />
-                            </button>
-                          </form>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </article>
-              ))}
-              {!posts.length && (
-                <div className="empty">
-                  <MessageSquare />
-                  <h3>Seu feed começa aqui.</h3>
-                  <p>Quando você e outras pessoas publicarem, as novidades aparecerão neste espaço.</p>
-                </div>
-              )}
-            </div>
-          </>
+          <ConnectFeed
+            profile={profile}
+            currentUserId={session.user.id}
+            isDemo={isDemo}
+            body={body}
+            setBody={setBody}
+            file={file}
+            setFile={setFile}
+            busy={busy}
+            publish={publish}
+            openImageCrop={openImageCrop}
+            posts={posts}
+            openProfile={openProfile}
+            removePost={removePost}
+            openReport={openReport}
+            blockUser={blockUser}
+            like={like}
+            openComments={openComments}
+            commentPost={commentPost}
+            comments={comments}
+            commentText={commentText}
+            setCommentText={setCommentText}
+            comment={comment}
+          />
         )}
         {tab === "people" &&
           (() => {
