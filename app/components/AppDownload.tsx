@@ -81,7 +81,7 @@ export default function AppDownload() {
     </div>
 
     <section className="app-download-updates">
-      <div className="section-heading"><div><strong>Atualizações do CONNECT</strong><span>Veja o que mudou e acompanhe as versões publicadas.</span></div><span className="app-live-update"><i/> ATUALIZAÇÕES DO SITE AUTOMÁTICAS</span></div>
+      <div className="section-heading"><div><h2>Atualizações do CONNECT</h2><span>Veja o que mudou e acompanhe as versões publicadas.</span></div><span className="app-live-update"><i/> ATUALIZAÇÕES DO SITE AUTOMÁTICAS</span></div>
       {siteVersion && <article className="app-release app-site-release"><header><strong><Sparkles size={15}/> Site atualizado · {siteVersion.version}</strong><time><Clock3 size={13}/> {new Date(siteVersion.updatedAt).toLocaleString("pt-BR",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}</time></header><p>{siteVersion.changes}</p><small>Esta atualização já está disponível no site e também aparece no aplicativo instalado.</small></article>}
       {error && <div className="app-download-note" role="alert">{error}</div>}
       {!loading && !releases.length && !error && <div className="app-download-note"><ShieldCheck size={16}/> A primeira versão pública do APK ainda está sendo preparada.</div>}
