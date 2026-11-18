@@ -53,8 +53,7 @@ export default function ConnectChat(props: Props) {
   } = props;
 
   return (
-    <>
-      <>
+          <>
             <div className="heading">
               <div>
                 <small>CONVERSAS</small>
@@ -371,6 +370,7 @@ export default function ConnectChat(props: Props) {
                   </>
                 )}
               </>
-    </>
+            )}
+          </>
   );
 }
