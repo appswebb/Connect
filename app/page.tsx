@@ -63,6 +63,7 @@ import ConnectNavigation from "./components/ConnectNavigation";
 import ConnectFeed from "./components/ConnectFeed";
 import ConnectPeopleDirectory from "./components/ConnectPeopleDirectory";
 import ConnectSettings from "./components/ConnectSettings";
+import ConnectProfile from "./components/ConnectProfile";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
@@ -2964,179 +2965,21 @@ export default function Home() {
           </>
         )}
         {tab === "profile" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>SEU PERFIL</small>
-                <h1>
-                  Seu espaço, <em>sua história.</em>
-                </h1>
-                <p>Veja suas informações e publicações em um só lugar.</p>
-              </div>
-            </div>
-            <section className="profile-card">
-              <div
-                className="banner"
-                style={
-                  profile.banner_url
-                    ? { backgroundImage: "linear-gradient(0deg,#090c10aa,transparent),url(" + profile.banner_url + ")" }
-                    : {}
-                }
-              >
-                {!isDemo && (
-                  <label>
-                    <Camera size={15} /> Alterar banner
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) openImageCrop(f, "banner");
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-              <div className="profile-ident">
-                <div className="profile-avatar">
-                  <Avatar p={profile} size="large" />
-                  {!isDemo && (
-                    <label>
-                      <Camera size={14} />
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) openImageCrop(f, "avatar");
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                    </label>
-                  )}
-                </div>
-                <div>
-                  <h2>{profile.display_name}</h2>
-                  <span>@{profile.username}</span>
-                </div>
-                <span className="profile-active">
-                  <ShieldCheck size={14} /> PERFIL ATIVO
-                </span>
-                <button type="button" className="secondary visitor-preview-trigger" onClick={() => setShowVisitorPreview(true)}>
-                  <Eye size={15} /> Ver como visitante
-                </button>
-              </div>
-              {!isDemo && (
-                <form className="bio-form" onSubmit={saveBio}>
-                  <label>Sobre você</label>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    maxLength={300}
-                    placeholder="Conte um pouco sobre você..."
-                  />
-                  <button className="primary">
-                    Salvar alterações <Check size={15} />
-                  </button>
-                </form>
-              )}
-              {isDemo && <p className="demo-readonly-note">Perfil em modo somente leitura.</p>}
-              <div className="own-social-stats">
-                <button type="button" onClick={() => void openOwnSocialList("followers")}>
-                  <Users size={17} />
-                  <strong>{ownSocialCounts.followers}</strong>
-                  <span>Seguidores</span>
-                </button>
-                <button type="button" onClick={() => void openOwnSocialList("following")}>
-                  <UserRound size={17} />
-                  <strong>{ownSocialCounts.following}</strong>
-                  <span>Seguindo</span>
-                </button>
-              </div>
-              <div className="profile-facts">
-                <div>
-                  <small>IDENTIFICADOR</small>
-                  <strong>@{profile.username}</strong>
-                </div>
-                <div>
-                  <small>GÊNERO</small>
-                  <strong>
-                    {genders[profile.gender] || profile.gender}
-                    {profile.gender_description ? " · " + profile.gender_description : ""}
-                  </strong>
-                </div>
-                <div>
-                  <small>QUER CONHECER</small>
-                  <strong>{profile.looking_for.map((x) => preferences[x] || x).join(", ")}</strong>
-                </div>
-                <div>
-                  <small>LOCALIZAÇÃO</small>
-                  <strong>
-                    {profile.location_visible && profile.city && profile.state_code
-                      ? profile.city + " · " + profile.state_code
-                      : "Não exibida"}
-                  </strong>
-                </div>
-                <div>
-                  <small>PUBLICAÇÕES</small>
-                  <strong>{posts.filter((p) => p.user_id === profile.id).length}</strong>
-                </div>
-              </div>
-            </section>
-            <section className="profile-posts-section">
-              <div className="section-heading">
-                <div>
-                  <strong>Minhas publicações</strong>
-                  <span>Suas postagens ficam guardadas aqui, mesmo quando saem do feed recente.</span>
-                </div>
-                <small>{ownPosts.length} PUBLICAÇÕES</small>
-              </div>
-              {ownPosts.map((p) => (
-                <article className="post own-post" key={p.id}>
-                  <header>
-                    <Avatar p={profile} />
-                    <div>
-                      <strong>{profile.display_name}</strong>
-                      <span>
-                        @{profile.username} · {ago(p.created_at)}
-                      </span>
-                    </div>
-                    {!isDemo && (
-                      <button className="delete" title="Apagar publicação" onClick={() => void removePost(p.id)}>
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </header>
-                  {p.body && <p className="post-body">{p.body}</p>}
-                  {p.media_url && (
-                    <div className="post-media">
-                      {p.media_type === "video" ? (
-                        <video src={p.media_url} controls />
-                      ) : (
-                        <img src={p.media_url} alt="Imagem da sua publicação" />
-                      )}
-                    </div>
-                  )}
-                  <div className="post-stats">
-                    <span>{p.likes} curtidas</span>
-                    <span>{p.comments} comentários</span>
-                  </div>
-                </article>
-              ))}
-              {!ownPosts.length && (
-                <div className="empty">
-                  <MessageSquare />
-                  <h3>Você ainda não publicou.</h3>
-                  <p>Quando fizer uma publicação, ela aparecerá aqui para você consultar e apagar quando quiser.</p>
-                </div>
-              )}
-            </section>
-          </>
+          <ConnectProfile
+            profile={profile}
+            isDemo={isDemo}
+            openImageCrop={openImageCrop}
+            setShowVisitorPreview={setShowVisitorPreview}
+            bio={bio}
+            setBio={setBio}
+            saveBio={saveBio}
+            ownSocialCounts={ownSocialCounts}
+            openOwnSocialList={openOwnSocialList}
+            ownPosts={ownPosts}
+            removePost={removePost}
+          />
         )}
-        {tab === "subscription" && (
+                {tab === "subscription" && (
           <>
             <div className="heading">
               <div>
