@@ -66,7 +66,7 @@ export default function ConnectNavigation({ tab, setTab, queue, mobileMoreOpen, 
           aria-label="Mais opções"
           aria-expanded={mobileMoreOpen}
           aria-haspopup="menu"
-          className={mobileMoreOpen || ["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
+          className={mobileMoreOpen || ["rooms", "lives"].includes(tab) ? "active" : ""}
           onClick={() => setMobileMoreOpen((value) => !value)}
         >
           <Menu />
