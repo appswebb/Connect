@@ -923,13 +923,13 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
 .entry-story>footer{position:relative;z-index:1;color:#9eafa0;font-size:9px;letter-spacing:.13em}
 .entry-form-wrap{display:flex;align-items:center;justify-content:center;min-height:100svh;padding:clamp(20px,4vw,64px);background:#f2f0e8}
 .entry-form{width:min(100%,460px);padding:clamp(24px,3.5vw,42px);border:1px solid #e0e2d8;border-radius:26px;background:#fffefa;box-shadow:0 22px 64px rgba(28,48,40,.08)}
-.entry-back{display:inline-flex;align-items:center;gap:8px;padding:9px 0;border:0;background:transparent;color:#68806d;font-size:11px;font-weight:750}
+.entry-back{display:inline-flex;align-items:center;gap:8px;padding:9px 0;border:0;background:transparent;color:#4e6655;font-size:11px;font-weight:750}
 .entry-mark{width:48px;height:48px;display:grid;place-items:center;margin:28px 0 17px;border-radius:16px;background:#e7efe5;color:#315f49}
-.entry-overline{color:#68806d;font-size:9px;font-weight:850;letter-spacing:.16em}
+.entry-overline{color:#4f6b54;font-size:9px;font-weight:850;letter-spacing:.16em}
 .entry-form h2{margin:9px 0;color:#1c3028;font:700 clamp(30px,3vw,38px)/1.05 'Outfit',sans-serif;letter-spacing:-.045em}
-.entry-form>p{margin:0 0 22px;color:#778579;font-size:12px;line-height:1.65}
+.entry-form>p{margin:0 0 22px;color:#56675b;font-size:12px;line-height:1.65}
 .entry-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:0 0 20px;padding:5px;border:1px solid #e1e4da;border-radius:14px;background:#f4f5ed}
-.entry-tabs button{min-height:40px;border:0;border-radius:10px;background:transparent;color:#758276;font-size:12px;font-weight:750}
+.entry-tabs button{min-height:40px;border:0;border-radius:10px;background:transparent;color:#56675a;font-size:12px;font-weight:750}
 .entry-tabs button.active{background:#fffefa;color:#285b49;box-shadow:0 3px 10px rgba(28,48,40,.08)}
 .entry-form form{display:grid;gap:14px}
 .entry-form form label{display:grid;gap:7px;color:#4c6251;font-size:11px;font-weight:750}
@@ -938,12 +938,12 @@ html[data-theme="dark"] .connect-app .profile-card>.banner{background:#263e2e}
   border:1px solid #dfe3d9;border-radius:12px;background:#fbfbf6;
   color:#1c3028;font-size:13px;box-shadow:none;
 }
-.entry-form input::placeholder{color:#a0aa9f}
+.entry-form input::placeholder{color:#66766a}
 .entry-form input:focus,.entry-form select:focus,.entry-form textarea:focus{border-color:#7b9b7b;outline:3px solid #7b9b7b24}
 .entry-submit{width:100%;min-height:49px;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;border:1px solid #285b49;border-radius:13px;background:#285b49;color:#fff;font-size:12px;font-weight:850;box-shadow:0 8px 20px rgba(40,91,73,.17)}
 .entry-submit:hover{background:#1d4437}
 .entry-submit:disabled{opacity:.55;cursor:wait}
-.entry-terms{display:block;margin-top:18px;color:#899589;font-size:10px;line-height:1.6}
+.entry-terms{display:block;margin-top:18px;color:#5e6d61;font-size:10px;line-height:1.6}
 .entry-form .error{margin:0;padding:11px 13px;border:1px solid #efcfc7;border-radius:11px;background:#fff0eb;color:#843f34;font-size:11px;line-height:1.5}
 .entry-form .success{margin:0;padding:11px 13px;border:1px solid #cddfc7;border-radius:11px;background:#edf5e9;color:#315f49;font-size:11px;line-height:1.5}
 @media(max-width:900px){
