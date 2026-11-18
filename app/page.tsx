@@ -185,6 +185,15 @@ export default function Home() {
     setNotice("");
   }, []);
 
+  useEffect(() => {
+    if (!error && !notice) return;
+    const timeout = window.setTimeout(() => {
+      setError("");
+      setNotice("");
+    }, 6500);
+    return () => window.clearTimeout(timeout);
+  }, [error, notice]);
+
   const { loadLives, createLive, joinLive, endLiveSession, leaveLive } = useConnectLives({
     userId: session?.user.id,
     liveTitle,
@@ -1941,9 +1950,16 @@ export default function Home() {
           </div>
         </header>
         {(error || notice) && (
-          <div className={error ? "flash error" : "flash success"}>
-            {error || notice}
+          <div
+            className={error ? "flash error" : "flash success"}
+            role={error ? "alert" : "status"}
+            aria-live={error ? "assertive" : "polite"}
+            aria-atomic="true"
+          >
+            <span>{error || notice}</span>
             <button
+              type="button"
+              aria-label="Fechar aviso"
               onClick={() => {
                 setError("");
                 setNotice("");
