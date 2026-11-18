@@ -54,6 +54,7 @@ import { brazilStates } from "./lib/brazil";
 import Avatar from "./components/ConnectAvatar";
 import ConnectRooms from "./components/ConnectRooms";
 import ConnectLives from "./components/ConnectLives";
+import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
@@ -179,144 +180,33 @@ export default function Home() {
     setNotice("");
   };
 
-  async function loadNotifications(uid: string) {
-    const r = await supabase
-      .from("notifications")
-      .select("id,recipient_id,actor_id,type,title,body,entity_type,entity_id,read_at,created_at")
-      .eq("recipient_id", uid)
-      .in("type", [...essentialNotificationTypes])
-      .order("created_at", { ascending: false })
-      .limit(50);
-    if (r.error) {
-      fail("Não foi possível carregar suas notificações: " + r.error.message);
-      return;
-    }
-    const rows = (r.data || []) as NotificationItem[];
-    const actorIds = [...new Set(rows.map((x) => x.actor_id).filter(Boolean) as string[])];
-    const people = actorIds.length ? await supabase.from("profiles").select("*").in("id", actorIds) : { data: [] };
-    const map = new Map((people.data || []).map((x: any) => [x.id, x as Profile]));
-    setNotifications(rows.map((x) => ({ ...x, actor: x.actor_id ? map.get(x.actor_id) || null : null })));
-  }
-  async function markNotificationRead(item: NotificationItem) {
-    if (!session?.user.id || item.read_at) return;
-    const now = new Date().toISOString();
-    const r = await supabase.from("notifications").update({ read_at: now }).eq("id", item.id).eq("recipient_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível marcar a notificação como lida: " + r.error.message);
-      return;
-    }
-    setNotifications((old) => old.map((x) => (x.id === item.id ? { ...x, read_at: now } : x)));
-  }
-  async function markAllNotificationsRead() {
-    if (!session?.user.id) return;
-    const r = await supabase
-      .from("notifications")
-      .update({ read_at: new Date().toISOString() })
-      .eq("recipient_id", session.user.id)
-      .is("read_at", null);
-    if (r.error) {
-      fail("Não foi possível marcar todas como lidas: " + r.error.message);
-      return;
-    }
-    await loadNotifications(session.user.id);
-  }
-  async function clearReadNotifications() {
-    if (!session?.user.id) return;
-    if (!window.confirm("Apagar todas as suas notificações? Essa ação não afeta notificações de outras pessoas.")) return;
-    const r = await supabase.from("notifications").delete().eq("recipient_id", session.user.id);
-    if (r.error) {
-      fail("Não foi possível limpar suas notificações: " + r.error.message);
-      return;
-    }
-    setNotifications([]);
-    setNotice("Todas as suas notificações foram limpas.");
-  }
-  async function openNotification(item: NotificationItem) {
-    await markNotificationRead(item);
-    setNotificationsOpen(false);
-    if ((item.type === "message" || item.type === "new_message" || item.type === "message_request_accepted") && item.entity_id) {
-      setMatchId(item.entity_id);
-      setChatReadOnly(false);
-      setChatInboxTab("conversations");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "message_request") {
-      setChatInboxTab("requests");
-      setChatView("direct");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "new_follower" && item.actor_id) {
-      setTab("people");
-      void openProfile(item.actor_id);
-      return;
-    }
-    if (item.type === "match" && item.entity_id) {
-      await loadPendingMatch(item.entity_id);
-      setTab("queue");
-      return;
-    }
-    if (item.type === "match_accepted" && item.entity_id) {
-      setMatchId(item.entity_id);
-      setChatReadOnly(false);
-      setQueue("matched");
-      setTab("chat");
-      return;
-    }
-    if (item.type === "match_closed") {
-      setTab("chat");
-      return;
-    }
-    if (item.type === "subscription_gift_received") {
-      setTab("profile");
-      return;
-    }
-    if (item.type === "live") {
-      setTab("lives");
-      void loadLives();
-      return;
-    }
-    if (item.type === "site_update") {
-      setTab("feed");
-      return;
-    }
-    setTab("feed");
-    if (item.type === "comment" && item.entity_id) void openComments(item.entity_id);
-  }
-  async function enableBrowserNotifications() {
-    if (!("Notification" in window)) {
-      setNotice("Este navegador não oferece notificações do sistema.");
-      return;
-    }
-    const permission = await Notification.requestPermission();
-    setBrowserNotificationPermission(permission);
-    if (permission === "granted" && "serviceWorker" in navigator) {
-      try {
-        await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
-      } catch {
-        setNotice("Permissão ativada, mas não foi possível preparar os alertas em segundo plano.");
-        return;
-      }
-    }
-    setNotice(
-      permission === "granted" ? "Notificações do navegador ativadas." : "A permissão para notificações do navegador não foi concedida.",
-    );
-  }
-  async function showBrowserNotification(item: NotificationItem) {
-    if (!("Notification" in window) || Notification.permission !== "granted") return;
-    if ("serviceWorker" in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
-        await navigator.serviceWorker.ready;
-        await registration.showNotification(item.title, { body: item.body, tag: item.id });
-        return;
-      } catch {}
-    }
-    try {
-      new Notification(item.title, { body: item.body, tag: item.id });
-    } catch {}
-  }
+  const {
+    loadNotifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    clearReadNotifications,
+    openNotification,
+    enableBrowserNotifications,
+    showBrowserNotification,
+  } = useConnectNotifications({
+    userId: session?.user.id,
+    setNotifications,
+    setNotificationsOpen,
+    setBrowserNotificationPermission,
+    setNotice,
+    fail,
+    setTab,
+    setMatchId,
+    setChatReadOnly,
+    setChatInboxTab,
+    setChatView,
+    setQueue,
+    loadPendingMatch,
+    loadLives,
+    openProfile,
+    openComments,
+  });
+
   async function detectAndSaveLocation(uid: string, force = false) {
     if (locationDetectionStartedRef.current.has(uid) && !force) return;
     locationDetectionStartedRef.current.add(uid);
