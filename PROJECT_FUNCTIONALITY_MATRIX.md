@@ -29,9 +29,9 @@ Este documento diferencia implementação encontrada de validação executada. B
 ## Verificações
 
 - Build Next.js, verificação TypeScript e exportação estática: aprovados no commit 834ecc5e33ba833601d78bb92eec6aafe5027d58.
-- Smoke E2E Chromium e viewports 320, 360, 375, 390, 430, 768, 1024, 1280, 1440 e 1920 px: workflow em execução/correção.
+- Smoke E2E Chromium: aprovado para landing, login e entrada de demonstração; sem overflow horizontal em 320, 360, 375, 390, 430, 768, 1024, 1280, 1440 e 1920 px.
 - Feed CRUD, chat autenticado, uploads, matching, salas, pagamentos e LiveKit: não declarados como E2E concluídos; exigem sessão/ambiente e credenciais.
-- Auditoria npm: workflow coleta a severidade das vulnerabilidades para avaliação antes de qualquer atualização.
+- Auditoria npm: workflow coleta severidade e pacotes afetados; a resolução está condicionada ao resultado da execução mais recente.
 
 ## Limites
 
