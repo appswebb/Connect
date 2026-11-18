@@ -443,3 +443,313 @@ html[data-theme="dark"] .connect-auth .entry-form input,html[data-theme="dark"] 
  .connect-app .people-hero-stats>span{grid-template-columns:auto 1fr;align-items:center}
  .connect-app .people-hero-stats>span em{display:block;grid-column:2}
 }
+
+
+/* -------------------------------------------------------------------------
+   CONNECT / 2.0 — editorial social workspace
+   Desktop information architecture: full-width brand/navigation bar,
+   centered work canvas, no competing right-hand rail. Mobile keeps the
+   dedicated bottom-tab navigation and safe-area behavior.
+   ------------------------------------------------------------------------- */
+:root{
+  --cx-bg:#f2f0e8;
+  --cx-surface:#fffefa;
+  --cx-surface-2:#f8f6ef;
+  --cx-ink:#1c3028;
+  --cx-muted:#718076;
+  --cx-line:#dedfd3;
+  --cx-primary:#285b49;
+  --cx-primary-dark:#1d4437;
+  --cx-primary-soft:#e5eee6;
+  --cx-lime:#dce78b;
+  --cx-coral:#dc795f;
+  --cx-night:#172a22;
+  --cx-shadow:0 16px 42px rgba(28,48,40,.075);
+  --cx-radius:22px;
+  --bg:var(--cx-bg);
+  --surface:var(--cx-surface);
+  --surface-2:var(--cx-surface-2);
+  --ink:var(--cx-ink);
+  --muted:var(--cx-muted);
+  --line:var(--cx-line);
+  --brand:var(--cx-primary);
+  --brand-dark:var(--cx-primary-dark);
+  --brand-soft:var(--cx-primary-soft);
+  --shadow:var(--cx-shadow);
+  --radius:var(--cx-radius);
+  --night:var(--cx-night);
+  --grad:linear-gradient(135deg,#285b49,#6d9877);
+  --grad-soft:linear-gradient(135deg,#e5eee6,#f7f3e7);
+}
+html,body{background:var(--cx-bg)}
+body{color:var(--cx-ink);font-family:'DM Sans',sans-serif}
+button,input,textarea,select{font-family:'DM Sans',sans-serif}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--cx-primary) 40%,transparent);
+  outline-offset:3px;
+}
+.connect-app{
+  display:block!important;
+  min-height:100svh;
+  background:
+    radial-gradient(ellipse at 86% 0%,rgba(220,231,139,.16),transparent 34rem),
+    var(--cx-bg)!important;
+}
+.connect-app .connect-rail{
+  position:sticky!important;top:0!important;z-index:120!important;
+  width:100%;height:auto!important;min-height:76px!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;gap:clamp(12px,2vw,30px)!important;
+  padding:12px clamp(18px,4vw,64px)!important;
+  background:rgba(23,42,34,.97)!important;
+  border:0!important;border-bottom:1px solid rgba(255,255,255,.09)!important;
+  border-radius:0!important;box-shadow:0 8px 30px rgba(15,34,26,.12);
+  backdrop-filter:blur(18px);
+}
+.connect-app .connect-rail>.brand{
+  flex:0 0 auto;display:flex!important;justify-content:flex-start!important;
+  gap:11px!important;padding:0!important;color:#fff!important;
+  font:800 18px/1 'Outfit',sans-serif!important;letter-spacing:.14em!important;
+}
+.connect-app .connect-rail .brand-icon{
+  width:42px;height:42px;border-radius:14px!important;
+  background:#315f4b!important;box-shadow:inset 0 0 0 1px #ffffff1c;
+}
+.connect-app .connect-rail .brand-icon img{width:31px;height:31px}
+.connect-app .connect-rail nav{
+  flex:1 1 auto;display:flex!important;flex-direction:row!important;
+  justify-content:center!important;align-items:center!important;gap:5px!important;
+  min-width:0;overflow:visible!important;
+}
+.connect-app .connect-rail nav button{
+  flex:0 1 auto;width:auto!important;min-width:0!important;min-height:46px!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  gap:9px!important;padding:0 13px!important;border:1px solid transparent!important;
+  border-radius:13px!important;background:transparent!important;
+  color:#c2d0c6!important;font-size:12px!important;font-weight:650!important;
+  white-space:nowrap!important;transition:background .18s,border-color .18s,color .18s;
+}
+.connect-app .connect-rail nav button svg{width:17px;height:17px;opacity:.88}
+.connect-app .connect-rail nav button span{display:inline!important}
+.connect-app .connect-rail nav button:hover{
+  background:#ffffff10!important;color:#fff!important;border-color:#ffffff12!important;
+}
+.connect-app .connect-rail nav button.selected{
+  color:#172a22!important;background:#dce78b!important;
+  border-color:#dce78b!important;box-shadow:0 5px 16px #dce78b20;
+}
+.connect-app .connect-rail nav button.selected svg{color:#172a22}
+.connect-app .sidebar-spacer,.connect-app .sidebar-caption{display:none!important}
+.connect-app .connect-main{
+  display:block!important;grid-column:auto!important;grid-row:auto!important;
+  width:min(100%,1580px)!important;max-width:1580px!important;min-width:0!important;
+  margin:0 auto!important;padding:0 clamp(18px,4.4vw,72px) 76px!important;
+  background:transparent!important;
+}
+.connect-app .topbar{
+  height:72px!important;min-height:72px!important;position:relative!important;top:auto!important;
+  z-index:40!important;margin:0 0 34px!important;padding:0!important;
+  border:0!important;border-bottom:1px solid rgba(43,75,58,.13)!important;
+  background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;
+}
+.connect-app .topbar>small{
+  color:#718076!important;font-size:9px!important;letter-spacing:.17em!important;
+}
+.connect-app .topbar>small i{background:#5d9c72!important;box-shadow:0 0 0 4px #5d9c721b}
+.connect-app .topbar-actions{gap:9px!important}
+.connect-app .topbar-actions>button,.connect-app .notification-trigger,
+.connect-app .location-trigger,.connect-app .user-menu-trigger,.connect-app .theme-toggle{
+  width:42px!important;min-width:42px!important;height:42px!important;
+  border:1px solid #dce0d4!important;border-radius:14px!important;
+  background:#fffefa!important;color:#385746!important;
+  box-shadow:0 3px 10px rgba(28,48,40,.035)!important;
+}
+.connect-app .topbar-actions>button:hover,.connect-app .notification-trigger:hover,
+.connect-app .location-trigger:hover,.connect-app .user-menu-trigger:hover,.connect-app .theme-toggle:hover{
+  background:#eaf0e8!important;border-color:#c7d5c8!important;
+}
+.connect-app .connect-discover{display:none!important}
+.connect-app .heading{
+  width:100%!important;max-width:1120px!important;margin:0 auto 28px!important;
+  padding:0!important;align-items:flex-end!important;
+}
+.connect-app .heading>div>small{
+  color:#6b856f!important;font-size:9px!important;letter-spacing:.18em!important;
+}
+.connect-app .heading h1{
+  color:#1c3028!important;font:700 clamp(34px,4vw,52px)/1.04 'Outfit',sans-serif!important;
+  letter-spacing:-.055em!important;margin:10px 0 9px!important;
+}
+.connect-app .heading h1 em{color:#568166!important}
+.connect-app .heading p{color:#788579!important;font-size:13px!important;line-height:1.65!important}
+.connect-app .app-main-content,.connect-app .main-content{min-width:0}
+.connect-app .composer,.connect-app .post,.connect-app .profile-card,
+.connect-app .subscription-page-card,.connect-app .settings-panel,
+.connect-app .rooms-panel,.connect-app .chat,.connect-app .chat-history,
+.connect-app .message-requests,.connect-app .queue-card,
+.connect-app .people-directory-card,.connect-app .live-list article{
+  border:1px solid #e0e2d8!important;border-radius:20px!important;
+  background:var(--cx-surface)!important;
+  box-shadow:0 7px 24px rgba(28,48,40,.045)!important;
+}
+.connect-app .composer,.connect-app .post{padding:20px!important}
+.connect-app .feed{
+  width:min(100%,820px)!important;max-width:820px!important;
+  margin:0 auto!important;gap:17px!important;
+}
+.connect-app .post-body{color:#46574b!important;font-size:14px!important;line-height:1.75!important}
+.connect-app .post-media{border-radius:16px!important;background:#ecece3!important}
+.connect-app .post-media img,.connect-app .post-media video{
+  width:100%;height:auto;max-height:680px;object-fit:contain!important;
+}
+.connect-app .people-page-hero{
+  width:100%;max-width:1120px;margin:0 auto 22px!important;
+  min-height:250px;padding:clamp(24px,4vw,42px)!important;
+  border:1px solid #d9e2d7!important;border-radius:26px!important;
+  background:linear-gradient(112deg,#e6eee4 0%,#eef0df 58%,#f8eadf 100%)!important;
+}
+.connect-app .people-hero-copy h1{
+  color:#203b30!important;font:700 clamp(30px,4vw,46px)/1.05 'Outfit',sans-serif!important;
+  letter-spacing:-.05em!important;
+}
+.connect-app .people-hero-copy p{color:#6f7e70!important;font-size:13px!important}
+.connect-app .people-directory-search{
+  border-radius:15px!important;padding:0 16px!important;background:#fffefa!important;
+  border-color:#dfe2d8!important;min-height:52px;
+}
+.connect-app .people-filter-row button,.connect-app .people-filter-row select{
+  border-radius:999px!important;padding:9px 15px!important;background:#fffefa!important;
+}
+.connect-app .people-directory-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:17px!important;
+}
+.connect-app .people-directory-card{border-radius:20px!important}
+.connect-app .people-card-cover{height:112px!important}
+.connect-app .people-card-content{padding:0 17px 17px!important}
+.connect-app .people-card-badges span,.connect-app .people-card-meta span{
+  border-radius:999px!important;background:#eef2e9!important;color:#607366!important;
+}
+.connect-app .people-state-rooms,.connect-app .people-live-section,
+.connect-app .profile-posts-section{
+  width:100%;max-width:1120px;margin-left:auto!important;margin-right:auto!important;
+}
+.connect-app .chat-mode-switch{border-radius:999px!important;background:#e7ece4!important;padding:4px!important}
+.connect-app .chat-mode-switch button{border-radius:999px!important}
+.connect-app .settings-panel{padding:clamp(18px,3vw,30px)!important}
+.connect-app .settings-section{
+  border-color:#e4e5dc!important;border-radius:16px!important;padding:20px!important;
+}
+.connect-app .profile-card{overflow:hidden!important}
+.connect-app .profile-card .banner{min-height:190px!important}
+.connect-app .profile-ident{padding:0 26px!important;gap:16px!important}
+.connect-app .profile-ident h2{font:700 27px 'Outfit',sans-serif!important}
+.connect-app .profile-facts{padding:20px 26px!important;gap:12px!important}
+.connect-app .profile-facts>div{border-radius:14px!important;background:#f5f5ed!important;padding:13px!important}
+.connect-app .primary{
+  border-radius:12px!important;background:#285b49!important;border-color:#285b49!important;
+  box-shadow:0 7px 16px rgba(40,91,73,.16)!important;
+}
+.connect-app .primary:hover{background:#1d4437!important}
+.connect-app .secondary{
+  border-radius:12px!important;background:#fffefa!important;border-color:#dce0d5!important;color:#46604e!important;
+}
+.connect-app input,.connect-app select,.connect-app textarea{
+  border-radius:12px;
+}
+.connect-app .flash{border-radius:15px!important}
+.connect-app .match-found-backdrop,.connect-app .profile-view-backdrop,
+.connect-app .crop-backdrop,.connect-app .report-backdrop{backdrop-filter:blur(10px)}
+.connect-app .connect-bottom-nav{display:none!important}
+@media(min-width:761px) and (max-width:1180px){
+  .connect-app .connect-rail{padding:10px 16px!important;gap:12px!important}
+  .connect-app .connect-rail>.brand{font-size:15px!important;gap:7px!important}
+  .connect-app .connect-rail .brand-icon{width:36px;height:36px}
+  .connect-app .connect-rail nav{gap:2px!important}
+  .connect-app .connect-rail nav button{gap:6px!important;padding:0 8px!important;font-size:10px!important}
+  .connect-app .connect-rail nav button svg{width:15px;height:15px}
+  .connect-app .connect-main{padding-left:24px!important;padding-right:24px!important}
+}
+@media(max-width:760px){
+  .connect-app{background:var(--cx-bg)!important}
+  .connect-app .connect-main{padding:0 14px calc(110px + env(safe-area-inset-bottom))!important}
+  .connect-app .topbar{margin:0 -14px 24px!important;padding:0 14px!important}
+  .connect-app .heading{margin-bottom:20px!important}
+  .connect-app .heading h1{font-size:clamp(31px,8vw,42px)!important}
+  .connect-app .feed{width:100%!important;max-width:100%!important;gap:13px!important}
+  .connect-app .composer,.connect-app .post{padding:15px!important;border-radius:17px!important}
+  .connect-app .people-page-hero{border-radius:20px!important;min-height:0!important}
+  .connect-app .people-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
+  .connect-app .people-card-cover{height:84px!important}
+  .connect-app .profile-ident{padding:0 15px!important;flex-wrap:wrap!important}
+  .connect-app .profile-facts{padding:16px!important}
+  .connect-app .connect-bottom-nav{
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    border-radius:20px!important;background:rgba(255,254,250,.96)!important;
+    border-color:#dfe2d8!important;box-shadow:0 12px 34px rgba(28,48,40,.17)!important;
+    backdrop-filter:blur(22px);
+  }
+}
+@media(max-width:420px){
+  .connect-app .connect-main{padding-left:11px!important;padding-right:11px!important}
+  .connect-app .topbar{margin-left:-11px!important;margin-right:-11px!important;padding-left:11px!important;padding-right:11px!important}
+  .connect-app .people-directory-grid{grid-template-columns:1fr!important}
+  .connect-app .people-hero-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .connect-app .people-hero-stats>span{min-width:0!important}
+  .connect-app .people-hero-stats>span strong{font-size:16px!important}
+  .connect-app .people-hero-stats>span small{font-size:7px!important}
+  .connect-app .connect-bottom-nav{left:7px!important;right:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .connect-app *, .connect-home *{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+html[data-theme="dark"]{
+  --cx-bg:#111d17;--cx-surface:#1b2b22;--cx-surface-2:#24372b;
+  --cx-ink:#f0f3e9;--cx-muted:#b4c2b2;--cx-line:#3b5041;
+  --cx-primary:#b9d5a6;--cx-primary-dark:#d2e2c5;--cx-primary-soft:#2d4634;
+  --brand:var(--cx-primary);--brand-dark:var(--cx-primary-dark);
+  --brand-soft:var(--cx-primary-soft);--bg:var(--cx-bg);--surface:var(--cx-surface);
+  --surface-2:var(--cx-surface-2);--ink:var(--cx-ink);--muted:var(--cx-muted);--line:var(--cx-line);
+}
+html[data-theme="dark"] body,html[data-theme="dark"] .connect-app{background:var(--cx-bg)!important;color:var(--cx-ink)!important}
+html[data-theme="dark"] .connect-app .connect-rail{background:#13231b!important}
+html[data-theme="dark"] .connect-app .connect-main{background:transparent!important}
+html[data-theme="dark"] .connect-app .topbar{border-color:#344a39!important}
+html[data-theme="dark"] .connect-app .topbar>small{color:#a8b9a8!important}
+html[data-theme="dark"] .connect-app .topbar-actions>button,
+html[data-theme="dark"] .connect-app .notification-trigger,
+html[data-theme="dark"] .connect-app .location-trigger,
+html[data-theme="dark"] .connect-app .user-menu-trigger,
+html[data-theme="dark"] .connect-app .theme-toggle{background:#203428!important;border-color:#3b5041!important;color:#e0e9d8!important}
+html[data-theme="dark"] .connect-app .heading h1{color:#f0f3e9!important}
+html[data-theme="dark"] .connect-app .heading p{color:#b4c2b2!important}
+html[data-theme="dark"] .connect-app .composer,
+html[data-theme="dark"] .connect-app .post,
+html[data-theme="dark"] .connect-app .profile-card,
+html[data-theme="dark"] .connect-app .subscription-page-card,
+html[data-theme="dark"] .connect-app .settings-panel,
+html[data-theme="dark"] .connect-app .rooms-panel,
+html[data-theme="dark"] .connect-app .chat,
+html[data-theme="dark"] .connect-app .chat-history,
+html[data-theme="dark"] .connect-app .message-requests,
+html[data-theme="dark"] .connect-app .queue-card,
+html[data-theme="dark"] .connect-app .people-directory-card,
+html[data-theme="dark"] .connect-app .live-list article{
+  background:var(--cx-surface)!important;border-color:var(--cx-line)!important;color:var(--cx-ink)!important;
+}
+html[data-theme="dark"] .connect-app .people-page-hero{
+  background:linear-gradient(112deg,#263e2e,#2c3b2d 58%,#493a30)!important;border-color:#405443!important;
+}
+html[data-theme="dark"] .connect-app .people-hero-copy h1{color:#f0f3e9!important}
+html[data-theme="dark"] .connect-app .people-hero-copy p{color:#bdc9b6!important}
+html[data-theme="dark"] .connect-app .people-directory-search,
+html[data-theme="dark"] .connect-app .people-filter-row button,
+html[data-theme="dark"] .connect-app .people-filter-row select,
+html[data-theme="dark"] .connect-app .secondary{
+  background:#203428!important;border-color:#3b5041!important;color:#e0e9d8!important;
+}
+html[data-theme="dark"] .connect-app .profile-facts>div,
+html[data-theme="dark"] .connect-app .settings-section{background:#203428!important;border-color:#3b5041!important}
+html[data-theme="dark"] .connect-app .post-body{color:#d0d9cc!important}
+html[data-theme="dark"] .connect-app .connect-bottom-nav{background:rgba(27,43,34,.97)!important;border-color:#3b5041!important}
+html[data-theme="dark"] .connect-app .connect-bottom-nav>button{color:#b4c2b2!important}
+html[data-theme="dark"] .connect-app .connect-bottom-nav>button.active{background:#2d4634!important;color:#d2e2c5!important}
