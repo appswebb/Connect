@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import type { Session } from "@supabase/supabase-js";
 import {
   Activity,
@@ -46,8 +47,10 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "./lib/supabase";
-import ImageCropper from "./components/ImageCropper";
-import SubscriptionPlans from "./components/SubscriptionPlans";
+const SubscriptionPlans = dynamic(() => import("./components/SubscriptionPlans"), {
+  ssr: false,
+  loading: () => <div className="module-loading" role="status">Carregando assinaturas...</div>,
+});
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
@@ -59,10 +62,17 @@ import { useConnectFeed } from "./hooks/useConnectFeed";
 import { useConnectRooms } from "./hooks/useConnectRooms";
 import { useConnectLives } from "./hooks/useConnectLives";
 import ConnectLives from "./components/ConnectLives";
+import ConnectNavigation from "./components/ConnectNavigation";
+import ConnectFeed from "./components/ConnectFeed";
+import ConnectPeopleDirectory from "./components/ConnectPeopleDirectory";
+import ConnectSettings from "./components/ConnectSettings";
+import ConnectProfile from "./components/ConnectProfile";
+import ConnectChat from "./components/ConnectChat";
+import ConnectQueue from "./components/ConnectQueue";
+import ConnectOverlays from "./components/ConnectOverlays";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
-import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
-import { essentialNotificationTypes, genders, preferences } from "./lib/connect-data";
+import { essentialNotificationTypes } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
 export default function Home() {
@@ -184,6 +194,15 @@ export default function Home() {
     setError(s);
     setNotice("");
   }, []);
+
+  useEffect(() => {
+    if (!error && !notice) return;
+    const timeout = window.setTimeout(() => {
+      setError("");
+      setNotice("");
+    }, 6500);
+    return () => window.clearTimeout(timeout);
+  }, [error, notice]);
 
   const { loadLives, createLive, joinLive, endLiveSession, leaveLive } = useConnectLives({
     userId: session?.user.id,
@@ -1654,27 +1673,7 @@ export default function Home() {
   );
   return (
     <main className="connect-app" data-screen="workspace">
-      <aside className="connect-rail" aria-label="Navegação do CONNECT">
-        <a className="brand" href="#" aria-label="CONNECT" onClick={(e) => { e.preventDefault(); setTab("feed"); }}>
-          <span className="brand-icon">
-            <img className="connect-brand-symbol" src="/Connect/connect-mark.svg" alt="" />
-          </span>
-          <span>CONNECT</span>
-        </a>
-        <nav aria-label="Navegação principal">
-          {items.map(([id, label, Icon]) => (
-            <button type="button" key={id} className={tab === id ? "selected" : ""} onClick={() => setTab(id)}>
-              <Icon size={17} />
-              <span>{label}</span>
-              {id === "queue" && queue === "waiting" && <i />}
-            </button>
-          ))}
-        </nav>
-        <span className="sidebar-spacer" />
-        <span className="sidebar-caption">
-          <i /> SUA COMUNIDADE, SEU ESPAÇO
-        </span>
-      </aside>
+      <ConnectNavigation tab={tab} setTab={setTab} queue={queue} mobileMoreOpen={mobileMoreOpen} setMobileMoreOpen={setMobileMoreOpen} />
       <section className="connect-main">
         <header className="topbar">
           <div className="mobile-brand">
@@ -1941,9 +1940,16 @@ export default function Home() {
           </div>
         </header>
         {(error || notice) && (
-          <div className={error ? "flash error" : "flash success"}>
-            {error || notice}
+          <div
+            className={error ? "flash error" : "flash success"}
+            role={error ? "alert" : "status"}
+            aria-live={error ? "assertive" : "polite"}
+            aria-atomic="true"
+          >
+            <span>{error || notice}</span>
             <button
+              type="button"
+              aria-label="Fechar aviso"
               onClick={() => {
                 setError("");
                 setNotice("");
@@ -1958,1276 +1964,154 @@ export default function Home() {
             <Eye size={15} /> MODO DE DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO
           </div>
         )}
-        {ownSocialList && (
-          <div
-            className="profile-view-backdrop"
-            role="dialog"
-            aria-modal="true"
-            aria-label={ownSocialList.kind === "followers" ? "Seus seguidores" : "Pessoas que você segue"}
-            onClick={() => setOwnSocialList(null)}
-          >
-            <section className="profile-view-card own-social-list" onClick={(e) => e.stopPropagation()}>
-              <header>
-                <strong>{ownSocialList.kind === "followers" ? "SEUS SEGUIDORES" : "VOCÊ ESTÁ SEGUINDO"}</strong>
-                <button type="button" onClick={() => setOwnSocialList(null)} aria-label="Fechar lista">
-                  <X />
-                </button>
-              </header>
-              <div className="own-social-people">
-                {ownSocialList.people.map((person) => (
-                  <article key={person.id}>
-                    <Avatar p={person} size="small" />
-                    <div>
-                      <strong>{person.display_name}</strong>
-                      <small>@{person.username}</small>
-                    </div>
-                    <button
-                      type="button"
-                      className="secondary"
-                      onClick={() => {
-                        setOwnSocialList(null);
-                        void openProfile(person.id);
-                      }}
-                    >
-                      Ver perfil <ArrowRight size={14} />
-                    </button>
-                  </article>
-                ))}
-                {!ownSocialList.people.length && (
-                  <div className="empty">
-                    <Users />
-                    <h3>{ownSocialList.kind === "followers" ? "Você ainda não tem seguidores." : "Você ainda não segue ninguém."}</h3>
-                    <p>Quando essa lista tiver pessoas, elas aparecerão aqui.</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-        {showVisitorPreview && (
-          <div
-            className="profile-view-backdrop"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Prévia do seu perfil como visitante"
-            onClick={() => setShowVisitorPreview(false)}
-          >
-            <section className="profile-view-card visitor-preview-card" onClick={(e) => e.stopPropagation()}>
-              <header>
-                <strong>ASSIM SEU PERFIL APARECE PARA VISITANTES</strong>
-                <button type="button" onClick={() => setShowVisitorPreview(false)} aria-label="Fechar prévia">
-                  <X />
-                </button>
-              </header>
-              <div
-                className="profile-view-banner"
-                style={profile.banner_url ? { backgroundImage: "url(" + profile.banner_url + ")" } : {}}
-              />
-              <div className="profile-view-body">
-                <div className="profile-view-identity">
-                  <Avatar p={profile} size="large" />
-                  <div>
-                    <h2>{profile.display_name}</h2>
-                    <span>@{profile.username}</span>
-                  </div>
-                </div>
-                <p className="profile-view-bio">{profile.bio || "Esta pessoa ainda não adicionou uma descrição."}</p>
-                <div className="profile-view-facts">
-                  <div>
-                    <small>GÊNERO</small>
-                    <strong>
-                      {genders[profile.gender] || profile.gender}
-                      {profile.gender_description ? " · " + profile.gender_description : ""}
-                    </strong>
-                  </div>
-                  <div>
-                    <small>QUER CONHECER</small>
-                    <strong>{(profile.looking_for || []).map((x) => preferences[x] || x).join(", ") || "Não informado"}</strong>
-                  </div>
-                  <div>
-                    <small>LOCALIZAÇÃO</small>
-                    <strong>
-                      {profile.location_visible && profile.city && profile.state_code
-                        ? profile.city + " · " + profile.state_code
-                        : "Não exibida"}
-                    </strong>
-                  </div>
-                </div>
-                <div className="social-profile-stats">
-                  <span>
-                    <strong>{ownSocialCounts.followers}</strong> seguidores
-                  </span>
-                  <span>
-                    <strong>{ownSocialCounts.following}</strong> seguindo
-                  </span>
-                </div>
-                <p className="visitor-preview-note">
-                  Prévia de visitante: botões de interação ficam disponíveis apenas para outras pessoas.
-                </p>
-              </div>
-            </section>
-          </div>
-        )}
-        {viewingProfile && (
-          <div
-            className="profile-view-backdrop"
-            role="dialog"
-            aria-modal="true"
-            aria-label={"Perfil de " + viewingProfile.display_name}
-            onClick={() => setViewingProfile(null)}
-          >
-            <section className="profile-view-card" onClick={(e) => e.stopPropagation()}>
-              <header>
-                <strong>PERFIL CONNECT</strong>
-                <button type="button" onClick={() => setViewingProfile(null)} aria-label="Fechar perfil">
-                  <X />
-                </button>
-              </header>
-              <div
-                className="profile-view-banner"
-                style={viewingProfile.banner_url ? { backgroundImage: "url(" + viewingProfile.banner_url + ")" } : {}}
-              />
-              <div className="profile-view-body">
-                <div className="profile-view-identity">
-                  <Avatar p={viewingProfile} size="large" />
-                  <div>
-                    <h2>{viewingProfile.display_name}</h2>
-                    <span>@{viewingProfile.username}</span>
-                  </div>
-                </div>
-                <p className="profile-view-bio">{viewingProfile.bio || "Esta pessoa ainda não adicionou uma descrição."}</p>
-                <div className="profile-view-facts">
-                  <div>
-                    <small>GÊNERO</small>
-                    <strong>
-                      {genders[viewingProfile.gender] || viewingProfile.gender}
-                      {viewingProfile.gender_description ? " · " + viewingProfile.gender_description : ""}
-                    </strong>
-                  </div>
-                  <div>
-                    <small>QUER CONHECER</small>
-                    <strong>{(viewingProfile.looking_for || []).map((x) => preferences[x] || x).join(", ") || "Não informado"}</strong>
-                  </div>
-                  <div>
-                    <small>LOCALIZAÇÃO</small>
-                    <strong>
-                      {viewingProfile.location_visible && viewingProfile.city && viewingProfile.state_code
-                        ? viewingProfile.city + " · " + viewingProfile.state_code
-                        : "Não exibida"}
-                    </strong>
-                  </div>
-                </div>
-                {!isDemo && (
-                  <>
-                    <div className="social-profile-stats">
-                      <span>
-                        <strong>{relationship.followers}</strong> seguidores
-                      </span>
-                      <span>
-                        <strong>{relationship.following_count}</strong> seguindo
-                      </span>
-                      {relationship.mutual && <b>AMIGOS</b>}
-                    </div>
-                    <footer>
-                      <button type="button" className="secondary" onClick={() => void toggleFollow()}>
-                        {relationship.following ? "Deixar de seguir" : "Seguir"} <Users size={15} />
-                      </button>
-                      <button type="button" className="primary" onClick={startMessage}>
-                        <MessageCircle size={15} /> Mensagem
-                      </button>
-                      <button
-                        type="button"
-                        className="secondary"
-                        onClick={() => {
-                          openReport(viewingProfile.id);
-                          setViewingProfile(null);
-                        }}
-                      >
-                        <Flag size={15} /> Denunciar
-                      </button>
-                      <button
-                        type="button"
-                        className="danger-button"
-                        onClick={() => {
-                          const id = viewingProfile.id;
-                          setViewingProfile(null);
-                          void blockUser(id);
-                        }}
-                      >
-                        <Ban size={15} /> Bloquear
-                      </button>
-                    </footer>
-                  </>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-        {!isDemo && reportTarget && (
-          <div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Denunciar conteúdo">
-            <form className="report-dialog" onSubmit={submitReport}>
-              <header>
-                <div>
-                  <small>SEGURANÇA DA COMUNIDADE</small>
-                  <h2>
-                    {reportTargetType === "profile"
-                      ? "Denunciar perfil"
-                      : reportTargetType === "post"
-                        ? "Denunciar publicação"
-                        : reportTargetType === "comment"
-                          ? "Denunciar comentário"
-                          : reportTargetType === "room_message"
-                            ? "Denunciar mensagem da sala"
-                            : reportTargetType === "chat_message"
-                              ? "Denunciar mensagem privada"
-                              : reportTargetType === "live"
-                                ? "Denunciar transmissão"
-                                : "Denunciar conteúdo"}
-                  </h2>
-                </div>
-                <button type="button" onClick={() => setReportTarget("")}>
-                  <X />
-                </button>
-              </header>
-              <label>
-                Motivo
-                <select value={reportCategory} onChange={(e) => setReportCategory(e.target.value)}>
-                  <option value="spam">Spam ou golpe</option>
-                  <option value="harassment">Assédio ou intimidação</option>
-                  <option value="hate">Discurso de ódio</option>
-                  <option value="nudity">Nudez ou conteúdo sexual</option>
-                  <option value="impersonation">Falsidade ideológica</option>
-                  <option value="underage">Possível menor de idade</option>
-                  <option value="other">Outro</option>
-                </select>
-              </label>
-              <label>
-                Detalhes (opcional)
-                <textarea
-                  value={reportDetails}
-                  onChange={(e) => setReportDetails(e.target.value)}
-                  maxLength={2000}
-                  placeholder="Conte o que aconteceu."
-                />
-              </label>
-              <footer>
-                <button type="button" className="secondary" onClick={() => setReportTarget("")}>
-                  Cancelar
-                </button>
-                <button className="primary">
-                  Enviar denúncia <Flag size={15} />
-                </button>
-              </footer>
-            </form>
-          </div>
-        )}
-        {cropFile && cropTarget && cropTarget !== "chat" && (
-          <ImageCropper
-            file={cropFile}
-            aspectRatio={cropTarget === "avatar" ? 1 : cropTarget === "banner" ? 16 / 5 : 1.25}
-            title={cropTarget === "avatar" ? "Foto de perfil" : cropTarget === "banner" ? "Banner do perfil" : "Imagem da publicação"}
-            onCancel={() => {
-              setCropFile(null);
-              setCropTarget(null);
-            }}
-            onApply={(f) => void applyCroppedImage(f)}
+        <ConnectOverlays
+          profile={profile}
+          isDemo={isDemo}
+          ownSocialList={ownSocialList}
+          setOwnSocialList={setOwnSocialList}
+          openProfile={openProfile}
+          showVisitorPreview={showVisitorPreview}
+          setShowVisitorPreview={setShowVisitorPreview}
+          ownSocialCounts={ownSocialCounts}
+          viewingProfile={viewingProfile}
+          setViewingProfile={setViewingProfile}
+          relationship={relationship}
+          toggleFollow={toggleFollow}
+          startMessage={startMessage}
+          openReport={openReport}
+          blockUser={blockUser}
+          reportTarget={reportTarget}
+          setReportTarget={setReportTarget}
+          reportTargetType={reportTargetType}
+          reportCategory={reportCategory}
+          setReportCategory={setReportCategory}
+          reportDetails={reportDetails}
+          setReportDetails={setReportDetails}
+          submitReport={submitReport}
+          cropFile={cropFile}
+          cropTarget={cropTarget}
+          setCropFile={setCropFile}
+          setCropTarget={setCropTarget}
+          applyCroppedImage={applyCroppedImage}
+        />
+                {tab === "feed" && (
+          <ConnectFeed
+            profile={profile}
+            currentUserId={session.user.id}
+            isDemo={isDemo}
+            body={body}
+            setBody={setBody}
+            file={file}
+            setFile={setFile}
+            busy={busy}
+            publish={publish}
+            openImageCrop={openImageCrop}
+            posts={posts}
+            openProfile={openProfile}
+            removePost={removePost}
+            openReport={openReport}
+            blockUser={blockUser}
+            like={like}
+            openComments={openComments}
+            commentPost={commentPost}
+            comments={comments}
+            commentText={commentText}
+            setCommentText={setCommentText}
+            comment={comment}
           />
         )}
-        {tab === "feed" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>SUA REDE, SEU MOMENTO</small>
-                <h1>
-                  O que está <em>acontecendo.</em>
-                </h1>
-                <p>Ideias, momentos e pessoas que fazem a diferença.</p>
-              </div>
-            </div>
-            {!isDemo && (
-              <form className="composer" id="composer" onSubmit={publish}>
-                <div className="compose-row">
-                  <Avatar p={profile} />
-                  <textarea
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder={"Compartilhe algo com a comunidade, " + profile.display_name.split(" ")[0] + "..."}
-                    maxLength={5000}
-                  />
-                </div>
-                {file && (
-                  <div className="file-name">
-                    {file.name}
-                    <button type="button" onClick={() => setFile(null)}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                )}
-                <div className="compose-footer">
-                  <label className="upload-label">
-                    <ImagePlus size={17} /> Foto ou vídeo
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f?.type.startsWith("image/")) openImageCrop(f, "post");
-                        else setFile(f || null);
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                  <button className="primary" disabled={busy || (!body.trim() && !file)}>
-                    {busy ? "Publicando..." : "Publicar"}
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              </form>
-            )}
-            {isDemo && (
-              <div className="demo-readonly-note">
-                Você está visualizando o feed. Publicações, curtidas e comentários ficam desativados no acesso de teste.
-              </div>
-            )}
-            <div className="section-heading">
-              <div>
-                <strong>Feed da comunidade</strong>
-                <span>Publicações reais de pessoas do CONNECT</span>
-              </div>
-              <small>MAIS RECENTES</small>
-            </div>
-            <div className="feed">
-              {posts.map((p) => (
-                <article className="post" key={p.id}>
-                  <header>
-                    <button
-                      type="button"
-                      className="profile-open-avatar"
-                      onClick={() => void openProfile(p.author.id)}
-                      aria-label={"Ver perfil de " + p.author.display_name}
-                    >
-                      <Avatar p={p.author} />
-                    </button>
-                    <div>
-                      <button type="button" className="profile-open-name" onClick={() => void openProfile(p.author.id)}>
-                        {p.author.display_name}
-                      </button>
-                      <span>
-                        @{p.author.username}
-                        {p.author.location_visible && p.author.city && p.author.state_code
-                          ? " · " + p.author.city + " / " + p.author.state_code
-                          : ""}{" "}
-                        · {ago(p.created_at)}
-                      </span>
-                    </div>
-                    {!isDemo &&
-                      (p.user_id === profile.id ? (
-                        <button className="delete" title="Apagar publicação" onClick={() => void removePost(p.id)}>
-                          <Trash2 size={16} />
-                        </button>
-                      ) : (
-                        <div className="post-safety-actions">
-                          <button title="Denunciar publicação" onClick={() => openReport(p.user_id, "post", p.id)}>
-                            <Flag size={14} />
-                          </button>
-                          <button title="Denunciar perfil" onClick={() => openReport(p.user_id)}>
-                            <UserRound size={14} />
-                          </button>
-                          <button title="Bloquear pessoa" onClick={() => void blockUser(p.user_id)}>
-                            <Ban size={14} />
-                          </button>
-                        </div>
-                      ))}
-                  </header>
-                  {p.body && <p className="post-body">{p.body}</p>}
-                  {p.media_url && (
-                    <div className="post-media">
-                      {p.media_type === "video" ? (
-                        <video src={p.media_url} controls />
-                      ) : (
-                        <img src={p.media_url} alt="Imagem da publicação" />
-                      )}
-                    </div>
-                  )}
-                  <div className="post-stats">
-                    <span>{p.likes} curtidas</span>
-                    <span>{p.comments} comentários</span>
-                  </div>
-                  {!isDemo && (
-                    <>
-                      <div className="post-actions">
-                        <button className={p.liked ? "liked" : ""} onClick={() => void like(p)}>
-                          <Heart size={18} fill={p.liked ? "currentColor" : "none"} /> Curtir
-                        </button>
-                        <button onClick={() => void openComments(p.id)}>
-                          <MessageSquare size={18} /> Comentar
-                        </button>
-                      </div>
-                      {commentPost === p.id && (
-                        <div className="comments">
-                          {comments.map((c) => (
-                            <div className="comment" key={c.id}>
-                              <button
-                                type="button"
-                                className="profile-open-avatar"
-                                onClick={() => void openProfile(c.author.id)}
-                                aria-label={"Ver perfil de " + c.author.display_name}
-                              >
-                                <Avatar p={c.author} size="small" />
-                              </button>
-                              <div>
-                                <strong>
-                                  <button type="button" className="profile-open-name" onClick={() => void openProfile(c.author.id)}>
-                                    {c.author.display_name}
-                                  </button>
-                                </strong>
-                                <p>{c.body}</p>
-                                <small>{ago(c.created_at)}</small>
-                                {!isDemo && c.user_id !== session.user.id && (
-                                  <button
-                                    type="button"
-                                    className="content-report-action"
-                                    onClick={() => openReport(c.user_id, "comment", c.id)}
-                                  >
-                                    <Flag size={12} /> Denunciar comentário
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                          {!comments.length && <p className="no-comments">Ainda não há comentários. Comece a conversa.</p>}
-                          <form onSubmit={(e) => void comment(e, p.id)}>
-                            <Avatar p={profile} size="small" />
-                            <input
-                              value={commentText}
-                              onChange={(e) => setCommentText(e.target.value)}
-                              placeholder="Escreva um comentário..."
-                              maxLength={1500}
-                            />
-                            <button disabled={!commentText.trim()}>
-                              <Send size={16} />
-                            </button>
-                          </form>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </article>
-              ))}
-              {!posts.length && (
-                <div className="empty">
-                  <MessageSquare />
-                  <h3>Seu feed começa aqui.</h3>
-                  <p>Quando você e outras pessoas publicarem, as novidades aparecerão neste espaço.</p>
-                </div>
-              )}
-            </div>
-          </>
+        {tab === "people" && (
+          <ConnectPeopleDirectory
+            communityProfiles={communityProfiles}
+            profile={profile}
+            onlinePeople={onlinePeople}
+            peopleSearch={peopleSearch}
+            setPeopleSearch={setPeopleSearch}
+            peopleFilter={peopleFilter}
+            setPeopleFilter={setPeopleFilter}
+            openProfile={openProfile}
+          />
         )}
-        {tab === "people" &&
-          (() => {
-            const term = peopleSearch.trim().toLowerCase().replace(/^@/, "");
-            const filtered = communityProfiles
-              .filter((person) => {
-                const text = [person.display_name, person.username, person.bio, person.city, person.state_code, person.gender]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase();
-                if (term && !text.includes(term)) return false;
-                if (peopleFilter === "online" && !onlinePeople.includes(person.id)) return false;
-                if (peopleFilter === "new" && (!person.created_at || Date.now() - new Date(person.created_at).getTime() > 7 * 86400000))
-                  return false;
-                if (
-                  peopleFilter === "near" &&
-                  !(
-                    profile?.location_visible &&
-                    profile.city &&
-                    profile.state_code &&
-                    person.location_visible &&
-                    person.city === profile.city &&
-                    person.state_code === profile.state_code
-                  )
-                )
-                  return false;
-                return true;
-              })
-              .sort((a, b) => {
-                if (peopleFilter === "online") return onlinePeople.indexOf(b.id) - onlinePeople.indexOf(a.id);
-                const onlineDiff = Number(onlinePeople.includes(b.id)) - Number(onlinePeople.includes(a.id));
-                if (onlineDiff) return onlineDiff;
-                return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-              });
-            return (
-              <>
-                <section className="people-page-hero">
-                  <div className="people-hero-copy">
-                    <small>
-                      <Users size={14} /> CONNECT · COMUNIDADE EM TEMPO REAL
-                    </small>
-                    <h1>
-                      Conexões que <em>acontecem aqui.</em>
-                    </h1>
-                    <p>Descubra pessoas, participe das conversas e encontre novas histórias pelo Brasil.</p>
-                    <div className="people-hero-stats">
-                      <span>
-                        <strong>{communityProfiles.length + (profile ? 1 : 0)}</strong>
-                        <small>MEMBROS</small>
-                        <em>Na comunidade</em>
-                      </span>
-                      <span>
-                        <strong>{onlinePeople.length}</strong>
-                        <small>ONLINE AGORA</small>
-                        <em>Conectados neste momento</em>
-                      </span>
-                      <span>
-                        <strong>
-                          {communityProfiles.filter((x) => x.created_at && Date.now() - new Date(x.created_at).getTime() < 7 * 86400000)
-                            .length + (profile?.created_at && Date.now() - new Date(profile.created_at).getTime() < 7 * 86400000 ? 1 : 0)}
-                        </strong>
-                        <small>NOVOS ESTA SEMANA</small>
-                        <em>Chegaram recentemente</em>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="people-hero-art">
-                    <div className="people-hero-avatar p1">
-                      <Users />
-                    </div>
-                    <div className="people-hero-avatar p2">
-                      <Heart />
-                    </div>
-                    <div className="people-hero-avatar p3">
-                      <MessageCircle />
-                    </div>
-                    <div className="people-hero-core">
-                      <Activity size={27} />
-                    </div>
-                  </div>
-                </section>
-                <label id="people-directory" className="people-directory-search">
-                  <Compass size={18} />
-                  <input
-                    value={peopleSearch}
-                    onChange={(e) => setPeopleSearch(e.target.value)}
-                    placeholder="Busque por nome, @, cidade ou interesse..."
-                  />
-                  {peopleSearch && (
-                    <button type="button" onClick={() => setPeopleSearch("")} aria-label="Limpar busca">
-                      <X size={16} />
-                    </button>
-                  )}
-                </label>
-                <div className="people-filter-row">
-                  {[
-                    { id: "all", label: "Todos" },
-                    { id: "online", label: "Online agora" },
-                    { id: "new", label: "Novos membros" },
-                    { id: "near", label: "Da minha cidade" },
-                  ].map((f) => (
-                    <button
-                      type="button"
-                      key={f.id}
-                      className={peopleFilter === f.id ? "active" : ""}
-                      onClick={() => setPeopleFilter(f.id)}
-                    >
-                      {f.id === "online" && <i className="people-live-dot" />}
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="people-directory-results">
-                  <span>
-                    {filtered.length} {filtered.length === 1 ? "pessoa encontrada" : "pessoas encontradas"}
-                  </span>
-                  <span>Comunidade CONNECT</span>
-                </div>
-                <div className="people-directory-grid">
-                  {filtered.map((person) => (
-                    <button type="button" className="people-directory-card" key={person.id} onClick={() => void openProfile(person.id)}>
-                      <div
-                        className="people-card-cover"
-                        style={
-                          person.banner_url
-                            ? { backgroundImage: "linear-gradient(0deg,#0b1117aa,transparent),url(" + person.banner_url + ")" }
-                            : {}
-                        }
-                      >
-                        <span>
-                          <ShieldCheck size={12} /> CONNECT
-                        </span>
-                      </div>
-                      <div className="people-card-content">
-                        <Avatar p={person} size="large" />
-                        <div className="people-card-identity">
-                          <div className="people-card-badges">
-                            {person.created_at && Date.now() - new Date(person.created_at).getTime() < 7 * 86400000 && <b>NOVO</b>}
-                            <i className={onlinePeople.includes(person.id) ? "people-status-online" : "people-status-offline"}>
-                              {onlinePeople.includes(person.id) ? "ONLINE" : "MEMBRO"}
-                            </i>
-                          </div>
-                          <strong>{person.display_name}</strong>
-                          <small>@{person.username}</small>
-                        </div>
-                        <p>{person.bio || "Ainda não adicionou uma apresentação."}</p>
-                        <div className="people-card-meta">
-                          {person.location_visible && person.city && person.state_code ? (
-                            <span>
-                              <MapPin size={12} />
-                              {person.city} · {person.state_code}
-                            </span>
-                          ) : (
-                            <span>
-                              <Users size={12} /> Comunidade CONNECT
-                            </span>
-                          )}
-                          <i>
-                            <span>Ver perfil</span>
-                            <ArrowRight size={15} />
-                          </i>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                  {filtered.length === 0 && (
-                    <div className="empty people-directory-empty">
-                      <Compass />
-                      <h3>{peopleFilter === "near" ? "Não encontramos membros da sua cidade." : "Nenhuma pessoa encontrada."}</h3>
-                      <p>
-                        {peopleFilter === "online"
-                          ? "Quando alguém estiver online, vai aparecer aqui em tempo real."
-                          : "Tente mudar os filtros ou buscar por outro termo."}
-                      </p>
-                      <button
-                        className="secondary"
-                        onClick={() => {
-                          setPeopleFilter("all");
-                          setPeopleSearch("");
-                        }}
-                      >
-                        Mostrar todo mundo
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            );
-          })()}
         {tab === "rooms" && <>{room}</>}
         {tab === "lives" && <>{live}</>}
-        {tab === "queue" && (
-          <>
-            {pendingMatchId && pendingPartner && showMatchIntro && (
-              <div className="match-found-backdrop" role="dialog" aria-modal="true" aria-label="Vocês se encontraram">
-                <section className="match-found-card">
-                  <div className="match-found-kicker">
-                    <i /> CONEXÃO ENCONTRADA
-                  </div>
-                  <div className="match-found-avatars">
-                    <div className="match-found-avatar first">
-                      <Avatar p={profile} size="large" />
-                    </div>
-                    <div className="match-found-heart">
-                      <Heart size={23} fill="currentColor" />
-                    </div>
-                    <div className="match-found-avatar second">
-                      <Avatar p={pendingPartner} size="large" />
-                    </div>
-                  </div>
-                  <div className="match-found-names">
-                    <strong>{profile?.display_name || "Você"}</strong>
-                    <span>+</span>
-                    <strong>{pendingPartner.display_name}</strong>
-                  </div>
-                  <h2>Vocês se encontraram!</h2>
-                  <p>Uma nova conexão acabou de acontecer. Vocês têm 3 minutos para conversar e decidir se querem dar match.</p>
-                  <div className="match-found-countdown">
-                    {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")} <small>restantes</small>
-                  </div>
-                  <button className="primary" onClick={() => setShowMatchIntro(false)}>
-                    Começar conversa <ArrowRight />
-                  </button>
-                </section>
-              </div>
-            )}
-            {pendingMatchId &&
-              pendingPartner &&
-              !showMatchIntro &&
-              (pendingChatMinimized ? (
-                <section className="chat-minimized queue-match-minimized">
-                  <div>
-                    <Avatar p={pendingPartner} size="small" />
-                    <span>
-                      <strong>{pendingPartner.display_name}</strong>
-                      <small>
-                        Encontro temporário · {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")} restantes
-                      </small>
-                    </span>
-                  </div>
-                  <button className="secondary" type="button" onClick={() => setPendingChatMinimized(false)}>
-                    Reabrir conversa
-                  </button>
-                  <button className="chat-close-mini" type="button" onClick={() => void respondToMatch(false)} title="Encerrar encontro">
-                    <X />
-                  </button>
-                </section>
-              ) : (
-                <section className="chat queue-match-chat">
-                  <header>
-                    <button type="button" className="profile-open-avatar" onClick={() => void openProfile(pendingPartner.id)}>
-                      <Avatar p={pendingPartner} />
-                    </button>
-                    <div className="chat-person-info">
-                      <strong>{pendingPartner.display_name}</strong>
-                      <span>@{pendingPartner.username} · encontro temporário</span>
-                    </div>
-                    <strong className="match-live-timer">
-                      {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")}
-                    </strong>
-                    <button type="button" title="Denunciar pessoa" onClick={() => openReport(pendingPartner.id)}>
-                      <Flag />
-                    </button>
-                    <button type="button" title="Bloquear pessoa" onClick={() => void blockUser(pendingPartner.id)}>
-                      <Ban />
-                    </button>
-                    <button type="button" title="Minimizar conversa" onClick={() => setPendingChatMinimized(true)}>
-                      <Minus />
-                    </button>
-                  </header>
-                  <div className="match-live-progress">
-                    <i style={{ width: (pendingSeconds / 180) * 100 + "%" }} />
-                  </div>
-                  <div className="queue-match-status">
-                    {pendingAccepted
-                      ? "Você aceitou o match. Aguardando a outra pessoa."
-                      : pendingOtherAccepted
-                        ? "A outra pessoa aceitou. Se você também aceitar, o match será confirmado."
-                        : "Conversem por até 3 minutos. O match só acontece se os dois aceitarem."}
-                  </div>
-                  <div className="messages">
-                    {messages.map((m) => (
-                      <div key={m.id} className={"bubble " + (m.sender_id === session.user.id ? "mine" : "")}>
-                        {m.attachment_path && m.attachment_url ? (
-                          <div className="chat-attachment">
-                            {m.attachment_mime?.startsWith("image/") ? (
-                              <a href={m.attachment_url} target="_blank" rel="noreferrer">
-                                <img src={m.attachment_url} alt={m.attachment_name || "Imagem enviada"} />
-                              </a>
-                            ) : m.message_type === "audio" || m.attachment_mime?.startsWith("audio/") ? (
-                              <audio src={m.attachment_url} controls preload="metadata" />
-                            ) : m.attachment_mime?.startsWith("video/") ? (
-                              <video src={m.attachment_url} controls />
-                            ) : (
-                              <a className="chat-file" href={m.attachment_url} download={m.attachment_name || "arquivo"}>
-                                <FileText />
-                                <span>
-                                  {m.attachment_name || "Arquivo"}
-                                  <small>{m.attachment_size ? Math.max(1, Math.round(m.attachment_size / 1024)) + " KB" : "Anexo"}</small>
-                                </span>
-                                <Download />
-                              </a>
-                            )}
-                            {m.body && <p>{m.body}</p>}
-                          </div>
-                        ) : (
-                          m.body
-                        )}
-                        {!isDemo && m.sender_id !== session.user.id && (
-                          <button
-                            type="button"
-                            className="content-report-action"
-                            onClick={() => openReport(m.sender_id, "chat_message", m.id)}
-                          >
-                            <Flag size={12} /> Denunciar mensagem
-                          </button>
-                        )}
-                        <small>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</small>
-                      </div>
-                    ))}
-                    {!messages.length && <p className="chat-empty">A conversa começou! Diga oi.</p>}
-                  </div>
-                  <form className="chat-compose" onSubmit={send}>
-                    <div className="chat-tools">
-                      <button
-                        type="button"
-                        onClick={() => chatFileRef.current?.click()}
-                        title="Enviar foto, vídeo ou arquivo"
-                        disabled={busy}
-                      >
-                        <Paperclip />
-                      </button>
-                      <input
-                        ref={chatFileRef}
-                        type="file"
-                        hidden
-                        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) {
-                            if (f.type.startsWith("image/")) openImageCrop(f, "chat");
-                            else void sendAttachment(f, f.type.startsWith("audio/") ? "audio" : "file");
-                          }
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className={recording ? "recording" : ""}
-                        onClick={() => void toggleRecording()}
-                        title={recording ? "Parar gravação" : "Gravar áudio"}
-                        disabled={busy}
-                      >
-                        {recording ? <Square /> : <Mic />}
-                      </button>
-                    </div>
-                    <input
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      placeholder={recording ? "Gravando áudio..." : "Converse antes de decidir..."}
-                      maxLength={4000}
-                    />
-                    <button disabled={!draft.trim() || busy}>
-                      <Send />
-                    </button>
-                  </form>
-                  <small className="chat-upload-hint">
-                    {recording ? "Toque no quadrado para finalizar o áudio." : "Fotos, vídeos, áudio e arquivos · até 50 MB"}
-                  </small>
-                  {cropFile && cropTarget === "chat" && (
-                    <ImageCropper
-                      file={cropFile}
-                      aspectRatio={1.25}
-                      title="Imagem do chat"
-                      onCancel={() => {
-                        setCropFile(null);
-                        setCropTarget(null);
-                      }}
-                      onApply={(f) => void applyCroppedImage(f)}
-                    />
-                  )}
-                  <div className="match-live-actions">
-                    <button className="secondary" disabled={busy} onClick={() => void respondToMatch(false)}>
-                      Encerrar encontro
-                    </button>
-                    <button className="primary" disabled={busy || pendingAccepted} onClick={() => void respondToMatch(true)}>
-                      {pendingAccepted ? "Aguardando aceite" : "Aceitar match"} <Check />
-                    </button>
-                  </div>
-                </section>
-              ))}
-            <div className="heading">
-              <div>
-                <small>CONEXÃO EM TEMPO REAL</small>
-                <h1>
-                  Uma conversa pode <em>começar agora.</em>
-                </h1>
-                <p>Encontre alguém online com preferências compatíveis.</p>
-              </div>
-            </div>
-            <section className="queue-card">
-              <div className={"connection-art " + (queue === "waiting" ? "is-searching" : pendingMatchId ? "is-found" : "")}>
-                <div className="ring r1" />
-                <div className="ring r2" />
-                <div className="ring r3" />
-                <div className="core">
-                  <Activity size={30} />
-                </div>
-                <span className="connection-art-caption">
-                  {queue === "waiting" ? "BUSCANDO PESSOAS..." : pendingMatchId ? "PESSOA ENCONTRADA" : "PRONTO PARA CONECTAR"}
-                </span>
-                <span className="search-orbit-dot" />
-                <Users className="people-icon" />
-              </div>
-              <div>
-                <small>MATCHING POR PREFERÊNCIAS</small>
-                <div className={"queue-state " + (queue === "waiting" ? "is-active" : "")}>
-                  <i />
-                  {queue === "waiting" ? "PROCURANDO AGORA" : "PRONTO PARA CONECTAR"}
-                </div>
-                <h2>
-                  {queue === "waiting"
-                    ? "Estamos procurando sua conexão."
-                    : pendingMatchId && pendingPartner
-                      ? "Encontramos alguém para você."
-                      : "Conheça alguém novo, sem complicação."}
-                </h2>
-                <p>
-                  {queue === "waiting"
-                    ? "Você está na fila. Quando alguém compatível aparecer, o chat abre automaticamente. Cada pessoa tem até 3 minutos para aceitar uma única vez."
-                    : "O CONNECT procura pessoas online que também escolheram conhecer alguém com seu perfil."}
-                </p>
-                <div className="queue-filters">
-                  <strong className="queue-location-label">Região de busca</strong>
-                  <span>{queueCityFilter && queueStateFilter ? queueCityFilter + " · " + queueStateFilter : "Todo o Brasil"}</span>
-                  <small>
-                    Para buscar pessoas em outra cidade ou voltar à sua localização atual, use o ícone de localização no topo da tela.
-                  </small>
-                </div>
-                <div className="queue-quota">
-                  {queueQuota.unlimited ? (
-                    <>
-                      <strong>BUSCAS ILIMITADAS</strong>
-                      <span>Seu pacote está ativo.</span>
-                    </>
-                  ) : (
-                    <>
-                      <strong>{queueQuota.remaining} de 20 buscas restantes hoje</strong>
-                      <span>{queueQuota.used} buscas utilizadas · renovação à meia-noite (horário de Brasília)</span>
-                    </>
-                  )}
-                </div>
-                <ul>
-                  <li>
-                    <Check /> Pessoas reais
-                  </li>
-                  <li>
-                    <Check /> Preferências respeitadas
-                  </li>
-                  <li>
-                    <Check /> Chat em tempo real
-                  </li>
-                </ul>
-                {pendingMatchId ? (
-                  <p className="queue-pending-note">A confirmação da conexão está aberta na tela.</p>
-                ) : matchId ? (
-                  <button className="secondary" onClick={() => setTab("chat")}>
-                    Voltar para a conversa ativa
-                  </button>
-                ) : queue === "waiting" ? (
-                  <button className="secondary" onClick={() => void leaveQueue()}>
-                    Sair da fila
-                  </button>
-                ) : isDemo ? (
-                  <p className="demo-readonly-note">A busca por pessoas fica desativada no acesso de demonstração.</p>
-                ) : (
-                  <button className="primary" disabled={busy} onClick={() => void enterQueue()}>
-                    <Radio /> {busy ? "Conectando..." : "Entrar na fila"} <ArrowRight />
-                  </button>
-                )}
-              </div>
-            </section>
-          </>
-        )}
-        {tab === "chat" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>CONVERSAS</small>
-                <h1>
-                  Suas <em>conexões.</em>
-                </h1>
-                <p>Conversas privadas e salas públicas do Brasil.</p>
-              </div>
-              <div className="chat-mode-switch">
-                <button
-                  className={chatView === "direct" && chatInboxTab === "conversations" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("conversations");
-                  }}
-                >
-                  <MessageCircle size={15} /> Conversas
-                </button>
-                <button
-                  className={chatView === "direct" && chatInboxTab === "requests" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("requests");
-                  }}
-                >
-                  <Mail size={15} /> Pedidos {messageRequests.length > 0 && <b>{messageRequests.length}</b>}
-                </button>
-                <button
-                  className={chatView === "direct" && chatInboxTab === "archived" ? "active" : ""}
-                  onClick={() => {
-                    setChatView("direct");
-                    setChatInboxTab("archived");
-                    if (session?.user.id) void loadChatHistory(session.user.id);
-                  }}
-                >
-                  <Archive size={15} /> Arquivadas
-                </button>
-              </div>
-            </div>
-            {chatView === "direct" && (
-              <>
-                {chatInboxTab === "requests" ? (
-                  <section className="message-requests">
-                    {messageRequests.map((item) => (
-                      <article key={item.id}>
-                        <Avatar p={item.sender} size="small" />
-                        <div className="message-request-copy">
-                          <strong>{item.sender.display_name}</strong>
-                          <small>
-                            @{item.sender.username} · {ago(item.created_at)}
-                          </small>
-                          <p>{item.initial_message}</p>
-                        </div>
-                        <div className="message-request-actions">
-                          <button className="primary" onClick={() => void respondMessageRequest(item.id, true)}>
-                            Aceitar
-                          </button>
-                          <button className="secondary" onClick={() => void respondMessageRequest(item.id, false)}>
-                            Recusar
-                          </button>
-                          {!isDemo && (
-                            <button
-                              type="button"
-                              className="content-report-action"
-                              onClick={() => openReport(item.sender_id, "chat_message", item.id)}
-                            >
-                              <Flag size={12} /> Denunciar mensagem
-                            </button>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                    {!messageRequests.length && (
-                      <div className="empty">
-                        <MessageCircle />
-                        <h3>Nenhum pedido de mensagem.</h3>
-                        <p>Quando alguém que não é seu amigo mandar mensagem, o pedido aparecerá aqui.</p>
-                      </div>
-                    )}
-                  </section>
-                ) : (
-                  <>
-                    {matchId && partner ? (
-                      chatMinimized ? (
-                        <section className="chat-minimized">
-                          <div>
-                            <Avatar p={partner} size="small" />
-                            <span>
-                              <strong>{partner.display_name}</strong>
-                              <small>Conversa minimizada · mensagens continuam chegando</small>
-                            </span>
-                          </div>
-                          <button className="secondary" onClick={() => setChatMinimized(false)}>
-                            Reabrir conversa
-                          </button>
-                          <button className="chat-close-mini" onClick={() => void endChat()} title="Encerrar conversa">
-                            <X />
-                          </button>
-                        </section>
-                      ) : (
-                        <section className="chat">
-                          <header>
-                            <button
-                              type="button"
-                              className="profile-open-avatar"
-                              onClick={() => void openProfile(partner.id)}
-                              aria-label={"Ver perfil de " + partner.display_name}
-                            >
-                              <Avatar p={partner} />
-                            </button>
-                            <div className="chat-person-info">
-                              <button type="button" className="profile-open-name" onClick={() => void openProfile(partner.id)}>
-                                {partner.display_name}
-                              </button>
-                              <span>
-                                @{partner.username} · {chatReadOnly ? "histórico salvo" : "match confirmado"}
-                              </span>
-                            </div>
-                            {!isDemo && (
-                              <>
-                                {!chatReadOnly && (
-                                  <>
-                                    <button title="Denunciar pessoa" onClick={() => openReport(partner.id)}>
-                                      <Flag />
-                                    </button>
-                                    <button title="Bloquear pessoa" onClick={() => void blockUser(partner.id)}>
-                                      <Ban />
-                                    </button>
-                                  </>
-                                )}
-                                {!chatReadOnly && (
-                                  <button onClick={() => setChatMinimized(true)} title="Minimizar conversa">
-                                    <Minus />
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => void endChat()}
-                                  title={chatReadOnly ? "Voltar ao histórico" : "Fechar e salvar conversa"}
-                                >
-                                  <X />
-                                </button>
-                              </>
-                            )}
-                          </header>
-                          <div className="messages">
-                            {messages.map((m) => (
-                              <div key={m.id} className={"bubble " + (m.sender_id === session.user.id ? "mine" : "")}>
-                                {m.attachment_path && m.attachment_url ? (
-                                  <div className="chat-attachment">
-                                    {m.attachment_mime?.startsWith("image/") ? (
-                                      <a href={m.attachment_url} target="_blank" rel="noreferrer">
-                                        <img src={m.attachment_url} alt={m.attachment_name || "Imagem enviada"} />
-                                      </a>
-                                    ) : m.message_type === "audio" || m.attachment_mime?.startsWith("audio/") ? (
-                                      <audio src={m.attachment_url} controls preload="metadata" />
-                                    ) : m.attachment_mime?.startsWith("video/") ? (
-                                      <video src={m.attachment_url} controls />
-                                    ) : (
-                                      <a className="chat-file" href={m.attachment_url} download={m.attachment_name || "arquivo"}>
-                                        <FileText />
-                                        <span>
-                                          {m.attachment_name || "Arquivo"}
-                                          <small>
-                                            {m.attachment_size ? Math.max(1, Math.round(m.attachment_size / 1024)) + " KB" : "Anexo"}
-                                          </small>
-                                        </span>
-                                        <Download />
-                                      </a>
-                                    )}
-                                    {m.body && <p>{m.body}</p>}
-                                  </div>
-                                ) : (
-                                  m.body
-                                )}
-                                {!isDemo && m.sender_id !== session.user.id && (
-                                  <button
-                                    type="button"
-                                    className="content-report-action"
-                                    onClick={() => openReport(m.sender_id, "chat_message", m.id)}
-                                  >
-                                    <Flag size={12} /> Denunciar mensagem
-                                  </button>
-                                )}
-                                <small>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</small>
-                              </div>
-                            ))}
-                            {!messages.length && <p className="chat-empty">Vocês foram conectados! Que tal começar com um oi?</p>}
-                          </div>
-                          {!chatReadOnly && !isDemo ? (
-                            <>
-                              <form className="chat-compose" onSubmit={send}>
-                                <div className="chat-tools">
-                                  <button
-                                    type="button"
-                                    onClick={() => chatFileRef.current?.click()}
-                                    title="Enviar foto ou arquivo"
-                                    disabled={busy}
-                                  >
-                                    <Paperclip />
-                                  </button>
-                                  <input
-                                    ref={chatFileRef}
-                                    type="file"
-                                    hidden
-                                    accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip"
-                                    onChange={(e) => {
-                                      const f = e.target.files?.[0];
-                                      if (f) {
-                                        if (f.type.startsWith("image/")) openImageCrop(f, "chat");
-                                        else void sendAttachment(f, f.type.startsWith("audio/") ? "audio" : "file");
-                                      }
-                                      e.currentTarget.value = "";
-                                    }}
-                                  />
-                                  <button
-                                    type="button"
-                                    className={recording ? "recording" : ""}
-                                    onClick={() => void toggleRecording()}
-                                    title={recording ? "Parar gravação" : "Gravar áudio"}
-                                    disabled={busy}
-                                  >
-                                    {recording ? <Square /> : <Mic />}
-                                  </button>
-                                </div>
-                                <input
-                                  value={draft}
-                                  onChange={(e) => setDraft(e.target.value)}
-                                  placeholder={recording ? "Gravando áudio..." : "Escreva uma mensagem..."}
-                                  maxLength={4000}
-                                />
-                                <button disabled={!draft.trim() || busy}>
-                                  <Send />
-                                </button>
-                              </form>
-                              <small className="chat-upload-hint">
-                                {recording ? "Toque no quadrado para finalizar o áudio." : "Fotos, vídeos, áudio e arquivos · até 50 MB"}
-                              </small>
-                            </>
-                          ) : (
-                            <div className="chat-archived-note">
-                              {isDemo
-                                ? "Modo de demonstração: mensagens e anexos estão desativados."
-                                : "Esta conversa está salva no seu histórico. Ela não recebe novas mensagens."}
-                            </div>
-                          )}
-                        </section>
-                      )
-                    ) : (
-                      <>
-                        {chatHistory.length > 0 ? (
-                          <section className="chat-history">
-                            <h2>{chatInboxTab === "archived" ? "Conversas arquivadas" : "Conversas"}</h2>
-                            {chatHistory.map((item) => (
-                              <article className="chat-history-item" key={item.id}>
-                                <button
-                                  className="chat-history-open"
-                                  onClick={() => {
-                                    setMatchId(item.id);
-                                    setChatReadOnly(true);
-                                    setChatMinimized(false);
-                                  }}
-                                >
-                                  <Avatar p={item.partner} size="small" />
-                                  <span>
-                                    <strong>{item.partner.display_name}</strong>
-                                    <small>
-                                      @{item.partner.username} · {new Date(item.created_at).toLocaleDateString("pt-BR")}
-                                    </small>
-                                  </span>
-                                  <MessageCircle />
-                                </button>
-                                <div className="chat-history-actions">
-                                  {chatInboxTab === "archived" ? (
-                                    <button
-                                      type="button"
-                                      title="Restaurar conversa"
-                                      onClick={() => void setChatHistoryStatus(item.id, "active")}
-                                    >
-                                      <MessageSquare size={15} /> Restaurar
-                                    </button>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      title="Arquivar conversa"
-                                      onClick={() => void setChatHistoryStatus(item.id, "archived")}
-                                    >
-                                      <Minus size={15} /> Arquivar
-                                    </button>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="delete-chat-action"
-                                    title="Apagar do meu histórico"
-                                    onClick={() => void setChatHistoryStatus(item.id, "deleted")}
-                                  >
-                                    <Trash2 size={15} /> Apagar
-                                  </button>
-                                </div>
-                              </article>
-                            ))}
-                          </section>
-                        ) : (
-                          <div className="empty">
-                            <MessageCircle />
-                            <h3>Nenhuma conversa ativa.</h3>
-                            <p>Entre na fila para encontrar alguém que também esteja online.</p>
-                            <button className="primary" onClick={() => setTab("queue")}>
-                              Encontrar alguém <ArrowRight />
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </>
+        <ConnectQueue
+          profile={profile}
+          currentUserId={session.user.id}
+          pendingMatchId={pendingMatchId}
+          pendingPartner={pendingPartner}
+          showMatchIntro={showMatchIntro}
+          setShowMatchIntro={setShowMatchIntro}
+          pendingSeconds={pendingSeconds}
+          pendingChatMinimized={pendingChatMinimized}
+          setPendingChatMinimized={setPendingChatMinimized}
+          respondToMatch={respondToMatch}
+          openProfile={openProfile}
+          openReport={openReport}
+          blockUser={blockUser}
+          messages={messages}
+          cropFile={cropFile}
+          cropTarget={cropTarget}
+          setCropFile={setCropFile}
+          setCropTarget={setCropTarget}
+          applyCroppedImage={applyCroppedImage}
+          send={send}
+          chatFileRef={chatFileRef}
+          recording={recording}
+          toggleRecording={toggleRecording}
+          busy={busy}
+          draft={draft}
+          setDraft={setDraft}
+          openImageCrop={openImageCrop}
+          sendAttachment={sendAttachment}
+          pendingAccepted={pendingAccepted}
+          pendingOtherAccepted={pendingOtherAccepted}
+          queue={queue}
+          queueCityFilter={queueCityFilter}
+          queueStateFilter={queueStateFilter}
+          queueQuota={queueQuota}
+          matchId={matchId}
+          setTab={setTab}
+          isDemo={isDemo}
+          enterQueue={enterQueue}
+          leaveQueue={leaveQueue}
+        />
+                {tab === "chat" && (
+        <ConnectChat
+          currentUserId={session.user.id}
+          isDemo={isDemo}
+          chatView={chatView}
+          setChatView={setChatView}
+          chatInboxTab={chatInboxTab}
+          setChatInboxTab={setChatInboxTab}
+          messageRequests={messageRequests}
+          loadChatHistory={loadChatHistory}
+          respondMessageRequest={respondMessageRequest}
+          openReport={openReport}
+          matchId={matchId}
+          partner={partner}
+          chatMinimized={chatMinimized}
+          setChatMinimized={setChatMinimized}
+          openProfile={openProfile}
+          chatReadOnly={chatReadOnly}
+          blockUser={blockUser}
+          endChat={endChat}
+          messages={messages}
+          send={send}
+          chatFileRef={chatFileRef}
+          recording={recording}
+          toggleRecording={toggleRecording}
+          busy={busy}
+          draft={draft}
+          setDraft={setDraft}
+          openImageCrop={openImageCrop}
+          sendAttachment={sendAttachment}
+          chatHistory={chatHistory}
+          setMatchId={setMatchId}
+          setChatReadOnly={setChatReadOnly}
+          setChatHistoryStatus={setChatHistoryStatus}
+          setTab={setTab}
+        />
+
         )}
         {messageRecipient && (
           <div className="crop-backdrop" role="dialog" aria-modal="true" aria-label="Enviar mensagem">
@@ -3268,169 +2152,32 @@ export default function Home() {
             </form>
           </div>
         )}
+
         {tab === "settings" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>AJUSTES DA CONTA</small>
-                <h1>Configurações.</h1>
-                <p>Gerencie seus dados, preferências, segurança e privacidade.</p>
-              </div>
-            </div>
-            <div className="settings-panel profile-settings-unified">
-              <section className="settings-section profile-identity-editor">
-                <div>
-                  <UserRound />
-                  <span>
-                    <strong>Nome de exibição</strong>
-                    <small>Este é o nome que aparece no seu perfil, publicações e conversas. Não altera seu @.</small>
-                  </span>
-                </div>
-                <form onSubmit={saveDisplayName}>
-                  <label>
-                    Seu nome
-                    <input
-                      value={displayNameSetting}
-                      onChange={(e) => setDisplayNameSetting(e.target.value)}
-                      maxLength={40}
-                      placeholder="Como deseja aparecer no CONNECT?"
-                      autoComplete="name"
-                    />
-                  </label>
-                  <button className="primary" disabled={busy}>
-                    Salvar nome <Check size={15} />
-                  </button>
-                </form>
-              </section>
-              <section className="settings-section profile-identity-editor">
-                <div>
-                  <UserRound />
-                  <span>
-                    <strong>Editar identificador e gênero</strong>
-                    <small>Você pode atualizar seu @ e suas informações de identidade quando quiser. O @ precisa estar disponível.</small>
-                  </span>
-                </div>
-                <form onSubmit={saveIdentity}>
-                  <label>
-                    Identificador (@)
-                    <input
-                      value={usernameSetting}
-                      onChange={(e) => setUsernameSetting(e.target.value)}
-                      maxLength={20}
-                      autoCapitalize="none"
-                      autoCorrect="off"
-                      placeholder="seu_identificador"
-                    />
-                  </label>
-                  <label>
-                    Gênero
-                    <select value={genderSetting} onChange={(e) => setGenderSetting(e.target.value)}>
-                      <option value="woman">Mulher</option>
-                      <option value="man">Homem</option>
-                      <option value="non_binary">Pessoa não binária</option>
-                      <option value="self_described">Outro gênero</option>
-                      <option value="prefer_not_to_say">Prefiro não informar</option>
-                    </select>
-                  </label>
-                  {genderSetting === "self_described" && (
-                    <label>
-                      Descreva seu gênero
-                      <input
-                        value={genderDescriptionSetting}
-                        onChange={(e) => setGenderDescriptionSetting(e.target.value)}
-                        maxLength={80}
-                        placeholder="Como deseja se identificar?"
-                      />
-                    </label>
-                  )}
-                  <button className="primary" disabled={busy}>
-                    Salvar identidade <Check size={15} />
-                  </button>
-                </form>
-              </section>
-              <p className="profile-hint">
-                <ShieldCheck size={16} /> Seu @ é exclusivo e não pode ser usado por outra pessoa.
-              </p>
-              <div className="settings-section">
-                <div>
-                  <Users />
-                  <span>
-                    <strong>Preferências de conexão</strong>
-                    <small>Escolha quem deseja conhecer. As preferências dos dois lados continuam sendo respeitadas.</small>
-                  </span>
-                </div>
-                <form onSubmit={saveMatchingPreferences}>
-                  <label>
-                    Quero conhecer
-                    <select value={lookingForSetting} onChange={(e) => setLookingForSetting(e.target.value)}>
-                      <option value="any">Qualquer gênero</option>
-                      <option value="woman">Mulheres</option>
-                      <option value="man">Homens</option>
-                      <option value="non_binary">Pessoas não binárias</option>
-                      <option value="self_described">Outros gêneros</option>
-                      <option value="prefer_not_to_say">Pessoas que preferem não informar</option>
-                    </select>
-                  </label>
-                  <button className="primary">
-                    Salvar preferências <Check size={15} />
-                  </button>
-                </form>
-              </div>
-              <div className="settings-section">
-                <div>
-                  <ShieldCheck />
-                  <span>
-                    <strong>Segurança da conta</strong>
-                    <small>Proteja seu acesso e gerencie pessoas bloqueadas.</small>
-                  </span>
-                </div>
-                <button className="secondary" onClick={() => void sendPasswordReset()}>
-                  Redefinir senha por e-mail
-                </button>
-                <div className="blocked-list">
-                  <strong>Pessoas bloqueadas</strong>
-                  {blockedPeople.map((person) => (
-                    <div key={person.id}>
-                      <Avatar p={person} size="small" />
-                      <span>
-                        {person.display_name}
-                        <small>@{person.username}</small>
-                      </span>
-                      <button type="button" className="secondary" onClick={() => void unblockUser(person.id)}>
-                        Desbloquear
-                      </button>
-                    </div>
-                  ))}
-                  {!blockedPeople.length && <small>Ninguém bloqueado por enquanto.</small>}
-                </div>
-              </div>
-              <div className="settings-section danger-zone">
-                <div>
-                  <Trash2 />
-                  <span>
-                    <strong>Excluir minha conta</strong>
-                    <small>Você terá 7 dias para cancelar o pedido antes da exclusão definitiva.</small>
-                  </span>
-                </div>
-                {deletionDue ? (
-                  <>
-                    <p className="deletion-pending">
-                      Exclusão programada para {new Date(deletionDue).toLocaleString("pt-BR")}. Você ainda pode cancelar.
-                    </p>
-                    <button className="secondary" onClick={() => void cancelDeletion()}>
-                      Cancelar exclusão e recuperar conta
-                    </button>
-                  </>
-                ) : (
-                  <button className="danger-button" onClick={() => void requestDeletion()}>
-                    Solicitar exclusão da conta
-                  </button>
-                )}
-              </div>
-            </div>
-          </>
+          <ConnectSettings
+            busy={busy}
+            displayNameSetting={displayNameSetting}
+            setDisplayNameSetting={setDisplayNameSetting}
+            saveDisplayName={saveDisplayName}
+            usernameSetting={usernameSetting}
+            setUsernameSetting={setUsernameSetting}
+            genderSetting={genderSetting}
+            setGenderSetting={setGenderSetting}
+            genderDescriptionSetting={genderDescriptionSetting}
+            setGenderDescriptionSetting={setGenderDescriptionSetting}
+            saveIdentity={saveIdentity}
+            lookingForSetting={lookingForSetting}
+            setLookingForSetting={setLookingForSetting}
+            saveMatchingPreferences={saveMatchingPreferences}
+            sendPasswordReset={sendPasswordReset}
+            blockedPeople={blockedPeople}
+            unblockUser={unblockUser}
+            deletionDue={deletionDue}
+            cancelDeletion={cancelDeletion}
+            requestDeletion={requestDeletion}
+          />
         )}
-        {tab === "download" && (
+                {tab === "download" && (
           <>
             <div className="heading">
               <div>
@@ -3445,179 +2192,21 @@ export default function Home() {
           </>
         )}
         {tab === "profile" && (
-          <>
-            <div className="heading">
-              <div>
-                <small>SEU PERFIL</small>
-                <h1>
-                  Seu espaço, <em>sua história.</em>
-                </h1>
-                <p>Veja suas informações e publicações em um só lugar.</p>
-              </div>
-            </div>
-            <section className="profile-card">
-              <div
-                className="banner"
-                style={
-                  profile.banner_url
-                    ? { backgroundImage: "linear-gradient(0deg,#090c10aa,transparent),url(" + profile.banner_url + ")" }
-                    : {}
-                }
-              >
-                {!isDemo && (
-                  <label>
-                    <Camera size={15} /> Alterar banner
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) openImageCrop(f, "banner");
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-              <div className="profile-ident">
-                <div className="profile-avatar">
-                  <Avatar p={profile} size="large" />
-                  {!isDemo && (
-                    <label>
-                      <Camera size={14} />
-                      <input
-                        type="file"
-                        hidden
-                        accept="image/*"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) openImageCrop(f, "avatar");
-                          e.currentTarget.value = "";
-                        }}
-                      />
-                    </label>
-                  )}
-                </div>
-                <div>
-                  <h2>{profile.display_name}</h2>
-                  <span>@{profile.username}</span>
-                </div>
-                <span className="profile-active">
-                  <ShieldCheck size={14} /> PERFIL ATIVO
-                </span>
-                <button type="button" className="secondary visitor-preview-trigger" onClick={() => setShowVisitorPreview(true)}>
-                  <Eye size={15} /> Ver como visitante
-                </button>
-              </div>
-              {!isDemo && (
-                <form className="bio-form" onSubmit={saveBio}>
-                  <label>Sobre você</label>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    maxLength={300}
-                    placeholder="Conte um pouco sobre você..."
-                  />
-                  <button className="primary">
-                    Salvar alterações <Check size={15} />
-                  </button>
-                </form>
-              )}
-              {isDemo && <p className="demo-readonly-note">Perfil em modo somente leitura.</p>}
-              <div className="own-social-stats">
-                <button type="button" onClick={() => void openOwnSocialList("followers")}>
-                  <Users size={17} />
-                  <strong>{ownSocialCounts.followers}</strong>
-                  <span>Seguidores</span>
-                </button>
-                <button type="button" onClick={() => void openOwnSocialList("following")}>
-                  <UserRound size={17} />
-                  <strong>{ownSocialCounts.following}</strong>
-                  <span>Seguindo</span>
-                </button>
-              </div>
-              <div className="profile-facts">
-                <div>
-                  <small>IDENTIFICADOR</small>
-                  <strong>@{profile.username}</strong>
-                </div>
-                <div>
-                  <small>GÊNERO</small>
-                  <strong>
-                    {genders[profile.gender] || profile.gender}
-                    {profile.gender_description ? " · " + profile.gender_description : ""}
-                  </strong>
-                </div>
-                <div>
-                  <small>QUER CONHECER</small>
-                  <strong>{profile.looking_for.map((x) => preferences[x] || x).join(", ")}</strong>
-                </div>
-                <div>
-                  <small>LOCALIZAÇÃO</small>
-                  <strong>
-                    {profile.location_visible && profile.city && profile.state_code
-                      ? profile.city + " · " + profile.state_code
-                      : "Não exibida"}
-                  </strong>
-                </div>
-                <div>
-                  <small>PUBLICAÇÕES</small>
-                  <strong>{posts.filter((p) => p.user_id === profile.id).length}</strong>
-                </div>
-              </div>
-            </section>
-            <section className="profile-posts-section">
-              <div className="section-heading">
-                <div>
-                  <strong>Minhas publicações</strong>
-                  <span>Suas postagens ficam guardadas aqui, mesmo quando saem do feed recente.</span>
-                </div>
-                <small>{ownPosts.length} PUBLICAÇÕES</small>
-              </div>
-              {ownPosts.map((p) => (
-                <article className="post own-post" key={p.id}>
-                  <header>
-                    <Avatar p={profile} />
-                    <div>
-                      <strong>{profile.display_name}</strong>
-                      <span>
-                        @{profile.username} · {ago(p.created_at)}
-                      </span>
-                    </div>
-                    {!isDemo && (
-                      <button className="delete" title="Apagar publicação" onClick={() => void removePost(p.id)}>
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </header>
-                  {p.body && <p className="post-body">{p.body}</p>}
-                  {p.media_url && (
-                    <div className="post-media">
-                      {p.media_type === "video" ? (
-                        <video src={p.media_url} controls />
-                      ) : (
-                        <img src={p.media_url} alt="Imagem da sua publicação" />
-                      )}
-                    </div>
-                  )}
-                  <div className="post-stats">
-                    <span>{p.likes} curtidas</span>
-                    <span>{p.comments} comentários</span>
-                  </div>
-                </article>
-              ))}
-              {!ownPosts.length && (
-                <div className="empty">
-                  <MessageSquare />
-                  <h3>Você ainda não publicou.</h3>
-                  <p>Quando fizer uma publicação, ela aparecerá aqui para você consultar e apagar quando quiser.</p>
-                </div>
-              )}
-            </section>
-          </>
+          <ConnectProfile
+            profile={profile}
+            isDemo={isDemo}
+            openImageCrop={openImageCrop}
+            setShowVisitorPreview={setShowVisitorPreview}
+            bio={bio}
+            setBio={setBio}
+            saveBio={saveBio}
+            ownSocialCounts={ownSocialCounts}
+            openOwnSocialList={openOwnSocialList}
+            ownPosts={ownPosts}
+            removePost={removePost}
+          />
         )}
-        {tab === "subscription" && (
+                {tab === "subscription" && (
           <>
             <div className="heading">
               <div>
@@ -3668,52 +2257,6 @@ export default function Home() {
           CONNECT © 2026 <span>FEITO PARA APROXIMAR</span>
         </footer>
       </aside>
-      <nav className="connect-bottom-nav" aria-label="Navegação principal">
-        {items.filter(([id]) => ["feed", "queue", "chat", "people"].includes(id)).map(([id, label, Icon]) => (
-          <button
-            type="button"
-            key={id}
-            title={label}
-            aria-label={label}
-            aria-current={tab === id ? "page" : undefined}
-            className={tab === id ? "active" : ""}
-            onClick={() => { setTab(id); setMobileMoreOpen(false); }}
-          >
-            <Icon />
-            <span>{label}</span>
-            {id === "queue" && queue === "waiting" && <i />}
-          </button>
-        ))}
-        <button
-          type="button"
-          title="Mais opções"
-          aria-label="Mais opções"
-          aria-expanded={mobileMoreOpen}
-          aria-haspopup="menu"
-          className={mobileMoreOpen || ["rooms", "lives", "subscription", "profile", "settings"].includes(tab) ? "active" : ""}
-          onClick={() => setMobileMoreOpen(value => !value)}
-        >
-          <Menu />
-          <span>Mais</span>
-        </button>
-        {mobileMoreOpen && (
-          <div className="mobile-more-menu" role="menu" aria-label="Mais áreas do CONNECT">
-            {items.filter(([id]) => ["rooms", "lives"].includes(id)).map(([id, label, Icon]) => (
-              <button type="button" role="menuitem" key={id} className={tab === id ? "active" : ""} onClick={() => { setTab(id); setMobileMoreOpen(false); }}>
-                <Icon size={18} /><span>{label}</span>
-              </button>
-            ))}
-            <button type="button" role="menuitem" className={tab === "subscription" ? "active" : ""} onClick={() => { setTab("subscription"); setMobileMoreOpen(false); }}>
-              <CreditCard size={18} /><span>Assinatura</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "profile" ? "active" : ""} onClick={() => { setTab("profile"); setMobileMoreOpen(false); }}>
-              <UserRound size={18} /><span>Meu perfil</span>
-            </button>
-            <button type="button" role="menuitem" className={tab === "settings" ? "active" : ""} onClick={() => { setTab("settings"); setMobileMoreOpen(false); }}>
-              <Settings size={18} /><span>Configurações</span>
-            </button>
-          </div>
-        )}
-      </nav>    </main>
+    </main>
   );
 }
