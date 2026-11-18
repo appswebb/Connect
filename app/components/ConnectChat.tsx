@@ -371,7 +371,6 @@ export default function ConnectChat(props: Props) {
                   </>
                 )}
               </>
-            )}
           </>
     </>
   );
