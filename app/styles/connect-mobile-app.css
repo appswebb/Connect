@@ -753,3 +753,69 @@ html[data-theme="dark"] .connect-app .post-body{color:#d0d9cc!important}
 html[data-theme="dark"] .connect-app .connect-bottom-nav{background:rgba(27,43,34,.97)!important;border-color:#3b5041!important}
 html[data-theme="dark"] .connect-app .connect-bottom-nav>button{color:#b4c2b2!important}
 html[data-theme="dark"] .connect-app .connect-bottom-nav>button.active{background:#2d4634!important;color:#d2e2c5!important}
+
+/* Public CONNECT experience — editorial campaign layout */
+.connect-home{min-height:100svh!important;background:#f2f0e8!important;color:#1c3028!important;font-family:'DM Sans',sans-serif!important}
+.connect-home .landing-header{width:min(calc(100% - 64px),1440px)!important;height:88px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 auto!important;border-bottom:1px solid #dfe0d5!important}
+.connect-home .landing-brand{color:#1c3028!important;font:800 20px 'Outfit',sans-serif!important;letter-spacing:.12em!important}
+.connect-home .landing-brand img{width:39px!important;height:39px!important}
+.connect-home .landing-header nav{display:flex!important;align-items:center!important;gap:clamp(18px,3vw,42px)!important}
+.connect-home .landing-header nav a{font-size:12px!important;font-weight:650!important;color:#6c796e!important}
+.connect-home .landing-header nav a:hover{color:#285b49!important}
+.connect-home .landing-actions{display:flex!important;align-items:center!important;gap:10px!important}
+.connect-home .landing-login{border:0!important;background:transparent!important;color:#315744!important;font-size:12px!important;font-weight:700!important;padding:12px 15px!important}
+.connect-home .landing-cta{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;border:1px solid #285b49!important;border-radius:999px!important;padding:13px 19px!important;background:#285b49!important;color:#fff!important;font-size:12px!important;font-weight:750!important;box-shadow:0 8px 22px rgba(40,91,73,.17)!important;transition:transform .18s,background .18s!important}
+.connect-home .landing-cta:hover{background:#1d4437!important;transform:translateY(-2px)}
+.connect-home .landing-hero{width:min(calc(100% - 64px),1440px)!important;min-height:650px!important;grid-template-columns:minmax(0,1fr) minmax(420px,.88fr)!important;align-items:center!important;gap:clamp(36px,7vw,110px)!important;padding:clamp(64px,8vw,116px) 0!important;margin:0 auto!important}
+.connect-home .landing-kicker{color:#66816c!important;font-size:10px!important;letter-spacing:.17em!important;font-weight:800!important}
+.connect-home .landing-kicker i{background:#6c9b71!important;box-shadow:0 0 0 5px #6c9b711c}
+.connect-home .landing-copy h1{color:#1c3028!important;font:700 clamp(54px,6.4vw,88px)/.98 'Outfit',sans-serif!important;letter-spacing:-.065em!important;margin:24px 0!important}
+.connect-home .landing-copy h1 span{color:#5b8266!important}
+.connect-home .landing-copy>p{max-width:520px!important;color:#6e7b70!important;font-size:16px!important;line-height:1.8!important}
+.connect-home .landing-buttons{display:flex!important;align-items:center!important;gap:12px!important;margin-top:30px!important}
+.connect-home .landing-cta-big{min-height:54px!important;padding:0 23px!important}
+.connect-home .landing-demo{min-height:52px!important;padding:0 18px!important;border:1px solid #d6dbd0!important;border-radius:999px!important;background:#fffefa!important;color:#365744!important;font-size:12px!important;font-weight:700!important}
+.connect-home .landing-demo:hover{background:#e8efe6!important}
+.connect-home .landing-note{margin-top:35px!important}
+.connect-home .landing-note-icon{background:#e2eadf!important;color:#3f6b4d!important;border-radius:14px!important}
+.connect-home .landing-art{position:relative!important;border-radius:34px!important;overflow:hidden!important;background:#d8dfd2!important;box-shadow:0 30px 80px rgba(28,48,40,.17)!important}
+.connect-home .landing-art>img{display:block!important;width:100%!important;height:590px!important;object-fit:cover!important;object-position:center!important}
+.connect-home .landing-art:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(180deg,transparent,rgba(13,31,22,.54));pointer-events:none}
+.connect-home .landing-art-caption{position:absolute!important;z-index:2!important;left:20px!important;right:20px!important;bottom:20px!important;display:flex!important;align-items:center!important;gap:13px!important;padding:17px 18px!important;border:1px solid #ffffff32!important;border-radius:19px!important;background:rgba(20,42,30,.76)!important;color:#fff!important;backdrop-filter:blur(18px)!important}
+.connect-home .landing-art-caption strong{font-size:14px!important}
+.connect-home .landing-art-caption small{color:#d2ddcf!important;font-size:10px!important}
+.connect-home .landing-art-arrow{margin-left:auto;background:#dce78b!important;color:#1c3028!important}
+.connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-more{width:100%!important;padding:clamp(72px,9vw,120px) max(32px,calc((100% - 1440px)/2))!important}
+.connect-home .landing-experience{background:#fffefa!important;border-top:1px solid #e2e2d8!important;border-bottom:1px solid #e2e2d8!important}
+.connect-home .landing-section-heading{max-width:660px!important;margin:0 auto 42px!important;text-align:center!important}
+.connect-home .landing-section-heading h2,.connect-home .landing-more-copy h2{color:#1c3028!important;font:700 clamp(38px,5vw,62px)/1.02 'Outfit',sans-serif!important;letter-spacing:-.055em!important}
+.connect-home .landing-section-heading h2 span,.connect-home .landing-more-copy h2 span{color:#62866a!important}
+.connect-home .landing-section-heading p{color:#758176!important;font-size:14px!important;line-height:1.75!important}
+.connect-home .landing-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;max-width:1440px!important;margin:0 auto!important}
+.connect-home .landing-feature-grid article{min-height:245px!important;padding:25px!important;border:1px solid #e1e3d9!important;border-radius:22px!important;background:#fbfaf4!important;box-shadow:none!important}
+.connect-home .landing-feature-grid article>small{color:#879286!important;font-size:9px!important;letter-spacing:.14em!important}
+.connect-home .landing-feature-grid article h3{color:#243a2d!important;font:700 21px 'Outfit',sans-serif!important}
+.connect-home .landing-feature-grid article p{color:#718076!important;font-size:12px!important;line-height:1.7!important}
+.connect-home .landing-feature-icon{border-radius:15px!important}
+.connect-home .landing-feature-icon.violet{background:#e4eee4!important;color:#315f49!important}
+.connect-home .landing-feature-icon.lime{background:#eef1d7!important;color:#667b39!important}
+.connect-home .landing-feature-icon.peach{background:#f6e7dc!important;color:#9b644e!important}
+.connect-home .landing-feature-icon.blue{background:#e3ece8!important;color:#416e62!important}
+.connect-home .landing-steps{background:#172a22!important;color:#fff!important}
+.connect-home .landing-steps .landing-section-heading h2{color:#f5f4e9!important}
+.connect-home .landing-steps .landing-section-heading h2 span{color:#dce78b!important}
+.connect-home .landing-step-list{max-width:1200px!important;margin:0 auto!important;gap:0!important}
+.connect-home .landing-step-list li{border-top:1px solid #ffffff24!important;padding:28px 20px!important}
+.connect-home .landing-step-list li>span{color:#dce78b!important}
+.connect-home .landing-step-list li h3{color:#fff!important;font:700 22px 'Outfit',sans-serif!important}
+.connect-home .landing-step-list li p{color:#bdcbbf!important;font-size:12px!important;line-height:1.7!important}
+.connect-home .landing-more{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,.85fr)!important;align-items:center!important;gap:clamp(32px,7vw,100px)!important;background:#f2f0e8!important}
+.connect-home .landing-more-visual{border-radius:30px!important;overflow:hidden!important;box-shadow:0 24px 60px rgba(28,48,40,.14)!important}
+.connect-home .landing-more-photo{width:100%!important;height:420px!important;object-fit:cover!important}
+.connect-home .landing-more-copy h2{margin:18px 0!important}
+.connect-home .landing-more-copy p{color:#718076!important;font-size:14px!important;line-height:1.8!important}
+.connect-home .landing-footer{background:#13231b!important;color:#c8d5c8!important;padding:30px max(32px,calc((100% - 1440px)/2))!important}
+.connect-home .landing-footer .landing-brand{color:#fff!important}
+@media(max-width:980px){.connect-home .landing-hero{grid-template-columns:minmax(0,1fr) minmax(300px,.82fr)!important;gap:34px!important}.connect-home .landing-art>img{height:490px!important}.connect-home .landing-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:760px){.connect-home .landing-header{width:calc(100% - 32px)!important;height:70px!important}.connect-home .landing-header nav{display:none!important}.connect-home .landing-brand{font-size:16px!important}.connect-home .landing-brand img{width:33px!important;height:33px!important}.connect-home .landing-hero{width:calc(100% - 32px)!important;min-height:0!important;padding:48px 0 58px!important;grid-template-columns:1fr!important;gap:30px!important}.connect-home .landing-copy h1{font-size:clamp(46px,12vw,66px)!important}.connect-home .landing-copy>p{font-size:14px!important}.connect-home .landing-buttons{align-items:stretch!important;flex-direction:column!important}.connect-home .landing-buttons button{width:100%!important;min-height:52px!important}.connect-home .landing-art>img{height:auto!important;aspect-ratio:4/4.2!important}.connect-home .landing-experience,.connect-home .landing-steps,.connect-home .landing-more{padding:64px 16px!important}.connect-home .landing-feature-grid{grid-template-columns:1fr!important}.connect-home .landing-feature-grid article{min-height:0!important;padding:22px!important}.connect-home .landing-more{grid-template-columns:1fr!important;gap:28px!important}.connect-home .landing-more-photo{height:auto!important;aspect-ratio:4/3!important}.connect-home .landing-footer{padding:25px 18px!important}}
+@media(prefers-reduced-motion:reduce){.connect-home *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
