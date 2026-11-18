@@ -226,7 +226,19 @@ h1,h2,h3,h4{font-family:'Outfit',sans-serif;letter-spacing:-.035em}
 .connect-app input,.connect-app textarea,.connect-app select{max-width:100%;min-width:0}
 .connect-app textarea{resize:vertical}
 .connect-app .chat-compose>input,.connect-app .room-compose input{min-width:0}
-.connect-app .flash,.connect-app .demo-readonly-banner{width:100%;max-width:100%}
+.connect-app .flash{
+  position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  width:100%;max-width:100%;margin:0 auto 14px;padding:13px 15px;
+  border:1px solid var(--cx-line);border-radius:14px;
+  font-size:13px;line-height:1.55;font-weight:600;
+  box-shadow:0 8px 24px rgba(30,42,36,.06);
+}
+.connect-app .flash>span{min-width:0;overflow-wrap:anywhere}
+.connect-app .flash.error{background:#fff0eb;border-color:#f0c9bd;color:#843f34}
+.connect-app .flash.success{background:#edf5e9;border-color:#cddfc7;color:#315f50}
+.connect-app .flash button{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:inherit}
+.connect-app .flash button:hover{background:rgba(30,42,36,.07)}
+.connect-app .demo-readonly-banner{width:100%;max-width:100%}
 
 /* Tablet */
 @media(max-width:1180px){
