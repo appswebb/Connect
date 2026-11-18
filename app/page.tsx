@@ -52,91 +52,12 @@ import SubscriptionPlans from "./components/SubscriptionPlans";
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
+import ConnectAvatar as Avatar from "./components/ConnectAvatar";
+import { connectNavigationItems as items } from "./lib/connect-navigation";
+import { ago } from "./lib/connect-utils";
+import { essentialNotificationTypes, genders, preferences, stateFlags } from "./lib/connect-data";
+import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
 
-type Profile = {
-  id: string;
-  created_at?: string;
-  is_demo?: boolean;
-  display_name: string;
-  username: string;
-  gender: string;
-  gender_description: string | null;
-  looking_for: string[];
-  avatar_url: string | null;
-  banner_url: string | null;
-  bio: string;
-  state_code?: string | null;
-  city?: string | null;
-  location_visible?: boolean;
-};
-type Post = {
-  id: string;
-  user_id: string;
-  body: string;
-  media_url: string | null;
-  media_type: string | null;
-  created_at: string;
-  author: Profile;
-  likes: number;
-  comments: number;
-  liked: boolean;
-};
-type Comment = { id: string; post_id: string; user_id: string; body: string; created_at: string; author: Profile };
-type Message = {
-  id: string;
-  match_id: string;
-  sender_id: string;
-  body: string;
-  created_at: string;
-  message_type?: string;
-  attachment_path?: string | null;
-  attachment_name?: string | null;
-  attachment_mime?: string | null;
-  attachment_size?: number | null;
-  duration_seconds?: number | null;
-  attachment_url?: string | null;
-};
-type ChatHistoryItem = { id: string; created_at: string; partner: Profile };
-type MessageRequestItem = {
-  id: string;
-  sender_id: string;
-  recipient_id: string;
-  initial_message: string;
-  status: string;
-  created_at: string;
-  sender: Profile;
-};
-type RoomMessage = {
-  id: string;
-  room_code: string;
-  user_id: string;
-  body: string;
-  created_at: string;
-  reply_to_id?: string | null;
-  author: Profile;
-};
-type LiveSessionRow = {
-  id: string;
-  host_user_id: string;
-  title: string;
-  room_name: string;
-  status: string;
-  created_at: string;
-  host?: Profile;
-};
-type NotificationItem = {
-  id: string;
-  recipient_id: string;
-  actor_id: string | null;
-  type: string;
-  title: string;
-  body: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  read_at: string | null;
-  created_at: string;
-  actor?: Profile | null;
-};
 const essentialNotificationTypes = [
   "message",
   "message_request",
@@ -195,24 +116,6 @@ const stateFlags: Record<string, string> = {
   TO: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg",
   BR: "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg",
 };
-const initials = (s: string) =>
-  s
-    .split(" ")
-    .slice(0, 2)
-    .map((x) => x[0] || "")
-    .join("")
-    .toUpperCase();
-const ago = (d: string) => {
-  const n = Math.max(0, Date.now() - new Date(d).getTime());
-  return n < 60000
-    ? "agora"
-    : n < 3600000
-      ? Math.floor(n / 60000) + " min"
-      : n < 86400000
-        ? Math.floor(n / 3600000) + " h"
-        : Math.floor(n / 86400000) + " d";
-};
-
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null),
     [profile, setProfile] = useState<Profile | null>(null),
@@ -2030,18 +1933,8 @@ export default function Home() {
       setBusy(false);
     }
   }
-  const Avatar = ({ p, size = "" }: { p: Profile; size?: string }) => (
-    <div className={"avatar " + size}>{p.avatar_url ? <img src={p.avatar_url} alt={p.display_name} /> : initials(p.display_name)}</div>
-  );
   const isDemo = Boolean(session?.user.app_metadata?.connect_demo);
-  const items = [
-    ["feed", "Início", Compass],
-    ["queue", "Conectar", UserSearch],
-    ["chat", "Chat", MessageCircle],
-    ["people", "Pessoas", Users],
-    ["rooms", "Salas", Globe2],
-    ["lives", "Ao vivo", Radio],
-  ] as const;
+
   if (loading)
     return (
       <main className="loading">
