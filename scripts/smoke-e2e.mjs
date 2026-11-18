@@ -78,8 +78,6 @@ try {
     });
     assert.equal(violations.length, 0, `${label} accessibility violations: ${JSON.stringify(violations)}`);
   };
-  await auditAccessibility("Landing desktop");
-
   const heroImage = page.locator(".landing-photo");
   await heroImage.waitFor();
   await page.waitForFunction(() => {
@@ -87,6 +85,7 @@ try {
     return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
   }, null, { timeout: 15000 });
   await capture("01-home-desktop");
+  await auditAccessibility("Landing desktop");
 
   const viewports = [320, 360, 375, 390, 414, 430, 768, 1024, 1280, 1440, 1920];
   for (const width of viewports) {
@@ -109,8 +108,8 @@ try {
   await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
   await page.locator(".entry-form").waitFor();
   await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();
-  await capture("03-login-desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
+  await capture("03-login-desktop");
   await auditAccessibility("Sign-in desktop");
 
   for (const width of viewports) {
@@ -133,8 +132,8 @@ try {
 
   await page.getByRole("button", { name: "Criar conta", exact: true }).click();
   await page.getByRole("heading", { name: "Crie seu espaço." }).waitFor();
-  await capture("05-signup-desktop");
   await page.setViewportSize({ width: 1440, height: 900 });
+  await capture("05-signup-desktop");
   await auditAccessibility("Sign-up desktop");
   await page.setViewportSize({ width: 390, height: 844 });
   await capture("06-signup-mobile");
