@@ -52,7 +52,7 @@ import SubscriptionPlans from "./components/SubscriptionPlans";
 import BrazilLocationPicker from "./components/BrazilLocationPicker";
 import AppDownload from "./components/AppDownload";
 import { brazilStates } from "./lib/brazil";
-import ConnectAvatar as Avatar from "./components/ConnectAvatar";
+import Avatar from "./components/ConnectAvatar";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes, genders, preferences, stateFlags } from "./lib/connect-data";
