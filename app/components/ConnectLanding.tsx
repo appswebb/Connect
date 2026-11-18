@@ -16,13 +16,14 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                 <img src="/Connect/connect-mark.svg" alt="" />
                 <span>CONNECT</span>
               </a>
-              <nav>
+              <nav aria-label="Seções da página">
                 <a href="#experiencia">Experiência</a>
                 <a href="#como">Como funciona</a>
                 <a href="#possibilidades">Histórias</a>
               </nav>
               <div className="landing-actions">
                 <button
+                  type="button"
                   className="landing-login"
                   onClick={() => {
                     onSignIn();
@@ -31,6 +32,7 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                   Entrar
                 </button>
                 <button
+                  type="button"
                   className="landing-cta"
                   onClick={() => {
                     onSignUp();
@@ -55,6 +57,7 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                 <p>Um espaço para conhecer pessoas, conversar sem pressa e compartilhar os momentos que merecem ser vividos juntos.</p>
                 <div className="landing-buttons">
                   <button
+                    type="button"
                     className="landing-cta landing-cta-big"
                     onClick={() => {
                       onSignUp();
@@ -62,7 +65,7 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                   >
                     Faça parte do CONNECT <ArrowRight size={18} />
                   </button>
-                  <button className="landing-demo" onClick={() => onDemo()}>
+                  <button type="button" className="landing-demo" onClick={() => onDemo()}>
                     <Eye size={16} /> Conhecer por dentro
                   </button>
                 </div>
