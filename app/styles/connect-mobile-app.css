@@ -1063,8 +1063,8 @@ html[data-theme="dark"] .connect-auth .entry-terms{color:#c5d3c7}
 .app-download-status i{background:#4d8a68}
 .app-download-updates{padding:clamp(22px,3vw,34px);border:1px solid var(--cx-line);border-radius:22px;background:var(--cx-surface)}
 .app-download-updates .section-heading{align-items:flex-start;margin-bottom:20px}
-.app-download-updates .section-heading strong{color:var(--cx-ink);font:750 20px 'Outfit',sans-serif;letter-spacing:-.035em}
-.app-download-updates .section-heading span{color:#5e6d61;font-size:11px}
+.app-download-updates .section-heading h2{margin:0;color:var(--cx-ink);font:750 20px 'Outfit',sans-serif;letter-spacing:-.035em}
+.app-download-updates .section-heading>div>span{color:#5e6d61;font-size:11px}
 .app-live-update{display:inline-flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid #d8e4d5;border-radius:99px;background:#edf4e9;color:#42664d;font-size:8px;font-weight:850;letter-spacing:.1em;white-space:nowrap}
 .app-release-list{display:grid;gap:12px}
 .app-release{padding:17px 18px;border:1px solid var(--cx-line);border-radius:14px;background:#fbfaf5}
