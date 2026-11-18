@@ -55,6 +55,7 @@ import Avatar from "./components/ConnectAvatar";
 import ConnectRooms from "./components/ConnectRooms";
 import ConnectLanding from "./components/ConnectLanding";
 import ConnectAuthGate from "./components/ConnectAuthGate";
+import { useConnectFeed } from "./hooks/useConnectFeed";
 import ConnectLives from "./components/ConnectLives";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { connectNavigationItems as items } from "./lib/connect-navigation";
@@ -181,6 +182,25 @@ export default function Home() {
     setError(s);
     setNotice("");
   }, []);
+
+  const { loadOwnPosts, loadFeed, publish, like, removePost, openComments, comment } = useConnectFeed({
+    userId: session?.user.id,
+    body,
+    file,
+    setBody,
+    setFile,
+    commentPost,
+    commentText,
+    setCommentPost,
+    setCommentText,
+    setPosts,
+    setOwnPosts,
+    setComments,
+    setBusy,
+    setNotice,
+    fail,
+    upload,
+  });
 
   const {
     loadNotifications,
@@ -520,82 +540,6 @@ export default function Home() {
       return;
     }
     setCommunityProfiles((r.data || []) as Profile[]);
-  }
-  async function loadOwnPosts(uid: string) {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*")
-      .eq("user_id", uid)
-      .order("created_at", { ascending: false })
-      .limit(200);
-    if (error) {
-      fail("Não foi possível carregar suas publicações: " + error.message);
-      return;
-    }
-    const rows = data || [];
-    if (!rows.length) {
-      setOwnPosts([]);
-      return;
-    }
-    const ids = [...new Set(rows.map((p: any) => p.user_id))],
-      postIds = rows.map((p: any) => p.id);
-    const [people, likes, comments] = await Promise.all([
-      supabase.from("profiles").select("*").in("id", ids),
-      supabase.from("post_likes").select("post_id,user_id").in("post_id", postIds),
-      supabase.from("comments").select("post_id").in("post_id", postIds),
-    ]);
-    const authorMap = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setOwnPosts(
-      rows.flatMap((p: any) => {
-        const author = authorMap.get(p.user_id) as Profile | undefined;
-        if (!author) return [];
-        return [
-          {
-            ...p,
-            author,
-            likes: (likes.data || []).filter((l: any) => l.post_id === p.id).length,
-            comments: (comments.data || []).filter((c: any) => c.post_id === p.id).length,
-            liked: (likes.data || []).some((l: any) => l.post_id === p.id && l.user_id === uid),
-          },
-        ];
-      }),
-    );
-  }
-  async function loadFeed(uid: string) {
-    const { data, error } = await supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(50);
-    if (error) {
-      fail(error.message);
-      return;
-    }
-    const rows = data || [];
-    if (!rows.length) {
-      setPosts([]);
-      return;
-    }
-    const ids = [...new Set(rows.map((p: any) => p.user_id))],
-      postIds = rows.map((p: any) => p.id);
-    const [people, likes, comments] = await Promise.all([
-      supabase.from("profiles").select("*").in("id", ids),
-      supabase.from("post_likes").select("post_id,user_id").in("post_id", postIds),
-      supabase.from("comments").select("post_id").in("post_id", postIds),
-    ]);
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setPosts(
-      rows.flatMap((p: any) => {
-        const author = map.get(p.user_id) as Profile | undefined;
-        if (!author) return [];
-        const liked = (likes.data || []).some((l: any) => l.post_id === p.id && l.user_id === uid);
-        return [
-          {
-            ...p,
-            author,
-            likes: (likes.data || []).filter((l: any) => l.post_id === p.id).length,
-            comments: (comments.data || []).filter((c: any) => c.post_id === p.id).length,
-            liked,
-          },
-        ];
-      }),
-    );
   }
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -1096,82 +1040,6 @@ export default function Home() {
       .upload(path, f, { upsert: false, contentType: f.type, cacheControl: "31536000" });
     if (r.error) throw r.error;
     return supabase.storage.from("connect-media").getPublicUrl(path).data.publicUrl;
-  }
-  async function publish(e: FormEvent) {
-    e.preventDefault();
-    if (!session?.user.id || (!body.trim() && !file)) return;
-    setBusy(true);
-    try {
-      let url: string | null = null,
-        type: string | null = null;
-      if (file) {
-        url = await upload(file, "posts");
-        type = file.type.startsWith("video/") ? "video" : "image";
-      }
-      const r = await supabase.from("posts").insert({ user_id: session.user.id, body: body.trim(), media_url: url, media_type: type });
-      if (r.error) throw r.error;
-      setBody("");
-      setFile(null);
-      await loadFeed(session.user.id);
-      setNotice("Publicação enviada.");
-    } catch (x) {
-      fail(x instanceof Error ? x.message : "Falha ao publicar.");
-    } finally {
-      setBusy(false);
-    }
-  }
-  async function like(p: Post) {
-    if (!session?.user.id) return;
-    const r = p.liked
-      ? await supabase.from("post_likes").delete().eq("post_id", p.id).eq("user_id", session.user.id)
-      : await supabase.from("post_likes").insert({ post_id: p.id, user_id: session.user.id });
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setPosts((old) => old.map((x) => (x.id === p.id ? { ...x, liked: !p.liked, likes: x.likes + (p.liked ? -1 : 1) } : x)));
-  }
-  async function removePost(id: string) {
-    if (!window.confirm("Apagar esta publicação?")) return;
-    const r = await supabase.from("posts").delete().eq("id", id);
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setPosts((old) => old.filter((x) => x.id !== id));
-    setOwnPosts((old) => old.filter((x) => x.id !== id));
-  }
-  async function openComments(id: string) {
-    if (commentPost === id) {
-      setCommentPost("");
-      return;
-    }
-    setCommentPost(id);
-    const r = await supabase.from("comments").select("*").eq("post_id", id).order("created_at");
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    const ids = [...new Set((r.data || []).map((x: any) => x.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setComments((r.data || []).flatMap((x: any) => (map.has(x.user_id) ? [{ ...x, author: map.get(x.user_id) }] : [])) as Comment[]);
-  }
-  async function comment(e: FormEvent, id: string) {
-    e.preventDefault();
-    if (!session?.user.id || !commentText.trim()) return;
-    const r = await supabase.from("comments").insert({ post_id: id, user_id: session.user.id, body: commentText.trim() });
-    if (r.error) {
-      fail(r.error.message);
-      return;
-    }
-    setCommentText("");
-    const rows = await supabase.from("comments").select("*").eq("post_id", id).order("created_at");
-    const ids = [...new Set((rows.data || []).map((x: any) => x.user_id))];
-    const people = ids.length ? await supabase.from("profiles").select("*").in("id", ids) : { data: [] };
-    const map = new Map((people.data || []).map((p: any) => [p.id, p]));
-    setComments((rows.data || []).flatMap((x: any) => (map.has(x.user_id) ? [{ ...x, author: map.get(x.user_id) }] : [])) as Comment[]);
-    await loadFeed(session.user.id);
   }
   async function saveLocation(e: FormEvent): Promise<boolean> {
     e.preventDefault();
