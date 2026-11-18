@@ -98,7 +98,7 @@ try {
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await auditAccessibility("Landing mobile");\n
+  await auditAccessibility("Landing mobile");
   await page.getByRole("button", { name: "Entrar", exact: true }).first().click();
   await page.locator(".entry-form").waitFor();
   await page.getByRole("heading", { name: "Entre no CONNECT." }).waitFor();
@@ -120,7 +120,7 @@ try {
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await auditAccessibility("Sign-in mobile");\n
+  await auditAccessibility("Sign-in mobile");
   await page.getByRole("button", { name: "Voltar para o início" }).click();
   await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
   await page.locator('[data-screen="authentication"]').waitFor();
