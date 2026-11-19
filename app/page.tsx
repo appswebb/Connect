@@ -91,7 +91,6 @@ export default function Home() {
     [description, setDescription] = useState(""),
     [looking, setLooking] = useState("any");
   const [tab, setTab] = useState("feed"),
-    [mobileMoreOpen, setMobileMoreOpen] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false);
@@ -190,29 +189,25 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("connect-theme", theme);
   }, [theme, themeReady]);
-  // Top-bar dropdowns and the mobile "Mais" menu: only one open at a time,
-  // closed by outside click, Escape or a tab change.
+  // Top-bar dropdowns: only one open at a time, closed by outside click, Escape or a tab change.
   useEffect(() => {
-    if (notificationsOpen) { setUserMenuOpen(false); setLocationOpen(false); setMobileMoreOpen(false); }
+    if (notificationsOpen) { setUserMenuOpen(false); setLocationOpen(false); }
   }, [notificationsOpen]);
   useEffect(() => {
-    if (locationOpen) { setUserMenuOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); }
+    if (locationOpen) { setUserMenuOpen(false); setNotificationsOpen(false); }
   }, [locationOpen]);
   useEffect(() => {
-    if (userMenuOpen) { setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); }
+    if (userMenuOpen) { setLocationOpen(false); setNotificationsOpen(false); }
   }, [userMenuOpen]);
   useEffect(() => {
-    if (mobileMoreOpen) { setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); }
-  }, [mobileMoreOpen]);
-  useEffect(() => {
-    setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false);
+    setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false);
   }, [tab]);
   useEffect(() => {
-    if (!userMenuOpen && !locationOpen && !notificationsOpen && !mobileMoreOpen) return;
-    const closeAll = () => { setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); };
+    if (!userMenuOpen && !locationOpen && !notificationsOpen) return;
+    const closeAll = () => { setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); };
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Element | null;
-      if (target && target.closest(".topbar-actions>div, .connect-bottom-nav")) return;
+      if (target && target.closest(".topbar-actions>div")) return;
       closeAll();
     };
     const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeAll(); };
@@ -222,7 +217,7 @@ export default function Home() {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [userMenuOpen, locationOpen, notificationsOpen, mobileMoreOpen]);
+  }, [userMenuOpen, locationOpen, notificationsOpen]);
   const fail = useCallback((s: string) => {
     setError(s);
     setNotice("");
@@ -1706,7 +1701,7 @@ export default function Home() {
   );
   return (
     <main className="connect-app" data-screen="workspace">
-      <ConnectNavigation tab={tab} setTab={setTab} queue={queue} mobileMoreOpen={mobileMoreOpen} setMobileMoreOpen={setMobileMoreOpen} />
+      <ConnectNavigation tab={tab} setTab={setTab} queue={queue} />
       <section className="connect-main">
         <header className="topbar">
           <div className="mobile-brand">

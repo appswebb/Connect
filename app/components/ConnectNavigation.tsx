@@ -1,20 +1,26 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
-import { Menu } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { connectNavigationItems } from "../lib/connect-navigation";
 
 type Props = {
   tab: string;
-  setTab: Dispatch<SetStateAction<string>>;
+  setTab: (tab: string) => void;
   queue: string;
-  mobileMoreOpen: boolean;
-  setMobileMoreOpen: Dispatch<SetStateAction<boolean>>;
 };
 
-export default function ConnectNavigation({ tab, setTab, queue, mobileMoreOpen, setMobileMoreOpen }: Props) {
-  const mainItems = connectNavigationItems.filter(([id]) => ["feed", "queue", "chat", "people"].includes(id));
-  const secondaryItems = connectNavigationItems.filter(([id]) => ["rooms", "lives"].includes(id));
+export default function ConnectNavigation({ tab, setTab, queue }: Props) {
+  const bottomNavRef = useRef<HTMLElement | null>(null);
+
+  // Keep the active item visible in the swipeable mobile bar.
+  useEffect(() => {
+    const bar = bottomNavRef.current;
+    const active = bar?.querySelector<HTMLElement>("button.active");
+    if (!bar || !active) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const left = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
+    bar.scrollTo({ left: Math.max(0, left), behavior: reduce ? "auto" : "smooth" });
+  }, [tab]);
 
   return (
     <>
@@ -44,8 +50,8 @@ export default function ConnectNavigation({ tab, setTab, queue, mobileMoreOpen, 
         <span className="sidebar-caption"><i /> SUA COMUNIDADE, SEU ESPAÇO</span>
       </aside>
 
-      <nav className="connect-bottom-nav" aria-label="Navegação principal">
-        {mainItems.map(([id, label, Icon]) => (
+      <nav className="connect-bottom-nav" aria-label="Navegação principal" ref={bottomNavRef}>
+        {connectNavigationItems.map(([id, label, Icon]) => (
           <button
             type="button"
             key={id}
@@ -53,35 +59,13 @@ export default function ConnectNavigation({ tab, setTab, queue, mobileMoreOpen, 
             aria-label={label}
             aria-current={tab === id ? "page" : undefined}
             className={tab === id ? "active" : ""}
-            onClick={() => { setTab(id); setMobileMoreOpen(false); }}
+            onClick={() => setTab(id)}
           >
             <Icon />
             <span>{label}</span>
             {id === "queue" && queue === "waiting" && <i aria-label="Busca em andamento" />}
           </button>
         ))}
-        <button
-          type="button"
-          title="Mais opções"
-          aria-label="Mais opções"
-          aria-expanded={mobileMoreOpen}
-          aria-haspopup="menu"
-          className={mobileMoreOpen || ["rooms", "lives"].includes(tab) ? "active" : ""}
-          onClick={() => setMobileMoreOpen((value) => !value)}
-        >
-          <Menu />
-          <span>Mais</span>
-        </button>
-        {mobileMoreOpen && (
-          <div className="mobile-more-menu" role="menu" aria-label="Mais áreas do CONNECT">
-            {secondaryItems.map(([id, label, Icon]) => (
-              <button type="button" role="menuitem" key={id} className={tab === id ? "active" : ""} onClick={() => { setTab(id); setMobileMoreOpen(false); }}>
-                <Icon size={18} /><span>{label}</span>
-              </button>
-            ))}
-
-          </div>
-        )}
       </nav>
     </>
   );
