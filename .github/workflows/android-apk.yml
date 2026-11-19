@@ -1,9 +1,10 @@
 name: Build CONNECT Android APK
 
+# O CONNECT é instalado como PWA direto do site e se atualiza sozinho.
+# Este workflow NÃO roda mais a cada publicação: só quando for disparado manualmente
+# (Actions > Build CONNECT Android APK > Run workflow), caso um APK ainda seja necessário.
 on:
-  workflow_run:
-    workflows: ["Deploy CONNECT to GitHub Pages"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,7 +15,6 @@ concurrency:
 
 jobs:
   build-apk:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Check Android signing key
@@ -116,7 +116,7 @@ jobs:
           body: |
             Atualização automática do aplicativo CONNECT.
 
-            Alteração publicada no site: ${{ github.event.workflow_run.head_commit.message }}
+            Build manual do aplicativo Android.
 
             O aplicativo usa a versão oficial do site e recebe as mudanças do sistema assim que são publicadas.
             ${{ steps.signing.outputs.ready == 'true' && 'APK assinado com a chave permanente de publicação.' || 'APK de instalação assinado em modo de depuração. Para instalar esta atualização sobre uma versão anterior, é necessário desinstalar a versão anterior primeiro. A chave permanente de publicação ainda precisa ser configurada para permitir atualizações diretas.' }}

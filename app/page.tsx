@@ -68,8 +68,8 @@ import ConnectChat from "./components/ConnectChat";
 import ConnectQueue from "./components/ConnectQueue";
 import ConnectOverlays from "./components/ConnectOverlays";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
-import { ago } from "./lib/connect-utils";
-import { essentialNotificationTypes } from "./lib/connect-data";
+import { ago, formatNotificationCount, sanitizeSearchTerm } from "./lib/connect-utils";
+import { essentialNotificationTypes, PEOPLE_PAGE_SIZE, PEOPLE_ONLINE_ID_CAP } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, NotificationItem } from "./types/connect";
 
 export default function Home() {
@@ -116,11 +116,19 @@ export default function Home() {
     [partner, setPartner] = useState<Profile | null>(null),
     [messages, setMessages] = useState<Message[]>([]),
     [draft, setDraft] = useState("");
+  const lastUserIdRef = useRef<string | null>(null);
+  const [peopleCursor, setPeopleCursor] = useState<{ created_at: string; id: string } | null>(null),
+    [peopleHasMore, setPeopleHasMore] = useState(false),
+    [peopleLoading, setPeopleLoading] = useState(false),
+    [peopleTotal, setPeopleTotal] = useState(0),
+    [peopleNewThisWeek, setPeopleNewThisWeek] = useState(0);
+  const peopleRequestRef = useRef(0);
   const [pendingMatchId, setPendingMatchId] = useState(""),
     [pendingPartner, setPendingPartner] = useState<Profile | null>(null),
     [showMatchIntro, setShowMatchIntro] = useState(false),
     [pendingExpiresAt, setPendingExpiresAt] = useState(""),
     [pendingSeconds, setPendingSeconds] = useState(180),
+    [pendingTotalSeconds, setPendingTotalSeconds] = useState(180),
     [pendingAccepted, setPendingAccepted] = useState(false),
     [pendingOtherAccepted, setPendingOtherAccepted] = useState(false),
     [chatReadOnly, setChatReadOnly] = useState(false),
@@ -398,6 +406,13 @@ export default function Home() {
     setPendingMatchId(id);
     setPendingPartner(p.data as Profile | null);
     setShowMatchIntro(true);
+    {
+      const expiresMs = new Date(m.data.expires_at || Date.now() + 180000).getTime();
+      const createdMs = m.data.created_at ? new Date(m.data.created_at).getTime() : NaN;
+      const windowSeconds = Number.isFinite(createdMs) ? Math.round((expiresMs - createdMs) / 1000) : 0;
+      // Janela configurada no servidor; se não der para calcular, usa a restante como referência.
+      setPendingTotalSeconds(windowSeconds >= 60 && windowSeconds <= 3600 ? windowSeconds : Math.max(60, Math.ceil((expiresMs - Date.now()) / 1000)));
+    }
     setPendingExpiresAt(m.data.expires_at || new Date(Date.now() + 180000).toISOString());
     setPendingSeconds(Math.max(0, Math.ceil((new Date(m.data.expires_at || Date.now() + 180000).getTime() - Date.now()) / 1000)));
     setPendingAccepted(Boolean(m.data.user_one === session?.user.id ? m.data.user_one_accepted_at : m.data.user_two_accepted_at));
@@ -466,19 +481,91 @@ export default function Home() {
       status === "archived" ? "Conversa arquivada." : "active" === status ? "Conversa restaurada." : "Conversa apagada do seu histórico.",
     );
   }
-  async function loadCommunityProfiles(uid: string) {
-    const r = await supabase.from("profiles").select("*").neq("id", uid).order("created_at", { ascending: false }).limit(1000);
-    if (r.error) {
-      fail("Não foi possível carregar os perfis da comunidade: " + r.error.message);
-      return;
+  /**
+   * Carrega uma página da aba Pessoas com paginação por cursor (created_at, id).
+   * Filtros, busca e localização são aplicados no banco; bloqueios e contas de demonstração
+   * já são excluídos pela política de segurança (RLS) de `profiles`.
+   */
+  async function loadCommunityProfiles(uid: string, mode: "reset" | "more" = "reset") {
+    const requestId = ++peopleRequestRef.current;
+    if (mode === "reset") {
+      setPeopleCursor(null);
     }
-    setCommunityProfiles((r.data || []) as Profile[]);
+    setPeopleLoading(true);
+    try {
+      let query = supabase
+        .from("profiles")
+        .select("*")
+        .neq("id", uid)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .limit(PEOPLE_PAGE_SIZE + 1);
+      const term = sanitizeSearchTerm(peopleSearch);
+      if (term) {
+        const like = "%" + term + "%";
+        query = query.or(
+          ["display_name", "username", "bio", "city", "state_code"].map((column) => column + ".ilike." + like).join(","),
+        );
+      }
+      if (peopleFilter === "new") {
+        query = query.gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString());
+      } else if (peopleFilter === "near") {
+        if (!(profile?.location_visible && profile.city && profile.state_code)) {
+          if (requestId === peopleRequestRef.current) {
+            setCommunityProfiles([]);
+            setPeopleHasMore(false);
+          }
+          return;
+        }
+        query = query.eq("location_visible", true).eq("city", profile.city).eq("state_code", profile.state_code);
+      } else if (peopleFilter === "online") {
+        const ids = onlinePeople.filter((id: string) => id !== uid).slice(0, PEOPLE_ONLINE_ID_CAP);
+        if (!ids.length) {
+          if (requestId === peopleRequestRef.current) {
+            setCommunityProfiles([]);
+            setPeopleHasMore(false);
+          }
+          return;
+        }
+        query = query.in("id", ids);
+      }
+      const cursor = mode === "more" ? peopleCursor : null;
+      if (cursor) {
+        query = query.or(
+          "created_at.lt." + cursor.created_at + ",and(created_at.eq." + cursor.created_at + ",id.lt." + cursor.id + ")",
+        );
+      }
+      const r = await query;
+      if (requestId !== peopleRequestRef.current) return; // resposta antiga: ignora
+      if (r.error) {
+        fail("Não foi possível carregar os perfis da comunidade: " + r.error.message);
+        return;
+      }
+      const rows = (r.data || []) as Profile[];
+      const hasMore = rows.length > PEOPLE_PAGE_SIZE;
+      const page = hasMore ? rows.slice(0, PEOPLE_PAGE_SIZE) : rows;
+      const last = page[page.length - 1];
+      setPeopleCursor(last?.created_at ? { created_at: last.created_at, id: last.id } : null);
+      setPeopleHasMore(hasMore && Boolean(last?.created_at));
+      setCommunityProfiles((old) => {
+        if (mode === "reset") return page;
+        const seen = new Set(old.map((person: Profile) => person.id));
+        return [...old, ...page.filter((person: Profile) => !seen.has(person.id))];
+      });
+    } finally {
+      if (requestId === peopleRequestRef.current) setPeopleLoading(false);
+    }
   }
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      void navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" }).catch(() => {});
-    }
-  }, []);
+  /** Totais da comunidade: uma vez por sessão, sem baixar nenhum perfil. */
+  async function loadPeopleStats(uid: string) {
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const [total, recent] = await Promise.all([
+      supabase.from("profiles").select("id", { count: "estimated", head: true }).neq("id", uid),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).neq("id", uid).gte("created_at", weekAgo),
+    ]);
+    setPeopleTotal(total.count || 0);
+    setPeopleNewThisWeek(recent.count || 0);
+  }
   useEffect(() => {
     let alive = true;
     const fallback = setTimeout(() => {
@@ -498,14 +585,44 @@ export default function Home() {
       });
     const { data: listener } = supabase.auth.onAuthStateChange((_e, s) => {
       if (alive) {
-        setSession(s);
+        // Mantém a mesma referência quando é só renovação de token/foco da aba,
+        // para não disparar recarregamentos desnecessários.
+        setSession((old) => (old && s && old.user.id === s.user.id ? (old.access_token === s.access_token ? old : s) : s));
         setLoading(false);
       }
-      if (!s) {
+      const nextUserId = s?.user.id ?? null;
+      if (lastUserIdRef.current !== nextUserId) {
+        // Entrou, saiu ou trocou de conta: nada da conta anterior pode sobreviver na tela.
+        lastUserIdRef.current = nextUserId;
         setProfile(null);
         setPosts([]);
+        setOwnPosts([]);
+        setComments([]);
+        setCommunityProfiles([]);
+        setPeopleCursor(null);
+        setPeopleHasMore(false);
+        setPeopleTotal(0);
         setMatchId("");
+        setPartner(null);
+        setMessages([]);
+        setDraft("");
         setQueue("idle");
+        setPendingMatchId("");
+        setPendingPartner(null);
+        setPendingExpiresAt("");
+        setPendingAccepted(false);
+        setPendingOtherAccepted(false);
+        setShowMatchIntro(false);
+        setChatHistory([]);
+        setMessageRequests([]);
+        setNotifications([]);
+        setBlockedPeople([]);
+        setViewingProfile(null);
+        setDeletionDue("");
+        setRoomMessages([]);
+        setRoomDraft("");
+        setRoomReply(null);
+        setTab("feed");
       }
     });
     return () => {
@@ -519,10 +636,7 @@ export default function Home() {
       void loadProfile(session.user.id);
       void loadFeed(session.user.id);
     }
-  }, [session]);
-  useEffect(() => {
-    if (session?.user.id) void loadCommunityProfiles(session.user.id);
-  }, [session]);
+  }, [session?.user.id]);
   useEffect(() => {
     if (!session?.user.id) return;
     const channel = supabase.channel("connect-global-presence", { config: { presence: { key: session.user.id } } });
@@ -550,16 +664,16 @@ export default function Home() {
     };
   }, [session?.user.id]);
 
+  // Aba Pessoas: carrega somente quando está aberta e reage a busca/filtro com debounce.
   useEffect(() => {
-    if (!session?.user.id) return;
-    const channel = supabase
-      .channel("connect-people-directory")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => void loadCommunityProfiles(session.user.id))
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [session?.user.id]);
+    if (tab !== "people" || !session?.user.id || !profile) return;
+    const uid = session.user.id;
+    const timer = window.setTimeout(() => void loadCommunityProfiles(uid, "reset"), peopleSearch ? 300 : 0);
+    return () => window.clearTimeout(timer);
+  }, [tab, session?.user.id, profile?.id, peopleSearch, peopleFilter, peopleFilter === "online" ? onlinePeople.join(",") : ""]);
+  useEffect(() => {
+    if (session?.user.id && profile) void loadPeopleStats(session.user.id);
+  }, [session?.user.id, profile?.id]);
 
   useEffect(() => {
     if (!session?.user.id) return;
@@ -606,7 +720,7 @@ export default function Home() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [session, profile]);
+  }, [session?.user.id, profile?.id]);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("demo") === "1") setAuthScreen("demo");
@@ -674,11 +788,11 @@ export default function Home() {
     return () => {
       void supabase.removeChannel(c);
     };
-  }, [session, profile]);
+  }, [session?.user.id, profile?.id]);
   useEffect(() => {
     if (tab === "settings") void loadBlockedPeople();
     if (tab === "profile" && session?.user.id) void loadOwnPosts(session.user.id);
-  }, [tab, session]);
+  }, [tab, session?.user.id]);
   useEffect(() => {
     let active = true;
     if (!session?.user.id)
@@ -698,7 +812,7 @@ export default function Home() {
     return () => {
       active = false;
     };
-  }, [session, tab, queue]);
+  }, [session?.user.id, tab, queue]);
   useEffect(() => {
     if (tab === "chat" && chatView === "direct" && session?.user.id && (chatInboxTab === "conversations" || chatInboxTab === "archived"))
       void loadChatHistory(session.user.id);
@@ -717,7 +831,7 @@ export default function Home() {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [tab, roomCode, session]);
+  }, [tab, roomCode, session?.user.id]);
   useEffect(() => {
     if (queue !== "waiting") return;
     const t = window.setInterval(() => {
@@ -791,7 +905,7 @@ export default function Home() {
           setMessages([]);
           setDraft("");
           setQueue("idle");
-          setNotice("O tempo de 3 minutos acabou. Cada um seguiu seu caminho.");
+          setNotice("O tempo do encontro acabou. Cada um seguiu seu caminho.");
         });
       }
     };
@@ -914,7 +1028,7 @@ export default function Home() {
       alive = false;
       void supabase.removeChannel(c);
     };
-  }, [matchId, session]);
+  }, [matchId, session?.user.id]);
   async function demoLogin(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -1718,7 +1832,7 @@ export default function Home() {
                 <BellRing size={21} strokeWidth={2.35} />
                 {notifications.some((x) => !x.read_at) && (
                   <i className="notification-count">
-                    {notifications.filter((x) => !x.read_at).length > 99 ? "99+" : notifications.filter((x) => !x.read_at).length}
+                    {formatNotificationCount(notifications.filter((x) => !x.read_at).length)}
                   </i>
                 )}
               </button>
@@ -2034,6 +2148,11 @@ export default function Home() {
         {tab === "people" && (
           <ConnectPeopleDirectory
             communityProfiles={communityProfiles}
+            peopleTotal={peopleTotal}
+            peopleNewThisWeek={peopleNewThisWeek}
+            peopleHasMore={peopleHasMore}
+            peopleLoading={peopleLoading}
+            loadMorePeople={() => (session?.user.id ? loadCommunityProfiles(session.user.id, "more") : undefined)}
             profile={profile}
             onlinePeople={onlinePeople}
             peopleSearch={peopleSearch}
@@ -2053,6 +2172,7 @@ export default function Home() {
           showMatchIntro={showMatchIntro}
           setShowMatchIntro={setShowMatchIntro}
           pendingSeconds={pendingSeconds}
+          pendingTotalSeconds={pendingTotalSeconds}
           pendingChatMinimized={pendingChatMinimized}
           setPendingChatMinimized={setPendingChatMinimized}
           respondToMatch={respondToMatch}

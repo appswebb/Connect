@@ -1,12 +1,17 @@
 "use client";
 
-import { useMemo, type Dispatch, type SetStateAction } from "react";
-import { Activity, ArrowRight, Compass, Heart, MapPin, MessageCircle, ShieldCheck, Users, X } from "lucide-react";
+import { useEffect, useRef, type Dispatch, type SetStateAction } from "react";
+import { Activity, ArrowRight, Compass, Heart, Loader2, MapPin, MessageCircle, ShieldCheck, Users, X } from "lucide-react";
 import Avatar from "./ConnectAvatar";
 import type { Profile } from "../types/connect";
 
 type Props = {
   communityProfiles: Profile[];
+  peopleTotal: number;
+  peopleNewThisWeek: number;
+  peopleHasMore: boolean;
+  peopleLoading: boolean;
+  loadMorePeople: () => void | Promise<void>;
   profile: Profile;
   onlinePeople: string[];
   peopleSearch: string;
@@ -17,37 +22,25 @@ type Props = {
 };
 
 export default function ConnectPeopleDirectory({
-  communityProfiles, profile, onlinePeople, peopleSearch, setPeopleSearch,
+  communityProfiles, peopleTotal, peopleNewThisWeek, peopleHasMore, peopleLoading, loadMorePeople,
+  profile, onlinePeople, peopleSearch, setPeopleSearch,
   peopleFilter, setPeopleFilter, openProfile,
 }: Props) {
-  const filtered = useMemo(() => {
-    const term = peopleSearch.trim().toLowerCase().replace(/^@/, "");
-    const weekAgo = Date.now() - 7 * 86400000;
-
-    return communityProfiles
-      .filter((person) => {
-        const searchable = [person.display_name, person.username, person.bio, person.city, person.state_code, person.gender]
-          .filter(Boolean).join(" ").toLowerCase();
-        if (term && !searchable.includes(term)) return false;
-        if (peopleFilter === "online" && !onlinePeople.includes(person.id)) return false;
-        if (peopleFilter === "new" && (!person.created_at || new Date(person.created_at).getTime() < weekAgo)) return false;
-        if (peopleFilter === "near" && !(
-          profile.location_visible && profile.city && profile.state_code &&
-          person.location_visible && person.city === profile.city && person.state_code === profile.state_code
-        )) return false;
-        return true;
-      })
-      .sort((a, b) => {
-        if (peopleFilter === "online") return onlinePeople.indexOf(b.id) - onlinePeople.indexOf(a.id);
-        const onlineDiff = Number(onlinePeople.includes(b.id)) - Number(onlinePeople.includes(a.id));
-        if (onlineDiff) return onlineDiff;
-        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-      });
-  }, [communityProfiles, onlinePeople, peopleFilter, peopleSearch, profile]);
-
-  const newMembers = communityProfiles.filter((person) =>
-    person.created_at && Date.now() - new Date(person.created_at).getTime() < 7 * 86400000
-  ).length + (profile.created_at && Date.now() - new Date(profile.created_at).getTime() < 7 * 86400000 ? 1 : 0);
+  // A filtragem, a busca e a ordenação acontecem no banco (paginação por cursor).
+  // Aqui só evitamos duplicatas visuais e carregamos a próxima página ao chegar no fim da lista.
+  const people = Array.from(new Map(communityProfiles.map((person) => [person.id, person])).values());
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreRef = useRef(loadMorePeople);
+  loadMoreRef.current = loadMorePeople;
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !peopleHasMore || peopleLoading || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) void loadMoreRef.current();
+    }, { rootMargin: "320px 0px" });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [peopleHasMore, peopleLoading, people.length]);
 
   return (
     <>
@@ -57,9 +50,9 @@ export default function ConnectPeopleDirectory({
           <h1>Conexões que <em>acontecem aqui.</em></h1>
           <p>Descubra pessoas, participe das conversas e encontre novas histórias pelo Brasil.</p>
           <div className="people-hero-stats">
-            <span><strong>{communityProfiles.length + 1}</strong><small>MEMBROS</small><em>Na comunidade</em></span>
+            <span><strong>{Math.max(peopleTotal, people.length) + 1}</strong><small>MEMBROS</small><em>Na comunidade</em></span>
             <span><strong>{onlinePeople.length}</strong><small>ONLINE AGORA</small><em>Conectados neste momento</em></span>
-            <span><strong>{newMembers}</strong><small>NOVOS ESTA SEMANA</small><em>Chegaram recentemente</em></span>
+            <span><strong>{peopleNewThisWeek + (profile.created_at && Date.now() - new Date(profile.created_at).getTime() < 7 * 86400000 ? 1 : 0)}</strong><small>NOVOS ESTA SEMANA</small><em>Chegaram recentemente</em></span>
           </div>
         </div>
         <div className="people-hero-art" aria-hidden="true">
@@ -100,12 +93,12 @@ export default function ConnectPeopleDirectory({
       </div>
 
       <div className="people-directory-results" aria-live="polite">
-        <span>{filtered.length} {filtered.length === 1 ? "pessoa encontrada" : "pessoas encontradas"}</span>
+        <span>{people.length}{peopleHasMore ? "+" : ""} {people.length === 1 ? "pessoa encontrada" : "pessoas encontradas"}</span>
         <span>Comunidade CONNECT</span>
       </div>
 
       <div className="people-directory-grid">
-        {filtered.map((person) => {
+        {people.map((person) => {
           const isNew = Boolean(person.created_at && Date.now() - new Date(person.created_at).getTime() < 7 * 86400000);
           const online = onlinePeople.includes(person.id);
           return (
@@ -137,7 +130,7 @@ export default function ConnectPeopleDirectory({
             </button>
           );
         })}
-        {filtered.length === 0 && (
+        {people.length === 0 && !peopleLoading && (
           <div className="empty people-directory-empty">
             <Compass />
             <h3>{peopleFilter === "near" ? "Não encontramos membros da sua cidade." : "Nenhuma pessoa encontrada."}</h3>
@@ -148,6 +141,21 @@ export default function ConnectPeopleDirectory({
           </div>
         )}
       </div>
+
+      {peopleLoading && people.length === 0 && (
+        <p className="people-loading" role="status"><Loader2 size={16} className="spin" /> Carregando pessoas...</p>
+      )}
+      {people.length > 0 && (
+        <div className="people-load-more" ref={sentinelRef}>
+          {peopleHasMore ? (
+            <button type="button" className="secondary" disabled={peopleLoading} onClick={() => void loadMorePeople()}>
+              {peopleLoading ? "Carregando..." : "Carregar mais pessoas"}
+            </button>
+          ) : (
+            <small>Você viu todas as pessoas desta busca.</small>
+          )}
+        </div>
+      )}
     </>
   );
 }

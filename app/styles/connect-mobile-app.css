@@ -760,3 +760,10 @@ html[data-theme="dark"] :where(.connect-app) :where(input,textarea)::placeholder
  .connect-app .heading .chat-mode-switch{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);width:100%;gap:4px}
  .connect-app .chat-mode-switch button{justify-content:center;min-width:0;min-height:46px;padding:0 6px;font-size:12.5px;white-space:nowrap}
 }
+
+/* Aba Pessoas: carregamento progressivo */
+.connect-app .people-load-more{display:flex;justify-content:center;align-items:center;padding:18px 0 28px;min-height:56px}
+.connect-app .people-load-more small{color:var(--cx-muted,#7a7080);font-size:.82rem}
+.connect-app .people-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:28px 0;color:var(--cx-muted,#7a7080)}
+.connect-app .spin{animation:orbit 1s linear infinite}
+@media (prefers-reduced-motion:reduce){.connect-app .spin{animation:none}}

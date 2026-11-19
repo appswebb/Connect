@@ -55,3 +55,14 @@ export const stateFlags: Record<string, string> = {
   TO: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg",
   BR: "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg",
 };
+
+/**
+ * Quantidade de pessoas carregadas por vez na aba Pessoas.
+ * Pode ser ajustada sem alterar código com NEXT_PUBLIC_PEOPLE_PAGE_SIZE no build (limitado a 12–60).
+ */
+const configuredPeoplePageSize = Number(process.env.NEXT_PUBLIC_PEOPLE_PAGE_SIZE);
+export const PEOPLE_PAGE_SIZE = Number.isFinite(configuredPeoplePageSize) && configuredPeoplePageSize > 0
+  ? Math.min(60, Math.max(12, Math.floor(configuredPeoplePageSize)))
+  : 24;
+/** Máximo de ids de "online agora" enviados ao banco em uma consulta. */
+export const PEOPLE_ONLINE_ID_CAP = 100;

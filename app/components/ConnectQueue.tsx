@@ -15,6 +15,7 @@ type Props = {
   showMatchIntro: boolean;
   setShowMatchIntro: Dispatch<SetStateAction<boolean>>;
   pendingSeconds: number;
+  pendingTotalSeconds: number;
   pendingChatMinimized: boolean;
   setPendingChatMinimized: Dispatch<SetStateAction<boolean>>;
   respondToMatch: (accepted: boolean) => void | Promise<void>;
@@ -52,7 +53,7 @@ type Props = {
 export default function ConnectQueue(props: Props) {
   const {
     tab, profile, currentUserId, pendingMatchId, pendingPartner, showMatchIntro,
-    setShowMatchIntro, pendingSeconds, pendingChatMinimized, setPendingChatMinimized,
+    setShowMatchIntro, pendingSeconds, pendingTotalSeconds, pendingChatMinimized, setPendingChatMinimized,
     respondToMatch, openProfile, openReport, blockUser, messages, cropFile, cropTarget,
     setCropFile, setCropTarget, applyCroppedImage, send, chatFileRef, recording,
     toggleRecording, busy, draft, setDraft, openImageCrop, sendAttachment,
@@ -60,9 +61,14 @@ export default function ConnectQueue(props: Props) {
     queueQuota, matchId, setTab, isDemo, enterQueue, leaveQueue,
   } = props;
 
+  // O encontro temporário (cartão de conexão e chat) só existe na aba Conectar.
+  const onQueueTab = tab === "queue";
+  const windowMinutes = Math.max(1, Math.round(pendingTotalSeconds / 60));
+  const windowLabel = windowMinutes === 1 ? "1 minuto" : windowMinutes + " minutos";
+
   return (
           <>
-            {pendingMatchId && pendingPartner && showMatchIntro && (
+            {onQueueTab && pendingMatchId && pendingPartner && showMatchIntro && (
               <div className="match-found-backdrop" role="dialog" aria-modal="true" aria-label="Vocês se encontraram">
                 <section className="match-found-card">
                   <div className="match-found-kicker">
@@ -85,7 +91,7 @@ export default function ConnectQueue(props: Props) {
                     <strong>{pendingPartner.display_name}</strong>
                   </div>
                   <h2>Vocês se encontraram!</h2>
-                  <p>Uma nova conexão acabou de acontecer. Vocês têm 3 minutos para conversar e decidir se querem dar match.</p>
+                  <p>Uma nova conexão acabou de acontecer. Vocês têm {windowLabel} para conversar e decidir se querem dar match.</p>
                   <div className="match-found-countdown">
                     {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")} <small>restantes</small>
                   </div>
@@ -95,7 +101,8 @@ export default function ConnectQueue(props: Props) {
                 </section>
               </div>
             )}
-            {pendingMatchId &&
+            {onQueueTab &&
+              pendingMatchId &&
               pendingPartner &&
               !showMatchIntro &&
               (pendingChatMinimized ? (
@@ -140,14 +147,14 @@ export default function ConnectQueue(props: Props) {
                     </button>
                   </header>
                   <div className="match-live-progress">
-                    <i style={{ width: (pendingSeconds / 180) * 100 + "%" }} />
+                    <i style={{ width: Math.min(100, (pendingSeconds / Math.max(1, pendingTotalSeconds)) * 100) + "%" }} />
                   </div>
                   <div className="queue-match-status">
                     {pendingAccepted
                       ? "Você aceitou o match. Aguardando a outra pessoa."
                       : pendingOtherAccepted
                         ? "A outra pessoa aceitou. Se você também aceitar, o match será confirmado."
-                        : "Conversem por até 3 minutos. O match só acontece se os dois aceitarem."}
+                        : "Conversem por até {windowLabel}. O match só acontece se os dois aceitarem."}
                   </div>
                   <div className="messages">
                     {messages.map((m) => (
