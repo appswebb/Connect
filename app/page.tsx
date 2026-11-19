@@ -190,6 +190,39 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("connect-theme", theme);
   }, [theme, themeReady]);
+  // Top-bar dropdowns and the mobile "Mais" menu: only one open at a time,
+  // closed by outside click, Escape or a tab change.
+  useEffect(() => {
+    if (notificationsOpen) { setUserMenuOpen(false); setLocationOpen(false); setMobileMoreOpen(false); }
+  }, [notificationsOpen]);
+  useEffect(() => {
+    if (locationOpen) { setUserMenuOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); }
+  }, [locationOpen]);
+  useEffect(() => {
+    if (userMenuOpen) { setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); }
+  }, [userMenuOpen]);
+  useEffect(() => {
+    if (mobileMoreOpen) { setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); }
+  }, [mobileMoreOpen]);
+  useEffect(() => {
+    setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false);
+  }, [tab]);
+  useEffect(() => {
+    if (!userMenuOpen && !locationOpen && !notificationsOpen && !mobileMoreOpen) return;
+    const closeAll = () => { setUserMenuOpen(false); setLocationOpen(false); setNotificationsOpen(false); setMobileMoreOpen(false); };
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target && target.closest(".topbar-actions>div, .connect-bottom-nav")) return;
+      closeAll();
+    };
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") closeAll(); };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [userMenuOpen, locationOpen, notificationsOpen, mobileMoreOpen]);
   const fail = useCallback((s: string) => {
     setError(s);
     setNotice("");

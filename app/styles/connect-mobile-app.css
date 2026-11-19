@@ -582,3 +582,54 @@ html[data-theme="dark"] .app-live-update{background:#492634;border-color:#59404c
  .connect-app .heading h1{overflow-wrap:break-word}
 }
 @media(max-width:420px){.connect-app .people-directory-grid,.connect-app .profile-view-facts{grid-template-columns:minmax(0,1fr)}}
+
+/* TOP-BAR DROPDOWNS — profile menu, notifications and location (styles were missing after the redesign) */
+.connect-app .notification-trigger,.connect-app .user-menu-trigger,.connect-app .location-trigger{position:relative}
+.connect-app .user-menu-caret{display:grid;place-items:center;color:var(--cx-muted)}
+.connect-app .notification-count{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;font:800 10px/18px 'DM Sans',sans-serif;font-style:normal;text-align:center;border:2px solid var(--cx-surface);box-sizing:content-box}
+.connect-app .notification-trigger.is-open,.connect-app .location-trigger.is-open,.connect-app .user-menu-trigger.is-open{border-color:var(--cx-primary);background:var(--cx-primary-soft)}
+.connect-app .user-menu-panel{display:grid;gap:4px;padding:8px}
+.connect-app .user-menu-panel>button{display:flex;align-items:center;gap:11px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:13px;background:transparent;color:var(--cx-ink);font-size:13px;font-weight:700;text-align:left}
+.connect-app .user-menu-panel>button:hover{background:var(--cx-surface-2)}
+.connect-app .user-menu-panel>button svg{color:var(--cx-muted)}
+.connect-app .user-menu-panel>.user-menu-logout{margin-top:4px;border-top:1px solid var(--cx-line);border-radius:0 0 13px 13px;color:var(--danger)}
+.connect-app .user-menu-panel>.user-menu-logout svg{color:var(--danger)}
+.connect-app .notification-panel,.connect-app .location-panel{padding:0}
+.connect-app .notification-panel>header,.connect-app .location-panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--cx-line)}
+.connect-app .notification-panel>header>div,.connect-app .location-panel>header>div{display:grid;gap:3px;min-width:0}
+.connect-app .notification-panel>header strong,.connect-app .location-panel>header strong{font-size:14px}
+.connect-app .notification-panel>header small,.connect-app .location-panel>header small{font-size:11px;color:var(--cx-muted)}
+.connect-app .notification-close,.connect-app .location-close{flex:0 0 30px;width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;background:var(--cx-surface-2);color:var(--cx-muted)}
+.connect-app .notification-tools{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;border-bottom:1px solid var(--cx-line)}
+.connect-app .notification-tools button,.connect-app .notification-panel>footer button{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--cx-line);border-radius:999px;background:var(--cx-surface);color:var(--cx-ink);font-size:11px;font-weight:700}
+.connect-app .notification-list{display:grid;max-height:360px;overflow-y:auto}
+.connect-app .notification-item{display:flex;align-items:flex-start;gap:11px;width:100%;padding:12px 16px;border:0;border-top:1px solid var(--cx-line);background:transparent;color:var(--cx-ink);text-align:left}
+.connect-app .notification-item:first-child{border-top:0}
+.connect-app .notification-item:hover{background:var(--cx-surface-2)}
+.connect-app .notification-item.unread{background:var(--cx-primary-soft)}
+.connect-app .notification-copy{display:grid;gap:3px;min-width:0;flex:1}
+.connect-app .notification-copy strong{font-size:12px}
+.connect-app .notification-copy small{font-size:12px;line-height:1.5;color:var(--cx-muted)}
+.connect-app .notification-copy time{font-size:11px;color:var(--cx-muted)}
+.connect-app .notification-symbol{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:var(--cx-primary-soft);color:var(--cx-primary-dark)}
+.connect-app .notification-unread-dot{flex:0 0 8px;width:8px;height:8px;margin-top:6px;border-radius:50%;background:var(--cx-primary)}
+.connect-app .notification-empty{display:grid;justify-items:center;gap:6px;padding:32px 16px;color:var(--cx-muted);text-align:center;font-size:12px}
+.connect-app .notification-empty strong{color:var(--cx-ink);font-size:13px}
+.connect-app .notification-panel>footer{padding:12px 16px;border-top:1px solid var(--cx-line);font-size:11px;color:var(--cx-muted)}
+.connect-app .notification-panel>footer span{display:inline-flex;align-items:center;gap:6px}
+.connect-app .location-panel{display:grid}
+.connect-app .location-panel>p{margin:0;padding:14px 16px 0;font-size:12px;line-height:1.65;color:var(--cx-muted)}
+.connect-app .location-detect-button{width:calc(100% - 32px);margin:14px 16px 0}
+.connect-app .location-manual{display:grid;gap:11px;margin:14px 16px 0;padding-top:14px;border-top:1px solid var(--cx-line)}
+.connect-app .location-manual>strong{font-size:12px}
+.connect-app .location-profile-visibility{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5}
+.connect-app .location-privacy-note{display:block;padding:14px 16px 16px;font-size:11px;line-height:1.55;color:var(--cx-muted)}
+@media(min-width:761px){
+ .connect-app .notification-panel,.connect-app .location-panel,.connect-app .user-menu-panel{position:absolute;top:calc(100% + 10px);right:0;left:auto;width:min(380px,calc(100vw - 48px));max-height:min(75vh,620px);overflow-y:auto}
+ .connect-app .user-menu-panel{width:270px}
+}
+@media(max-width:760px){
+ .connect-app .user-menu-caret{display:none}
+ .connect-app .notification-panel,.connect-app .location-panel,.connect-app .user-menu-panel{top:calc(100% + 8px)}
+}
+.connect-app .mobile-more-menu button:focus-visible,.connect-app .user-menu-panel>button:focus-visible,.connect-app .notification-item:focus-visible{outline-offset:-3px}
