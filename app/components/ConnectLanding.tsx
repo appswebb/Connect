@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Eye, ShieldCheck, Users, MessageCircle, Globe2, Radio } from "lucide-react";
+import { ArrowRight, Eye, ShieldCheck, Users, MessageCircle, Globe2, UserSearch } from "lucide-react";
 
 type ConnectLandingProps = {
   onSignIn: () => void;
@@ -130,11 +130,11 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                 </article>
                 <article>
                   <span className="landing-feature-icon blue">
-                    <Radio />
+                    <UserSearch />
                   </span>
-                  <small>04 / AO VIVO</small>
+                  <small>04 / CONECTAR</small>
                   <h3>Viva o agora</h3>
-                  <p>Assista a transmissões e entre ao vivo com a comunidade.</p>
+                  <p>Entre na fila e converse na hora com alguém que também está online.</p>
                 </article>
               </div>
             </section>
@@ -156,7 +156,7 @@ export default function ConnectLanding({ onSignIn, onSignUp, onDemo }: ConnectLa
                 <li>
                   <span>02</span>
                   <h3>Encontre gente</h3>
-                  <p>Descubra pessoas, salas do Brasil e transmissões ao vivo no mesmo lugar.</p>
+                  <p>Descubra pessoas, salas do Brasil e conexões em tempo real no mesmo lugar.</p>
                 </li>
                 <li>
                   <span>03</span>

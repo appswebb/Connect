@@ -281,8 +281,6 @@ export default function ConnectOverlays(props: Props) {
                             ? "Denunciar mensagem da sala"
                             : reportTargetType === "chat_message"
                               ? "Denunciar mensagem privada"
-                              : reportTargetType === "live"
-                                ? "Denunciar transmissão"
                                 : "Denunciar conteúdo"}
                   </h2>
                 </div>

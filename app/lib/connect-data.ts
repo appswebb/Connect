@@ -6,7 +6,6 @@ export const essentialNotificationTypes = [
   "match",
   "match_accepted",
   "match_closed",
-  "live",
   "post",
   "site_update",
   "subscription_gift_received",

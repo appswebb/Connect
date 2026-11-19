@@ -67,7 +67,7 @@ export default function AppDownload() {
       <div className="app-download-art" aria-hidden="true">
         <div className="app-download-orbit app-download-orbit-one"/><div className="app-download-orbit app-download-orbit-two"/>
         <div className="app-download-device"><div className="app-download-device-camera"/><img src="/Connect/icons/connect.svg" alt="Ícone CONNECT"/><strong>CONNECT</strong><small>Conexões reais começam aqui.</small><div className="app-download-device-dots"><i/><i/><i/></div></div>
-        <span className="app-download-float app-download-float-one"><Globe2/> Salas ao vivo</span><span className="app-download-float app-download-float-two"><Sparkles/> Novas conexões</span>
+        <span className="app-download-float app-download-float-one"><Globe2/> Salas do Brasil</span><span className="app-download-float app-download-float-two"><Sparkles/> Novas conexões</span>
       </div>
     </section>
 

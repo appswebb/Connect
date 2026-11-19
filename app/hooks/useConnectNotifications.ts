@@ -19,7 +19,6 @@ type ConnectNotificationsOptions = {
   setChatView: Dispatch<SetStateAction<"direct" | "rooms">>;
   setQueue: Dispatch<SetStateAction<string>>;
   loadPendingMatch: (id: string) => Promise<void>;
-  loadLives: () => Promise<void>;
   openProfile: (id: string) => Promise<void>;
   openComments: (id: string) => Promise<void>;
 };
@@ -28,7 +27,7 @@ export function useConnectNotifications(options: ConnectNotificationsOptions) {
   const {
     userId, setNotifications, setNotificationsOpen, setBrowserNotificationPermission,
     setNotice, fail, setTab, setMatchId, setChatReadOnly, setChatInboxTab,
-    setChatView, setQueue, loadPendingMatch, loadLives, openProfile, openComments,
+    setChatView, setQueue, loadPendingMatch, openProfile, openComments,
   } = options;
 
   const loadNotifications = useCallback(async (uid: string) => {
@@ -126,18 +125,13 @@ export function useConnectNotifications(options: ConnectNotificationsOptions) {
       setTab("profile");
       return;
     }
-    if (item.type === "live") {
-      setTab("lives");
-      void loadLives();
-      return;
-    }
     if (item.type === "site_update") {
       setTab("feed");
       return;
     }
     setTab("feed");
     if (item.type === "comment" && item.entity_id) void openComments(item.entity_id);
-  }, [markNotificationRead, setNotificationsOpen, setMatchId, setChatReadOnly, setChatInboxTab, setTab, setChatView, openProfile, loadPendingMatch, setQueue, loadLives, openComments]);
+  }, [markNotificationRead, setNotificationsOpen, setMatchId, setChatReadOnly, setChatInboxTab, setTab, setChatView, openProfile, loadPendingMatch, setQueue, openComments]);
 
   const enableBrowserNotifications = useCallback(async () => {
     if (!("Notification" in window)) {

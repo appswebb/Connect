@@ -30,7 +30,6 @@ import {
   Mic,
   Minus,
   Paperclip,
-  Radio,
   Send,
   Settings,
   ShieldCheck,
@@ -60,8 +59,6 @@ import ConnectLanding from "./components/ConnectLanding";
 import ConnectAuthGate from "./components/ConnectAuthGate";
 import { useConnectFeed } from "./hooks/useConnectFeed";
 import { useConnectRooms } from "./hooks/useConnectRooms";
-import { useConnectLives } from "./hooks/useConnectLives";
-import ConnectLives from "./components/ConnectLives";
 import ConnectNavigation from "./components/ConnectNavigation";
 import ConnectFeed from "./components/ConnectFeed";
 import ConnectPeopleDirectory from "./components/ConnectPeopleDirectory";
@@ -73,7 +70,7 @@ import ConnectOverlays from "./components/ConnectOverlays";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago } from "./lib/connect-utils";
 import { essentialNotificationTypes } from "./lib/connect-data";
-import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, LiveSessionRow, NotificationItem } from "./types/connect";
+import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, NotificationItem } from "./types/connect";
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null),
@@ -99,9 +96,6 @@ export default function Home() {
     [roomMessages, setRoomMessages] = useState<RoomMessage[]>([]),
     [roomDraft, setRoomDraft] = useState(""),
     [roomReply, setRoomReply] = useState<RoomMessage | null>(null);
-  const [lives, setLives] = useState<LiveSessionRow[]>([]),
-    [liveTitle, setLiveTitle] = useState(""),
-    [activeLive, setActiveLive] = useState<LiveSessionRow | null>(null);
   const [queueStateFilter, setQueueStateFilter] = useState(""),
     [queueCityFilter, setQueueCityFilter] = useState(""),
     [queueQuota, setQueueQuota] = useState({ used: 0, remaining: 20, unlimited: false }),
@@ -232,18 +226,6 @@ export default function Home() {
     return () => window.clearTimeout(timeout);
   }, [error, notice]);
 
-  const { loadLives, createLive, joinLive, endLiveSession, leaveLive } = useConnectLives({
-    userId: session?.user.id,
-    liveTitle,
-    activeLive,
-    setLives,
-    setActiveLive,
-    setLiveTitle,
-    setTab,
-    setBusy,
-    setNotice,
-    fail,
-  });
 
   const { loadRoomMessages, sendRoomMessage, deleteRoomMessage } = useConnectRooms({
     userId: session?.user.id,
@@ -297,7 +279,6 @@ export default function Home() {
     setChatView,
     setQueue,
     loadPendingMatch,
-    loadLives,
     openProfile,
     openComments,
   });
@@ -697,19 +678,6 @@ export default function Home() {
   useEffect(() => {
     if (tab === "settings") void loadBlockedPeople();
     if (tab === "profile" && session?.user.id) void loadOwnPosts(session.user.id);
-  }, [tab, session]);
-  useEffect(() => {
-    if (tab !== "lives" || !session?.user.id) return;
-    void loadLives();
-    const channel = supabase
-      .channel("connect-live-list")
-      .on("postgres_changes", { event: "*", schema: "public", table: "live_sessions" }, () => {
-        void loadLives();
-      })
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
   }, [tab, session]);
   useEffect(() => {
     let active = true;
@@ -1603,7 +1571,6 @@ export default function Home() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setNotificationsOpen(false);
-      setActiveLive(null);
     } catch (x) {
       fail(x instanceof Error ? x.message : "Não foi possível sair da conta. Tente novamente.");
     } finally {
@@ -1717,23 +1684,6 @@ export default function Home() {
       isDemo={isDemo}
     />
   );
-  const live = (
-    <ConnectLives
-      lives={lives}
-      activeLive={activeLive}
-      currentUserId={session.user.id}
-      leaveLive={leaveLive}
-      isDemo={isDemo}
-      liveTitle={liveTitle}
-      setLiveTitle={setLiveTitle}
-      createLive={createLive}
-      busy={busy}
-      loadLives={loadLives}
-      endLiveSession={endLiveSession}
-      joinLive={joinLive}
-      openReport={openReport}
-    />
-  );
   return (
     <main className="connect-app" data-screen="workspace">
       <ConnectNavigation tab={tab} setTab={setTab} queue={queue} />
@@ -1812,9 +1762,7 @@ export default function Home() {
                           <Avatar p={item.actor} size="small" />
                         ) : (
                           <span className="notification-symbol">
-                            {item.type === "live" ? (
-                              <Radio size={17} />
-                            ) : item.type === "message" ? (
+                            {item.type === "message" ? (
                               <MessageCircle size={17} />
                             ) : item.type === "match" || item.type === "match_accepted" ? (
                               <Heart size={17} />
@@ -2096,7 +2044,6 @@ export default function Home() {
           />
         )}
         {tab === "rooms" && <>{room}</>}
-        {tab === "lives" && <>{live}</>}
         <ConnectQueue
           tab={tab}
           profile={profile}
