@@ -1,0 +1,26 @@
+# dependencies / build output
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+!supabase/functions/.env.example
+*.pem
+*.jks
+*.keystore
+keystore.properties
+google-services.json
+
+# android local
+android/local.properties
+android/.gradle/
+android/app/build/
+
+# misc
+.DS_Store
+npm-debug.log*

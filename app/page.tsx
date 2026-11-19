@@ -398,7 +398,20 @@ export default function Home() {
   }
   async function loadPendingMatch(id: string) {
     const m = await supabase.from("matches").select("*").eq("id", id).maybeSingle();
-    if (!m.data || m.data.match_status !== "pending") return;
+    if (!m.data) return;
+    if (m.data.match_status === "accepted") {
+      setMatchId(id);
+      setChatReadOnly(false);
+      setQueue("matched");
+      setTab("chat");
+      if (session?.user.id) void loadChatHistory(session.user.id);
+      return;
+    }
+    if (m.data.match_status !== "pending") {
+      // The queue pointed at a match that was already declined/expired: do not stay stuck in "matched".
+      setQueue("idle");
+      return;
+    }
     const other = m.data.user_one === session?.user.id ? m.data.user_two : m.data.user_one;
     const p = await supabase.from("profiles").select("*").eq("id", other).maybeSingle();
     setPendingMatchId(id);
@@ -774,12 +787,34 @@ export default function Home() {
   useEffect(() => {
     if (!pendingMatchId || !pendingExpiresAt) return;
     let expired = false;
+    let attempts = 0;
     const tick = () => {
       const left = Math.max(0, Math.ceil((new Date(pendingExpiresAt).getTime() - Date.now()) / 1000));
       setPendingSeconds(left);
       if (left === 0 && !expired) {
         expired = true;
-        void supabase.rpc("expire_pending_match", { p_match_id: pendingMatchId }).then(() => {
+        attempts += 1;
+        void supabase.rpc("expire_pending_match", { p_match_id: pendingMatchId }).then(async ({ error: expireError }) => {
+          // Both people may have accepted in the last second: trust the server, not the local clock.
+          const { data: latest } = await supabase.from("matches").select("match_status").eq("id", pendingMatchId).maybeSingle();
+          if (latest?.match_status === "accepted") {
+            setPendingMatchId("");
+            setPendingPartner(null);
+            setPendingExpiresAt("");
+            setPendingAccepted(false);
+            setPendingOtherAccepted(false);
+            setMatchId(pendingMatchId);
+            setChatReadOnly(false);
+            setTab("chat");
+            setQueue("matched");
+            if (session?.user.id) void loadChatHistory(session.user.id);
+            setNotice("Match confirmado pelos dois! A conversa foi para a aba Chat.");
+            return;
+          }
+          if (expireError && latest?.match_status === "pending" && attempts < 4) {
+            expired = false; // server still says pending (network hiccup): try again on the next tick
+            return;
+          }
           setPendingMatchId("");
           setPendingPartner(null);
           setPendingExpiresAt("");
