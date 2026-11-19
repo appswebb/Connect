@@ -639,3 +639,36 @@ html[data-theme="dark"] .app-live-update{background:#492634;border-color:#59404c
  .connect-app .connect-bottom-nav::-webkit-scrollbar{display:none}
  .connect-app .connect-bottom-nav>button{flex:0 0 22%;min-width:72px;scroll-snap-align:center}
 }
+
+/* FORM CONTROL BASELINE — zero specificity (:where), so any specific rule still wins.
+   Stops unclassed buttons, selects and fields from showing the raw browser look. */
+:where(.connect-app) :where(button:not([class])){display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 14px;border:1px solid var(--cx-line);border-radius:12px;background:var(--cx-surface);color:var(--cx-ink);font-size:12px;font-weight:700;line-height:1.2}
+:where(.connect-app) :where(button:not([class])):hover{background:var(--cx-surface-2);border-color:#e9aab6}
+:where(.connect-app) :where(select){width:100%;min-height:44px;padding:0 12px;border:1px solid var(--cx-line);border-radius:13px;background-color:var(--cx-surface-2);color:var(--cx-ink);font-size:13px;font-weight:600}
+:where(.connect-app) :where(textarea,input:not([type]),input[type="text"],input[type="email"],input[type="password"],input[type="search"],input[type="tel"],input[type="url"],input[type="number"],input[type="date"]){width:100%;min-height:44px;padding:10px 13px;border:1px solid var(--cx-line);border-radius:13px;background:var(--cx-surface-2);color:var(--cx-ink);font-size:13px}
+:where(.connect-app) :where(textarea){min-height:88px;line-height:1.55;resize:vertical}
+:where(.connect-app) :where(input[type="checkbox"],input[type="radio"]){width:16px;height:16px;min-height:0;padding:0;accent-color:var(--cx-primary);cursor:pointer}
+:where(.connect-app) :where(input,textarea)::placeholder{color:#7a6c75;opacity:1}
+:where(.connect-app) :where(select,input,textarea):disabled{opacity:.55;cursor:not-allowed}
+:where(.connect-app) :where(button,a,select,input,textarea,summary,label):focus-visible{outline:2px solid var(--cx-primary);outline-offset:2px}
+html[data-theme="dark"] :where(.connect-app) :where(input,textarea)::placeholder{color:#b9a8b2}
+
+/* LOCATION PICKER (state + city) */
+.connect-app .brazil-location-picker{display:grid;gap:12px;width:100%}
+.connect-app .brazil-location-picker.compact{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.connect-app .brazil-location-picker>label{display:grid;gap:6px;min-width:0;font-size:11px;font-weight:800;color:var(--cx-muted)}
+.connect-app .brazil-location-picker select{min-width:0;text-overflow:ellipsis}
+.connect-app .location-picker-error{display:block;color:var(--danger);font-size:11px;line-height:1.5}
+.connect-app .location-panel .location-manual .secondary,.connect-app .location-panel .location-detect-button{min-height:44px}
+.connect-app .location-panel .location-manual .secondary{width:100%}
+
+/* BANNER / AVATAR CHANGE BUTTONS — keep them anchored on top of the image */
+.connect-app .profile-card>.banner>label{position:absolute;right:14px;bottom:14px;z-index:2;display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 14px;border:1px solid rgba(255,255,255,.7);border-radius:999px;background:rgba(255,255,255,.94);color:#29212a;font-size:12px;font-weight:800;box-shadow:0 8px 22px rgba(30,14,22,.3);cursor:pointer;backdrop-filter:blur(8px)}
+.connect-app .profile-card>.banner>label:hover{background:#fff;transform:translateY(-1px)}
+.connect-app .profile-card>.banner>label svg{color:var(--cx-primary-dark)}
+.connect-app .profile-avatar>label{width:32px;height:32px;border-width:3px;border-color:var(--cx-surface);box-shadow:0 6px 16px rgba(30,14,22,.25)}
+
+/* DELETE CHAT ACTION */
+.connect-app .delete-chat-action{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);border-radius:11px;background:transparent;color:var(--danger);font-size:12px;font-weight:800}
+.connect-app .delete-chat-action:hover{background:color-mix(in srgb,var(--danger) 10%,transparent)}
+@media(max-width:760px){.connect-app .profile-card>.banner>label{right:10px;bottom:10px;min-height:36px;padding:0 12px}}
