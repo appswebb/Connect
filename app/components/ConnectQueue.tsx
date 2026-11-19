@@ -273,20 +273,22 @@ export default function ConnectQueue(props: Props) {
             </div>
             <section className="queue-card">
               <div className={"connection-art " + (queue === "waiting" ? "is-searching" : pendingMatchId ? "is-found" : "")}>
-                <div className="ring r1" />
-                <div className="ring r2" />
-                <div className="ring r3" />
-                <div className="core">
-                  <Activity size={30} />
+                <div className="connection-stage" aria-hidden="true">
+                  <div className="ring r1" />
+                  <div className="ring r2" />
+                  <div className="ring r3" />
+                  <span className="search-orbit-dot" />
+                  <div className="core">
+                    <Activity size={30} />
+                  </div>
+                  <Users className="people-icon" size={18} />
                 </div>
-                <span className="connection-art-caption">
+                <span className="connection-art-caption" role="status">
                   {queue === "waiting" ? "BUSCANDO PESSOAS..." : pendingMatchId ? "PESSOA ENCONTRADA" : "PRONTO PARA CONECTAR"}
                 </span>
-                <span className="search-orbit-dot" />
-                <Users className="people-icon" />
               </div>
               <div>
-                <small>MATCHING POR PREFERÊNCIAS</small>
+                <small className="queue-kicker">MATCHING POR PREFERÊNCIAS</small>
                 <div className={"queue-state " + (queue === "waiting" ? "is-active" : "")}>
                   <i />
                   {queue === "waiting" ? "PROCURANDO AGORA" : "PRONTO PARA CONECTAR"}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Download, Smartphone, RefreshCw, ShieldCheck, Sparkles, Globe2, Clock3, CheckCircle2, ArrowDownToLine } from "lucide-react";
 
 type ReleaseAsset = { name: string; browser_download_url: string; download_count: number };
-type Release = { tag_name: string; name: string; body: string; published_at: string; html_url: string; assets: ReleaseAsset[] };
+type Release = { draft?: boolean; prerelease?: boolean; tag_name: string; name: string; body: string; published_at: string; html_url: string; assets: ReleaseAsset[] };
 type InstallPrompt = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }> };
 type SiteVersion = { version: string; commit: string; updatedAt: string; changes: string };
 
@@ -32,7 +32,12 @@ export default function AppDownload() {
     return () => { controller.abort(); window.removeEventListener("beforeinstallprompt", onPrompt); window.removeEventListener("appinstalled", onInstalled); };
   }, []);
 
-  const latest = releases[0];
+  // Only the newest published (non-draft, non-prerelease) version is shown; prefer one that really ships an APK.
+  const published = releases
+    .filter(r => !r.draft && !r.prerelease)
+    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+  const hasApk = (r: Release) => !!r.assets?.some(asset => asset.name.toLowerCase().endsWith(".apk"));
+  const latest = published.find(hasApk) ?? published[0];
   const apk = latest?.assets?.find(asset => asset.name.toLowerCase().endsWith(".apk"));
   const install = async () => {
     if (!installPrompt) return;
@@ -81,11 +86,11 @@ export default function AppDownload() {
     </div>
 
     <section className="app-download-updates">
-      <div className="section-heading"><div><h2>Atualizações do CONNECT</h2><span>Veja o que mudou e acompanhe as versões publicadas.</span></div><span className="app-live-update"><i/> ATUALIZAÇÕES DO SITE AUTOMÁTICAS</span></div>
+      <div className="section-heading"><div><h2>Última versão do CONNECT</h2><span>Só a versão mais recente fica disponível para baixar.</span></div><span className="app-live-update"><i/> ATUALIZAÇÕES DO SITE AUTOMÁTICAS</span></div>
       {siteVersion && <article className="app-release app-site-release"><header><strong><Sparkles size={15}/> Site atualizado · {siteVersion.version}</strong><time><Clock3 size={13}/> {new Date(siteVersion.updatedAt).toLocaleString("pt-BR",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}</time></header><p>{siteVersion.changes}</p><small>Esta atualização já está disponível no site e também aparece no aplicativo instalado.</small></article>}
       {error && <div className="app-download-note" role="alert">{error}</div>}
-      {!loading && !releases.length && !error && <div className="app-download-note" role="status"><ShieldCheck size={16}/> A primeira versão pública do APK ainda está sendo preparada.</div>}
-      <div className="app-release-list">{releases.map(release => { const releaseApk = release.assets?.find(asset => asset.name.toLowerCase().endsWith(".apk")); return <article className="app-release" key={release.tag_name}><header><strong>{release.name || release.tag_name}</strong><time>{new Date(release.published_at).toLocaleDateString("pt-BR")}</time></header><p>{release.body || "Atualização do CONNECT."}</p>{releaseApk ? <a href={releaseApk.browser_download_url}><Download size={13}/> Baixar esta versão</a> : <small>Versão sem APK anexado.</small>}</article>; })}</div>
+      {!loading && !latest && !error && <div className="app-download-note" role="status"><ShieldCheck size={16}/> A primeira versão pública do APK ainda está sendo preparada.</div>}
+      {latest && <div className="app-release-list"><article className="app-release" key={latest.tag_name}><header><strong>Novidades da versão {latest.name || latest.tag_name}</strong><time>{new Date(latest.published_at).toLocaleDateString("pt-BR")}</time></header><p>{latest.body || "Atualização do CONNECT."}</p></article></div>}
       <p className="app-download-footnote"><ShieldCheck size={15}/> O site continua funcionando normalmente pelo navegador. O aplicativo usa a mesma versão publicada do CONNECT; quando houver uma nova versão do APK, ela será disponibilizada nesta página.</p>
     </section>
   </div>;
