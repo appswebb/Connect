@@ -7,6 +7,7 @@ import ImageCropper from "./ImageCropper";
 import type { Message, Profile } from "../types/connect";
 
 type Props = {
+  tab: string;
   profile: Profile;
   currentUserId: string;
   pendingMatchId: string | null;
@@ -50,7 +51,7 @@ type Props = {
 
 export default function ConnectQueue(props: Props) {
   const {
-    profile, currentUserId, pendingMatchId, pendingPartner, showMatchIntro,
+    tab, profile, currentUserId, pendingMatchId, pendingPartner, showMatchIntro,
     setShowMatchIntro, pendingSeconds, pendingChatMinimized, setPendingChatMinimized,
     respondToMatch, openProfile, openReport, blockUser, messages, cropFile, cropTarget,
     setCropFile, setCropTarget, applyCroppedImage, send, chatFileRef, recording,
@@ -259,6 +260,8 @@ export default function ConnectQueue(props: Props) {
                   </div>
                 </section>
               ))}
+            {tab === "queue" && (
+          <>
             <div className="heading">
               <div>
                 <small>CONEXÃO EM TEMPO REAL</small>
@@ -350,6 +353,8 @@ export default function ConnectQueue(props: Props) {
                 )}
               </div>
             </section>
+          </>
+            )}
           </>
   );
 }

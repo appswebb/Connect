@@ -2035,6 +2035,7 @@ export default function Home() {
         {tab === "rooms" && <>{room}</>}
         {tab === "lives" && <>{live}</>}
         <ConnectQueue
+          tab={tab}
           profile={profile}
           currentUserId={session.user.id}
           pendingMatchId={pendingMatchId}
