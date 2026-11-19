@@ -180,7 +180,7 @@ html[data-theme="dark"] .connect-app .mobile-more-menu{background:#241b28;border
 .connect-home .landing-note{display:flex;align-items:center;gap:12px;margin-top:34px}
 .connect-home .landing-note-icon{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:#f5e7ed;color:#a33c58}
 .connect-home .landing-note strong{display:block;color:#3d3039;font-size:11px}
-.connect-home .landing-note small{display:block;margin-top:4px;color:#887b83;font-size:10px}
+.connect-home .landing-note small{display:block;margin-top:4px;color:#62545c;font-size:10px}
 .connect-home .landing-art{position:relative;min-width:0;max-width:590px;margin-left:auto}
 .connect-home .landing-photo{display:block;width:100%;height:clamp(440px,48vw,610px);object-fit:cover;object-position:center;border-radius:34px 34px 140px 34px;box-shadow:0 32px 80px rgba(58,32,46,.16)}
 .connect-home .landing-art-caption{position:absolute;left:-48px;right:28px;bottom:28px;display:flex;align-items:center;gap:12px;padding:17px 18px;border:1px solid #ffffff70;border-radius:18px;background:rgba(255,250,248,.94);box-shadow:0 16px 40px rgba(42,24,35,.13);backdrop-filter:blur(16px)}
