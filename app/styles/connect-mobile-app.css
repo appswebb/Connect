@@ -561,3 +561,24 @@ html[data-theme="dark"] .app-release{background:#302432;border-color:#493746}
 html[data-theme="dark"] .app-download-platform-card h3,html[data-theme="dark"] .app-download-updates .section-heading h2,html[data-theme="dark"] .app-release header strong{color:#f7eef2}
 html[data-theme="dark"] .app-download-platform-card>p,html[data-theme="dark"] .app-download-platform-card ol,html[data-theme="dark"] .app-download-platform-card>small,html[data-theme="dark"] .app-download-updates .section-heading>div>span,html[data-theme="dark"] .app-release p,html[data-theme="dark"] .app-release time,html[data-theme="dark"] .app-download-footnote{color:#c7b7c0}
 html[data-theme="dark"] .app-live-update{background:#492634;border-color:#59404c;color:#ffad9d}
+
+/* OVERFLOW GUARD — nothing may push past the screen edge */
+.connect-app,.connect-app .connect-main{max-width:100%;overflow-x:clip}
+.connect-app :is(h1,h2,h3,h4,p,span,small,strong,label,li,a,time,em){overflow-wrap:anywhere}
+.connect-app :is(.heading>div,.section-heading>div,.post>header>div,.chat-person-info,.chat-history-open,.chat-history-open>span,.message-request-copy,.room-message-content,.room-title>div,.live-create-copy>div,.live-list article>div:nth-child(2),.notification-copy,.profile-view-identity>div,.chat-minimized>div,.chat-minimized>div>span,.comment>div,.blocked-list>div>span,.people-card-identity>div){min-width:0}
+.connect-app :is(img,video,canvas,svg,iframe,table){max-width:100%}
+.connect-app :is(.post-body,.bubble,.comment p,.room-message-content>p,.profile-view-bio){overflow-wrap:anywhere;word-break:normal}
+.connect-app :is(.post-actions,.post-stats,.compose-footer,.live-card-actions,.chat-history-item,.chat-history-actions,.room-select,.settings-section form,.queue-card ul,.match-live-actions,.live-controls){flex-wrap:wrap}
+.connect-app .chat>header{flex-wrap:wrap;row-gap:8px}
+.connect-app .heading{flex-wrap:wrap}
+@media(max-width:760px){
+ .connect-app .live-create{grid-template-columns:minmax(0,1fr)}
+ .connect-app .crop-controls{grid-template-columns:minmax(0,1fr)}
+ .connect-app .people-directory-grid,.connect-app .profile-view-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .connect-app .queue-card,.connect-app .subscription-page-card,.connect-app .settings-panel,.connect-app .rooms-panel{padding:16px}
+ .connect-app .state-room-grid button{flex:0 0 calc((100% - 28px)/5)}
+ .connect-app .bubble{max-width:88%}
+ .connect-app .live-stage>header,.connect-app .live-header-actions{flex-wrap:wrap}
+ .connect-app .heading h1{overflow-wrap:break-word}
+}
+@media(max-width:420px){.connect-app .people-directory-grid,.connect-app .profile-view-facts{grid-template-columns:minmax(0,1fr)}}
