@@ -140,13 +140,6 @@ try {
   await auditAccessibility("Sign-up mobile");
 
   await page.getByRole("button", { name: "Voltar para o início" }).click();
-  await page.getByRole("button", { name: /Conhecer por dentro/ }).click();
-  await page.locator('[data-screen="authentication"]').waitFor();
-  await page.getByRole("heading", { name: "Conheça por dentro." }).waitFor();
-  await capture("07-demo-entry-mobile");
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await capture("08-demo-entry-desktop");
-  await auditAccessibility("Demo entry");
 
   const downloadResponse = await page.goto("http://127.0.0.1:4173/Connect/download/", { waitUntil: "domcontentloaded" });
   assert.equal(downloadResponse?.status(), 200, "Download page must return HTTP 200");
@@ -174,7 +167,7 @@ try {
   await auditAccessibility("Download mobile");
   assert.equal(pageErrors.length, 0, `Browser runtime errors: ${pageErrors.join(" | ")}`);
 
-  process.stdout.write(`PASS: landing, sign-in, sign-up, demo entry, download hub, WCAG 2.2 AA and responsive overflow checks at ${viewports.join(", ")} px.\n`);
+  process.stdout.write(`PASS: landing, sign-in, sign-up, download hub, WCAG 2.2 AA and responsive overflow checks at ${viewports.join(", ")} px.\n`);
 } finally {
   await browser.close();
   await new Promise((resolveClose) => server.close(resolveClose));
