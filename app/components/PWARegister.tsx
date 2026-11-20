@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshCw, X } from "lucide-react";
 
 export default function PWARegister() {
   const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  // Só recarrega quando a pessoa pediu a atualização: recarregar sozinho (ex.: no primeiro acesso, quando o
+  // service worker assume o controle) perderia conversa, rascunho e estado da tela.
+  const reloadRequested = useRef(false);
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
     let refreshing = false;
     const onControllerChange = () => {
-      if (refreshing) return;
+      if (refreshing || !reloadRequested.current) return;
       refreshing = true;
       window.location.reload();
     };
@@ -85,6 +88,7 @@ export default function PWARegister() {
         type="button"
         className="primary"
         onClick={() => {
+          reloadRequested.current = true;
           if (waitingWorker) waitingWorker.postMessage({ type: "SKIP_WAITING" });
           else window.location.reload();
         }}
