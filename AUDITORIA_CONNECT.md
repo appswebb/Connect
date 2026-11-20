@@ -86,3 +86,8 @@ Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` 
 - Chaves `NO ACTION`/`RESTRICT` (`live_*`, `subscription_gifts`, `wallet_ledger`, `withdrawal_requests`) bloqueiam a exclusão do usuário; a purga legada falharia para todos.
 - Proteção contra senhas vazadas desativada (painel do Supabase).
 - Existe 1 pedido de exclusão pendente de conta real (26/11); não foi alterado.
+
+### Seguidores (Parte 10) e demo
+- `connect-demo-login` publicado sem `listUsers` (localiza a conta pelo perfil `is_demo`). Hoje não há conta demo no banco; a função a cria no primeiro uso. Não testei o login demo em execução (exige as credenciais demo).
+- Migration `20261120060000`: `profile_follow_stats` e `list_profile_follows` (cursor, sem demo, sem bloqueios nos dois sentidos, anônimo negado). Testadas em transação revertida: contagens 2/1 e 1/1, `i_follow`/`follows_me`, paginação, bloqueio remove da lista e das estatísticas, tipo inválido rejeitado.
+- **Não ligado na interface ainda:** a tela continua mostrando só as listas do próprio usuário; ver seguidores de outro perfil exige a tela.
