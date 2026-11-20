@@ -64,6 +64,7 @@ export default function ConnectChat(props: Props) {
               </div>
               <div className="chat-mode-switch">
                 <button
+                  type="button"
                   className={chatView === "direct" && chatInboxTab === "conversations" ? "active" : ""}
                   onClick={() => {
                     setChatView("direct");
@@ -73,6 +74,7 @@ export default function ConnectChat(props: Props) {
                   <MessageCircle size={15} /> Conversas
                 </button>
                 <button
+                  type="button"
                   className={chatView === "direct" && chatInboxTab === "requests" ? "active" : ""}
                   onClick={() => {
                     setChatView("direct");
@@ -82,6 +84,7 @@ export default function ConnectChat(props: Props) {
                   <Mail size={15} /> Pedidos {messageRequests.length > 0 && <b>{messageRequests.length}</b>}
                 </button>
                 <button
+                  type="button"
                   className={chatView === "direct" && chatInboxTab === "archived" ? "active" : ""}
                   onClick={() => {
                     setChatView("direct");
@@ -108,10 +111,10 @@ export default function ConnectChat(props: Props) {
                           <p>{item.initial_message}</p>
                         </div>
                         <div className="message-request-actions">
-                          <button className="primary" onClick={() => void respondMessageRequest(item.id, true)}>
+                          <button type="button" className="primary" onClick={() => void respondMessageRequest(item.id, true)}>
                             Aceitar
                           </button>
-                          <button className="secondary" onClick={() => void respondMessageRequest(item.id, false)}>
+                          <button type="button" className="secondary" onClick={() => void respondMessageRequest(item.id, false)}>
                             Recusar
                           </button>
                           {!isDemo && (
@@ -146,10 +149,10 @@ export default function ConnectChat(props: Props) {
                               <small>Conversa minimizada · mensagens continuam chegando</small>
                             </span>
                           </div>
-                          <button className="secondary" onClick={() => setChatMinimized(false)}>
+                          <button type="button" className="secondary" onClick={() => setChatMinimized(false)}>
                             Reabrir conversa
                           </button>
-                          <button className="chat-close-mini" onClick={() => void endChat()} title="Encerrar conversa">
+                          <button type="button" className="chat-close-mini" onClick={() => void endChat()} title="Encerrar conversa" aria-label="Encerrar conversa">
                             <X />
                           </button>
                         </section>
@@ -176,22 +179,24 @@ export default function ConnectChat(props: Props) {
                               <>
                                 {!chatReadOnly && (
                                   <>
-                                    <button title="Denunciar pessoa" onClick={() => openReport(partner.id)}>
+                                    <button type="button" title="Denunciar pessoa" aria-label="Denunciar pessoa" onClick={() => openReport(partner.id)}>
                                       <Flag />
                                     </button>
-                                    <button title="Bloquear pessoa" onClick={() => void blockUser(partner.id)}>
+                                    <button type="button" title="Bloquear pessoa" aria-label="Bloquear pessoa" onClick={() => void blockUser(partner.id)}>
                                       <Ban />
                                     </button>
                                   </>
                                 )}
                                 {!chatReadOnly && (
-                                  <button onClick={() => setChatMinimized(true)} title="Minimizar conversa">
+                                  <button type="button" onClick={() => setChatMinimized(true)} title="Minimizar conversa" aria-label="Minimizar conversa">
                                     <Minus />
                                   </button>
                                 )}
                                 <button
+                                  type="button"
                                   onClick={() => void endChat()}
                                   title={chatReadOnly ? "Voltar ao histórico" : "Fechar e salvar conversa"}
+                                  aria-label={chatReadOnly ? "Voltar ao histórico" : "Fechar e salvar conversa"}
                                 >
                                   <X />
                                 </button>
@@ -250,6 +255,7 @@ export default function ConnectChat(props: Props) {
                                     type="button"
                                     onClick={() => chatFileRef.current?.click()}
                                     title="Enviar foto ou arquivo"
+                                    aria-label="Enviar foto ou arquivo"
                                     disabled={busy}
                                   >
                                     <Paperclip />
@@ -273,6 +279,7 @@ export default function ConnectChat(props: Props) {
                                     className={recording ? "recording" : ""}
                                     onClick={() => void toggleRecording()}
                                     title={recording ? "Parar gravação" : "Gravar áudio"}
+                                    aria-label={recording ? "Parar gravação" : "Gravar áudio"}
                                     disabled={busy}
                                   >
                                     {recording ? <Square /> : <Mic />}
@@ -284,7 +291,7 @@ export default function ConnectChat(props: Props) {
                                   placeholder={recording ? "Gravando áudio..." : "Escreva uma mensagem..."}
                                   maxLength={4000}
                                 />
-                                <button disabled={!draft.trim() || busy}>
+                                <button type="submit" disabled={!draft.trim() || busy} aria-label="Enviar mensagem">
                                   <Send />
                                 </button>
                               </form>
@@ -309,6 +316,7 @@ export default function ConnectChat(props: Props) {
                             {chatHistory.map((item) => (
                               <article className="chat-history-item" key={item.id}>
                                 <button
+                                  type="button"
                                   className="chat-history-open"
                                   onClick={() => {
                                     setMatchId(item.id);
@@ -360,7 +368,7 @@ export default function ConnectChat(props: Props) {
                             <MessageCircle />
                             <h3>Nenhuma conversa ativa.</h3>
                             <p>Entre na fila para encontrar alguém que também esteja online.</p>
-                            <button className="primary" onClick={() => setTab("queue")}>
+                            <button type="button" className="primary" onClick={() => setTab("queue")}>
                               Encontrar alguém <ArrowRight />
                             </button>
                           </div>

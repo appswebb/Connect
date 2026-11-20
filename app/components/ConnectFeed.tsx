@@ -82,7 +82,7 @@ export default function ConnectFeed(props: Props) {
                 }}
               />
             </label>
-            <button className="primary" disabled={busy || (!body.trim() && !file)}>
+            <button type="submit" className="primary" disabled={busy || (!body.trim() && !file)}>
               {busy ? "Publicando..." : "Publicar"} <ArrowRight size={15} />
             </button>
           </div>
@@ -118,12 +118,12 @@ export default function ConnectFeed(props: Props) {
                 </span>
               </div>
               {!isDemo && (post.user_id === profile.id ? (
-                <button type="button" className="delete" title="Apagar publicação" onClick={() => void removePost(post.id)}><Trash2 size={16} /></button>
+                <button type="button" className="delete" title="Apagar publicação" aria-label="Apagar publicação" onClick={() => void removePost(post.id)}><Trash2 size={16} /></button>
               ) : (
                 <div className="post-safety-actions">
-                  <button type="button" title="Denunciar publicação" onClick={() => openReport(post.user_id, "post", post.id)}><Flag size={14} /></button>
-                  <button type="button" title="Denunciar perfil" onClick={() => openReport(post.user_id)}><UserRound size={14} /></button>
-                  <button type="button" title="Bloquear pessoa" onClick={() => void blockUser(post.user_id)}><Ban size={14} /></button>
+                  <button type="button" title="Denunciar publicação" aria-label="Denunciar publicação" onClick={() => openReport(post.user_id, "post", post.id)}><Flag size={14} /></button>
+                  <button type="button" title="Denunciar perfil" aria-label="Denunciar perfil" onClick={() => openReport(post.user_id)}><UserRound size={14} /></button>
+                  <button type="button" title="Bloquear pessoa" aria-label="Bloquear pessoa" onClick={() => void blockUser(post.user_id)}><Ban size={14} /></button>
                 </div>
               ))}
             </header>

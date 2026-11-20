@@ -1,13 +1,14 @@
 "use client";
 
-import { ArrowRight, ShieldCheck, Users, MessageCircle, Globe2, UserSearch } from "lucide-react";
+import { ArrowRight, Eye, ShieldCheck, Users, MessageCircle, Globe2, UserSearch } from "lucide-react";
 
 type ConnectLandingProps = {
   onSignIn: () => void;
   onSignUp: () => void;
+  onGuest: () => void;
 };
 
-export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingProps) {
+export default function ConnectLanding({ onSignIn, onSignUp, onGuest }: ConnectLandingProps) {
   return (
     <main className="connect-home" data-screen="marketing">
             <header className="landing-header">
@@ -63,6 +64,9 @@ export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingPro
                     }}
                   >
                     Faça parte do CONNECT <ArrowRight size={18} />
+                  </button>
+                  <button type="button" className="landing-demo" onClick={() => onGuest()}>
+                    <Eye size={16} /> Explorar como visitante
                   </button>
                 </div>
                 <div className="landing-note">
@@ -174,6 +178,7 @@ export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingPro
                 </h2>
                 <p>Perfil, feed, notificações, conexões e assinatura continuam juntos — agora com uma casa mais clara.</p>
                 <button
+                  type="button"
                   className="landing-cta"
                   onClick={() => {
                     onSignUp();
@@ -183,6 +188,33 @@ export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingPro
                 </button>
               </div>
             </section>
+            <section className="landing-steps" id="seguranca">
+              <div className="landing-section-heading">
+                <span className="landing-kicker">SEGURANÇA E PRIVACIDADE</span>
+                <h2>
+                  Controle real.
+                  <br />
+                  <span>Em cada interação.</span>
+                </h2>
+              </div>
+              <ol className="landing-step-list">
+                <li>
+                  <span>01</span>
+                  <h3>Localização sob medida</h3>
+                  <p>Você decide se cidade e estado aparecem no perfil. Coordenadas GPS nunca são gravadas.</p>
+                </li>
+                <li>
+                  <span>02</span>
+                  <h3>Bloqueio e denúncia</h3>
+                  <p>Bloqueie perfis e denuncie publicações, comentários ou mensagens com um toque.</p>
+                </li>
+                <li>
+                  <span>03</span>
+                  <h3>Privacidade por padrão</h3>
+                  <p>Pedidos de mensagem separados de amigos mútuos e controle total da sua conta.</p>
+                </li>
+              </ol>
+            </section>
             <footer className="landing-footer">
               <a className="landing-brand" href="#inicio">
                 <img src="/Connect/connect-mark.svg" alt="" />
@@ -191,9 +223,10 @@ export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingPro
               <nav>
                 <a href="#experiencia">Experiência</a>
                 <a href="#como">Como funciona</a>
+                <a href="#seguranca">Segurança</a>
                 <a href="/Connect/download/">Baixar o app</a>
               </nav>
-              <span>© CONNECT 2026 · FEITO PARA CONECTAR PESSOAS</span>
+              <span>© CONNECT 2026 · PRIVACIDADE · RESPEITO · COMUNIDADE</span>
             </footer>
           </main>
   );

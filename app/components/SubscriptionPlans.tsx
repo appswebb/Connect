@@ -66,6 +66,17 @@ export default function SubscriptionPlans() {
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "return") {
+      const status = params.get("status");
+      if (status === "failure") {
+        setMessage("O pagamento não foi concluído. Você pode tentar novamente quando quiser.");
+      } else if (status === "pending") {
+        setMessage("Pagamento em análise no Mercado Pago. Assim que o servidor confirmar, sua assinatura será ativada.");
+      } else if (status === "success") {
+        setMessage("Retorno do pagamento recebido. Verificando confirmação oficial no servidor...");
+      }
+    }
     void load();
   }, [load]);
 

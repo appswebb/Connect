@@ -82,3 +82,36 @@ export type NotificationItem = {
   created_at: string;
   actor?: Profile | null;
 };
+export type AdminOverview = Record<string, number | string | null>;
+export type AdminReportItem = {
+  id: string;
+  reporter_id?: string;
+  reported_user_id?: string;
+  target_type?: string | null;
+  target_id?: string | null;
+  category?: string | null;
+  details?: string | null;
+  status: string;
+  created_at: string;
+  reporter_name?: string | null;
+  reporter_username?: string | null;
+  reported_name?: string | null;
+  reported_username?: string | null;
+};
+export type ConnectAnnouncement = {
+  id: string;
+  title: string;
+  body: string;
+  active?: boolean;
+  created_at: string;
+};
+export type FollowListState = {
+  profileId: string;
+  displayName: string;
+  kind: "followers" | "following";
+  people: Profile[];
+  cursorCreatedAt: string | null;
+  cursorId: string | null;
+  hasMore: boolean;
+  loading: boolean;
+};

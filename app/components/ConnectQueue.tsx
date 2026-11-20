@@ -1,8 +1,9 @@
 "use client";
 
-import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
-import { Activity, ArrowRight, Ban, Check, Download, FileText, Flag, Heart, Mic, Minus, Paperclip, Radio, Send, Square, Users, X } from "lucide-react";
+import { useState, type Dispatch, type FormEvent, type RefObject, type SetStateAction } from "react";
+import { Activity, ArrowRight, Ban, Check, Download, FileText, Flag, Heart, MapPin, Mic, Minus, Paperclip, Radio, Send, Square, Users, X } from "lucide-react";
 import Avatar from "./ConnectAvatar";
+import BrazilLocationPicker from "./BrazilLocationPicker";
 import ImageCropper from "./ImageCropper";
 import type { Message, Profile } from "../types/connect";
 
@@ -42,6 +43,8 @@ type Props = {
   queue: string;
   queueCityFilter: string;
   queueStateFilter: string;
+  setQueueStateFilter: Dispatch<SetStateAction<string>>;
+  setQueueCityFilter: Dispatch<SetStateAction<string>>;
   queueQuota: { unlimited: boolean; remaining: number; used: number };
   matchId: string | null;
   setTab: Dispatch<SetStateAction<string>>;
@@ -58,12 +61,25 @@ export default function ConnectQueue(props: Props) {
     setCropFile, setCropTarget, applyCroppedImage, send, chatFileRef, recording,
     toggleRecording, busy, draft, setDraft, openImageCrop, sendAttachment,
     pendingAccepted, pendingOtherAccepted, queue, queueCityFilter, queueStateFilter,
+    setQueueStateFilter, setQueueCityFilter,
     queueQuota, matchId, setTab, isDemo, enterQueue, leaveQueue,
   } = props;
 
   // O encontro temporário (cartão de conexão e chat) só existe na aba Conectar.
   const onQueueTab = tab === "queue";
-  const windowMinutes = Math.max(1, Math.round(pendingTotalSeconds / 60));
+  const [editingRegion, setEditingRegion] = useState(false);
+  const progressPercent = Math.min(100, Math.max(0, (pendingSeconds / Math.max(1, pendingTotalSeconds)) * 100));
+
+  const queueStatusBadge = pendingMatchId
+    ? pendingAccepted
+      ? "ACEITANDO · AGUARDANDO PARCEIRO"
+      : pendingOtherAccepted
+        ? "PARCEIRO ACEITOU"
+        : "ENCONTRO ENCONTRADO"
+    : queue === "waiting"
+      ? "PROCURANDO AGORA"
+      : "PRONTO PARA CONECTAR";
+  const windowMinutes = Math.max(1, Math.round(Math.max(60, pendingTotalSeconds) / 60));
   const windowLabel = windowMinutes === 1 ? "1 minuto" : windowMinutes + " minutos";
 
   return (
@@ -95,7 +111,7 @@ export default function ConnectQueue(props: Props) {
                   <div className="match-found-countdown">
                     {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")} <small>restantes</small>
                   </div>
-                  <button className="primary" onClick={() => setShowMatchIntro(false)}>
+                  <button type="button" className="primary" onClick={() => setShowMatchIntro(false)}>
                     Começar conversa <ArrowRight />
                   </button>
                 </section>
@@ -119,14 +135,14 @@ export default function ConnectQueue(props: Props) {
                   <button className="secondary" type="button" onClick={() => setPendingChatMinimized(false)}>
                     Reabrir conversa
                   </button>
-                  <button className="chat-close-mini" type="button" onClick={() => void respondToMatch(false)} title="Encerrar encontro">
+                  <button className="chat-close-mini" type="button" onClick={() => void respondToMatch(false)} title="Encerrar encontro" aria-label="Encerrar encontro">
                     <X />
                   </button>
                 </section>
               ) : (
                 <section className="chat queue-match-chat">
                   <header>
-                    <button type="button" className="profile-open-avatar" onClick={() => void openProfile(pendingPartner.id)}>
+                    <button type="button" className="profile-open-avatar" aria-label={"Ver perfil de " + pendingPartner.display_name} onClick={() => void openProfile(pendingPartner.id)}>
                       <Avatar p={pendingPartner} />
                     </button>
                     <div className="chat-person-info">
@@ -136,25 +152,25 @@ export default function ConnectQueue(props: Props) {
                     <strong className="match-live-timer">
                       {Math.floor(pendingSeconds / 60)}:{String(pendingSeconds % 60).padStart(2, "0")}
                     </strong>
-                    <button type="button" title="Denunciar pessoa" onClick={() => openReport(pendingPartner.id)}>
+                    <button type="button" title="Denunciar pessoa" aria-label="Denunciar pessoa" onClick={() => openReport(pendingPartner.id)}>
                       <Flag />
                     </button>
-                    <button type="button" title="Bloquear pessoa" onClick={() => void blockUser(pendingPartner.id)}>
+                    <button type="button" title="Bloquear pessoa" aria-label="Bloquear pessoa" onClick={() => void blockUser(pendingPartner.id)}>
                       <Ban />
                     </button>
-                    <button type="button" title="Minimizar conversa" onClick={() => setPendingChatMinimized(true)}>
+                    <button type="button" title="Minimizar conversa" aria-label="Minimizar conversa" onClick={() => setPendingChatMinimized(true)}>
                       <Minus />
                     </button>
                   </header>
                   <div className="match-live-progress">
-                    <i style={{ width: Math.min(100, (pendingSeconds / Math.max(1, pendingTotalSeconds)) * 100) + "%" }} />
+                    <i style={{ width: progressPercent + "%" }} />
                   </div>
-                  <div className="queue-match-status">
+                  <div className="queue-match-status" role="status">
                     {pendingAccepted
-                      ? "Você aceitou o match. Aguardando a outra pessoa."
+                      ? "Você aceitou o match. Aguardando a outra pessoa confirmar."
                       : pendingOtherAccepted
-                        ? "A outra pessoa aceitou. Se você também aceitar, o match será confirmado."
-                        : "Conversem por até {windowLabel}. O match só acontece se os dois aceitarem."}
+                        ? "A outra pessoa já aceitou! Se você também aceitar, o match abre direto no Chat."
+                        : `Conversem por até ${windowLabel}. O match só acontece se os dois aceitarem.`}
                   </div>
                   <div className="messages">
                     {messages.map((m) => (
@@ -204,6 +220,7 @@ export default function ConnectQueue(props: Props) {
                         type="button"
                         onClick={() => chatFileRef.current?.click()}
                         title="Enviar foto, vídeo ou arquivo"
+                        aria-label="Enviar foto, vídeo ou arquivo"
                         disabled={busy}
                       >
                         <Paperclip />
@@ -227,6 +244,7 @@ export default function ConnectQueue(props: Props) {
                         className={recording ? "recording" : ""}
                         onClick={() => void toggleRecording()}
                         title={recording ? "Parar gravação" : "Gravar áudio"}
+                        aria-label={recording ? "Parar gravação" : "Gravar áudio"}
                         disabled={busy}
                       >
                         {recording ? <Square /> : <Mic />}
@@ -238,7 +256,7 @@ export default function ConnectQueue(props: Props) {
                       placeholder={recording ? "Gravando áudio..." : "Converse antes de decidir..."}
                       maxLength={4000}
                     />
-                    <button disabled={!draft.trim() || busy}>
+                    <button type="submit" disabled={!draft.trim() || busy} aria-label="Enviar mensagem">
                       <Send />
                     </button>
                   </form>
@@ -258,10 +276,10 @@ export default function ConnectQueue(props: Props) {
                     />
                   )}
                   <div className="match-live-actions">
-                    <button className="secondary" disabled={busy} onClick={() => void respondToMatch(false)}>
+                    <button type="button" className="secondary" disabled={busy} onClick={() => void respondToMatch(false)}>
                       Encerrar encontro
                     </button>
-                    <button className="primary" disabled={busy || pendingAccepted} onClick={() => void respondToMatch(true)}>
+                    <button type="button" className="primary" disabled={busy || pendingAccepted} onClick={() => void respondToMatch(true)}>
                       {pendingAccepted ? "Aguardando aceite" : "Aceitar match"} <Check />
                     </button>
                   </div>
@@ -296,9 +314,9 @@ export default function ConnectQueue(props: Props) {
               </div>
               <div>
                 <small className="queue-kicker">MATCHING POR PREFERÊNCIAS</small>
-                <div className={"queue-state " + (queue === "waiting" ? "is-active" : "")}>
+                <div className={"queue-state " + (queue === "waiting" || pendingMatchId ? "is-active" : "")}>
                   <i />
-                  {queue === "waiting" ? "PROCURANDO AGORA" : "PRONTO PARA CONECTAR"}
+                  {queueStatusBadge}
                 </div>
                 <h2>
                   {queue === "waiting"
@@ -309,14 +327,44 @@ export default function ConnectQueue(props: Props) {
                 </h2>
                 <p>
                   {queue === "waiting"
-                    ? "Você está na fila. Quando alguém compatível aparecer, o chat abre automaticamente. Cada pessoa tem até 3 minutos para aceitar uma única vez."
+                    ? "Você está na fila. Quando alguém compatível aparecer, o chat abre automaticamente. Cada pessoa tem até 5 minutos para aceitar."
                     : "O CONNECT procura pessoas online que também escolheram conhecer alguém com seu perfil."}
                 </p>
                 <div className="queue-filters">
-                  <strong className="queue-location-label">Região de busca</strong>
-                  <span>{queueCityFilter && queueStateFilter ? queueCityFilter + " · " + queueStateFilter : "Todo o Brasil"}</span>
+                  <div className="queue-filter-header">
+                    <div>
+                      <strong className="queue-location-label">Região de busca</strong>
+                      <span>
+                        {queueCityFilter && queueStateFilter
+                          ? queueCityFilter + " · " + queueStateFilter
+                          : queueStateFilter
+                            ? "Todo o estado · " + queueStateFilter
+                            : "Todo o Brasil"}
+                      </span>
+                    </div>
+                    {queue !== "waiting" && !pendingMatchId && (
+                      <button type="button" className="secondary" onClick={() => setEditingRegion((v) => !v)}>
+                        <MapPin size={14} /> {editingRegion ? "Fechar filtro" : "Alterar região"}
+                      </button>
+                    )}
+                  </div>
+                  {editingRegion && queue !== "waiting" && !pendingMatchId && (
+                    <div className="queue-region-picker">
+                      <BrazilLocationPicker
+                        stateCode={queueStateFilter}
+                        city={queueCityFilter}
+                        allowAnyState
+                        allowAnyCity
+                        compact
+                        onChange={(nextState, nextCity) => {
+                          setQueueStateFilter(nextState);
+                          setQueueCityFilter(nextCity);
+                        }}
+                      />
+                    </div>
+                  )}
                   <small>
-                    Para buscar pessoas em outra cidade ou voltar à sua localização atual, use o ícone de localização no topo da tela.
+                    Você pode buscar no Brasil inteiro, em um estado específico ou na sua cidade.
                   </small>
                 </div>
                 <div className="queue-quota">
@@ -346,17 +394,17 @@ export default function ConnectQueue(props: Props) {
                 {pendingMatchId ? (
                   <p className="queue-pending-note">A confirmação da conexão está aberta na tela.</p>
                 ) : matchId ? (
-                  <button className="secondary" onClick={() => setTab("chat")}>
+                  <button type="button" className="secondary" onClick={() => setTab("chat")}>
                     Voltar para a conversa ativa
                   </button>
                 ) : queue === "waiting" ? (
-                  <button className="secondary" onClick={() => void leaveQueue()}>
+                  <button type="button" className="secondary" onClick={() => void leaveQueue()}>
                     Sair da fila
                   </button>
                 ) : isDemo ? (
                   <p className="demo-readonly-note">A busca por pessoas fica desativada no acesso de demonstração.</p>
                 ) : (
-                  <button className="primary" disabled={busy} onClick={() => void enterQueue()}>
+                  <button type="button" className="primary" disabled={busy} onClick={() => void enterQueue()}>
                     <Radio /> {busy ? "Conectando..." : "Entrar na fila"} <ArrowRight />
                   </button>
                 )}

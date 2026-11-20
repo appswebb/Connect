@@ -1,4 +1,4 @@
-const SHELL_CACHE = "connect-shell-v3";
+const SHELL_CACHE = "connect-shell-v4";
 const SHELL_URLS = [
   "/Connect/",
   "/Connect/manifest.webmanifest",
@@ -11,8 +11,13 @@ self.addEventListener("install", event => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL_CACHE);
     await Promise.allSettled(SHELL_URLS.map(url => cache.add(url)));
-    await self.skipWaiting();
   })());
+});
+
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    void self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", event => {
@@ -28,6 +33,7 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
   if (/\/(auth|rest|realtime|functions)\/v1\//.test(url.pathname)) return;
+  if (url.pathname === "/Connect/app-version.json") return;
 
   if (request.mode === "navigate") {
     event.respondWith((async () => {
@@ -39,13 +45,18 @@ self.addEventListener("fetch", event => {
         }
         return response;
       } catch {
-        return (await caches.match("/Connect/")) || Response.error();
+        const cached = await caches.match("/Connect/");
+        if (cached) return cached;
+        return new Response(
+          "<!doctype html><html lang='pt-BR'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>CONNECT — Sem conexão</title><style>body{font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f8f4f2;color:#29212a;padding:24px;text-align:center}main{max-width:420px;background:#fff;border:1px solid #eadfe1;border-radius:18px;padding:24px}h1{margin:0 0 8px;font-size:22px}p{color:#786d75;line-height:1.6}button{margin-top:12px;border:0;border-radius:12px;padding:12px 18px;background:#e94f68;color:#fff;font-weight:700;cursor:pointer}</style></head><body><main><h1>Você está offline</h1><p>Verifique sua conexão com a internet para carregar as conversas e o feed do CONNECT.</p><button onclick='location.reload()'>Tentar novamente</button></main></body></html>",
+          { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } }
+        );
       }
     })());
     return;
   }
 
-  if (/\/Connect\/(icons|images)\//.test(url.pathname)) {
+  if (/^\/Connect\/(icons|images)\//.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(SHELL_CACHE);
       const cached = await cache.match(request);

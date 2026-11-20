@@ -67,17 +67,19 @@ import ConnectProfile from "./components/ConnectProfile";
 import ConnectChat from "./components/ConnectChat";
 import ConnectQueue from "./components/ConnectQueue";
 import ConnectOverlays from "./components/ConnectOverlays";
+import ConnectAdminPanel from "./components/ConnectAdminPanel";
+import ConnectGuestExplorer from "./components/ConnectGuestExplorer";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago, formatNotificationCount, sanitizeSearchTerm } from "./lib/connect-utils";
 import { essentialNotificationTypes, PEOPLE_PAGE_SIZE, PEOPLE_ONLINE_ID_CAP } from "./lib/connect-data";
-import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, NotificationItem } from "./types/connect";
+import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, NotificationItem, ConnectAnnouncement, FollowListState } from "./types/connect";
 
 export default function Home() {
   const [session, setSession] = useState<Session | null>(null),
     [profile, setProfile] = useState<Profile | null>(null),
     [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"signup" | "signin">("signup"),
-    [authScreen, setAuthScreen] = useState<"home" | "auth">("home"),
+    [authScreen, setAuthScreen] = useState<"home" | "auth" | "guest">("home"),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [demoUsername, setDemoUsername] = useState(""),
@@ -127,8 +129,8 @@ export default function Home() {
     [pendingPartner, setPendingPartner] = useState<Profile | null>(null),
     [showMatchIntro, setShowMatchIntro] = useState(false),
     [pendingExpiresAt, setPendingExpiresAt] = useState(""),
-    [pendingSeconds, setPendingSeconds] = useState(180),
-    [pendingTotalSeconds, setPendingTotalSeconds] = useState(180),
+    [pendingTotalSeconds, setPendingTotalSeconds] = useState(300),
+    [pendingSeconds, setPendingSeconds] = useState(300),
     [pendingAccepted, setPendingAccepted] = useState(false),
     [pendingOtherAccepted, setPendingOtherAccepted] = useState(false),
     [chatReadOnly, setChatReadOnly] = useState(false),
@@ -144,7 +146,10 @@ export default function Home() {
       following_count: 0,
     }),
     [ownSocialCounts, setOwnSocialCounts] = useState({ followers: 0, following: 0 }),
-    [ownSocialList, setOwnSocialList] = useState<{ kind: "followers" | "following"; people: Profile[] } | null>(null),
+    [followList, setFollowList] = useState<FollowListState | null>(null),
+    [isAdmin, setIsAdmin] = useState(false),
+    [announcements, setAnnouncements] = useState<ConnectAnnouncement[]>([]),
+    [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>([]),
     [messageRecipient, setMessageRecipient] = useState<Profile | null>(null),
     [directMessageDraft, setDirectMessageDraft] = useState(""),
     [messageRequests, setMessageRequests] = useState<MessageRequestItem[]>([]),
@@ -184,6 +189,10 @@ export default function Home() {
   useEffect(() => {
     const saved = window.localStorage.getItem("connect-theme");
     if (saved === "dark" || saved === "light") setTheme(saved);
+    try {
+      const dismissed = JSON.parse(window.localStorage.getItem("connect-dismissed-announcements") || "[]");
+      if (Array.isArray(dismissed)) setDismissedAnnouncements(dismissed.filter((x) => typeof x === "string"));
+    } catch {}
     setThemeReady(true);
   }, []);
   useEffect(() => {
@@ -341,14 +350,40 @@ export default function Home() {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 },
     );
   }
+  async function loadAnnouncements() {
+    const res = await supabase
+      .from("connect_announcements")
+      .select("id,title,body,active,created_at")
+      .eq("active", true)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    if (!res.error) setAnnouncements((res.data || []) as ConnectAnnouncement[]);
+  }
+  function dismissAnnouncement(id: string) {
+    setDismissedAnnouncements((old) => {
+      const next = old.includes(id) ? old : [...old, id];
+      try {
+        window.localStorage.setItem("connect-dismissed-announcements", JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }
   async function loadProfile(uid: string) {
-    const [profileResult, followersResult, followingResult] = await Promise.all([
+    const [profileResult, statsResult, followersResult, followingResult, adminCheck] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+      supabase.rpc("profile_follow_stats", { p_profile: uid }),
       supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("followed_id", uid),
       supabase.from("follows").select("followed_id", { count: "exact", head: true }).eq("follower_id", uid),
+      supabase.rpc("is_connect_admin"),
     ]);
     const { data, error } = profileResult;
-    setOwnSocialCounts({ followers: followersResult.count || 0, following: followingResult.count || 0 });
+    const statsRow = Array.isArray(statsResult.data) ? statsResult.data[0] : statsResult.data;
+    setOwnSocialCounts({
+      followers: Number(statsRow?.followers ?? statsRow?.followers_count ?? followersResult.count ?? 0),
+      following: Number(statsRow?.following_count ?? statsRow?.following ?? followingResult.count ?? 0),
+    });
+    setIsAdmin(!adminCheck.error && Boolean(adminCheck.data));
+    void loadAnnouncements();
     if (error) {
       fail(error.message);
       return;
@@ -403,18 +438,16 @@ export default function Home() {
     }
     const other = m.data.user_one === session?.user.id ? m.data.user_two : m.data.user_one;
     const p = await supabase.from("profiles").select("*").eq("id", other).maybeSingle();
+    const expiresIso = m.data.expires_at || new Date(Date.now() + 300000).toISOString();
+    const createdMs = m.data.created_at ? new Date(m.data.created_at).getTime() : Date.now();
+    const expiresMs = new Date(expiresIso).getTime();
+    const totalSecs = Math.max(60, Math.round((expiresMs - createdMs) / 1000) || 300);
     setPendingMatchId(id);
     setPendingPartner(p.data as Profile | null);
     setShowMatchIntro(true);
-    {
-      const expiresMs = new Date(m.data.expires_at || Date.now() + 180000).getTime();
-      const createdMs = m.data.created_at ? new Date(m.data.created_at).getTime() : NaN;
-      const windowSeconds = Number.isFinite(createdMs) ? Math.round((expiresMs - createdMs) / 1000) : 0;
-      // Janela configurada no servidor; se não der para calcular, usa a restante como referência.
-      setPendingTotalSeconds(windowSeconds >= 60 && windowSeconds <= 3600 ? windowSeconds : Math.max(60, Math.ceil((expiresMs - Date.now()) / 1000)));
-    }
-    setPendingExpiresAt(m.data.expires_at || new Date(Date.now() + 180000).toISOString());
-    setPendingSeconds(Math.max(0, Math.ceil((new Date(m.data.expires_at || Date.now() + 180000).getTime() - Date.now()) / 1000)));
+    setPendingExpiresAt(expiresIso);
+    setPendingTotalSeconds(totalSecs);
+    setPendingSeconds(Math.max(0, Math.ceil((expiresMs - Date.now()) / 1000)));
     setPendingAccepted(Boolean(m.data.user_one === session?.user.id ? m.data.user_one_accepted_at : m.data.user_two_accepted_at));
     setPendingOtherAccepted(Boolean(m.data.user_one === session?.user.id ? m.data.user_two_accepted_at : m.data.user_one_accepted_at));
     setQueue("matched");
@@ -1028,7 +1061,7 @@ export default function Home() {
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: "https://appswebb.github.io/Connect/",
+            emailRedirectTo: typeof window !== "undefined" ? `${window.location.origin}/` : undefined,
             data: {
               display_name: name.trim(),
               username: handle,
@@ -1195,7 +1228,7 @@ export default function Home() {
   }
   async function sendPasswordReset() {
     if (!session?.user.email) return;
-    const r = await supabase.auth.resetPasswordForEmail(session.user.email, { redirectTo: "https://appswebb.github.io/Connect/" });
+    const r = await supabase.auth.resetPasswordForEmail(session.user.email, { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/` : undefined });
     if (r.error) {
       fail(r.error.message);
       return;
@@ -1208,9 +1241,10 @@ export default function Home() {
       setTab("profile");
       return;
     }
-    const [r, rel] = await Promise.all([
+    const [r, rel, stats] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
       supabase.rpc("get_social_relationship", { p_other: uid }),
+      supabase.rpc("profile_follow_stats", { p_profile: uid }),
     ]);
     if (r.error) {
       fail("Não foi possível abrir este perfil: " + r.error.message);
@@ -1220,8 +1254,14 @@ export default function Home() {
       fail("Este perfil não está disponível para visualização.");
       return;
     }
+    const relData = rel.data || { following: false, follows_me: false, mutual: false, followers: 0, following_count: 0 };
+    const statsRow = Array.isArray(stats.data) ? stats.data[0] : stats.data;
     setViewingProfile(r.data as Profile);
-    setRelationship(rel.data || { following: false, follows_me: false, mutual: false, followers: 0, following_count: 0 });
+    setRelationship({
+      ...relData,
+      followers: Number(statsRow?.followers ?? statsRow?.followers_count ?? relData.followers ?? 0),
+      following_count: Number(statsRow?.following_count ?? statsRow?.following ?? relData.following_count ?? 0),
+    });
   }
   async function toggleFollow() {
     if (!viewingProfile || !session?.user.id || isDemo) return;
@@ -1231,32 +1271,91 @@ export default function Home() {
       fail("Não foi possível atualizar o seguimento: " + r.error.message);
       return;
     }
-    const rel = await supabase.rpc("get_social_relationship", { p_other: viewingProfile.id });
-    setRelationship(rel.data || relationship);
+    const [rel, stats] = await Promise.all([
+      supabase.rpc("get_social_relationship", { p_other: viewingProfile.id }),
+      supabase.rpc("profile_follow_stats", { p_profile: viewingProfile.id }),
+    ]);
+    const relData = rel.data || relationship;
+    const statsRow = Array.isArray(stats.data) ? stats.data[0] : stats.data;
+    setRelationship({
+      ...relData,
+      followers: Number(statsRow?.followers ?? statsRow?.followers_count ?? relData.followers ?? 0),
+      following_count: Number(statsRow?.following_count ?? statsRow?.following ?? relData.following_count ?? 0),
+    });
     setNotice(wasFollowing ? "Você deixou de seguir esta pessoa." : "Agora você está seguindo esta pessoa.");
   }
-  async function openOwnSocialList(kind: "followers" | "following") {
+  async function fetchFollowPage(
+    profileId: string,
+    kind: "followers" | "following",
+    cursorCreatedAt: string | null,
+    cursorId: string | null,
+  ) {
+    const res = await supabase.rpc("list_profile_follows", {
+      p_profile: profileId,
+      p_kind: kind,
+      p_limit: 20,
+      p_cursor_created_at: cursorCreatedAt,
+      p_cursor_id: cursorId,
+    });
+    if (res.error) throw res.error;
+    const rows = Array.isArray(res.data) ? res.data : [];
+    const people = rows.map((row: any) => (row.profile ? (row.profile as Profile) : (row as Profile)));
+    const last = rows[rows.length - 1] as any;
+    const nextCursorCreatedAt = last?.follow_created_at || last?.cursor_created_at || last?.created_at || null;
+    const nextCursorId = last?.follow_id || last?.cursor_id || last?.id || null;
+    return { people, nextCursorCreatedAt, nextCursorId, hasMore: rows.length >= 20 };
+  }
+  async function openFollowList(profileId: string, displayName: string, kind: "followers" | "following") {
     if (!session?.user.id) return;
-    const query =
-      kind === "followers"
-        ? supabase.from("follows").select("follower_id").eq("followed_id", session.user.id)
-        : supabase.from("follows").select("followed_id").eq("follower_id", session.user.id);
-    const rows = await query;
-    if (rows.error) {
-      fail("Não foi possível carregar a lista: " + rows.error.message);
-      return;
+    setFollowList({
+      profileId,
+      displayName,
+      kind,
+      people: [],
+      cursorCreatedAt: null,
+      cursorId: null,
+      hasMore: false,
+      loading: true,
+    });
+    try {
+      const page = await fetchFollowPage(profileId, kind, null, null);
+      setFollowList({
+        profileId,
+        displayName,
+        kind,
+        people: page.people,
+        cursorCreatedAt: page.nextCursorCreatedAt,
+        cursorId: page.nextCursorId,
+        hasMore: page.hasMore,
+        loading: false,
+      });
+    } catch (err) {
+      setFollowList(null);
+      fail("Não foi possível carregar a lista: " + (err instanceof Error ? err.message : "erro desconhecido"));
     }
-    const ids = (rows.data || []).map((x: any) => (kind === "followers" ? x.follower_id : x.followed_id));
-    if (!ids.length) {
-      setOwnSocialList({ kind, people: [] });
-      return;
+  }
+  async function loadMoreFollowList() {
+    if (!followList || followList.loading || !followList.hasMore) return;
+    const current = followList;
+    setFollowList((old) => (old ? { ...old, loading: true } : null));
+    try {
+      const page = await fetchFollowPage(current.profileId, current.kind, current.cursorCreatedAt, current.cursorId);
+      setFollowList((old) =>
+        old
+          ? {
+              ...old,
+              people: [...old.people, ...page.people.filter((p) => !old.people.some((existing) => existing.id === p.id))],
+              cursorCreatedAt: page.nextCursorCreatedAt,
+              cursorId: page.nextCursorId,
+              hasMore: page.hasMore,
+              loading: false,
+            }
+          : null,
+      );
+    } catch (err) {
+      setFollowList((old) => (old ? { ...old, loading: false } : null));
+      fail("Não foi possível carregar mais pessoas: " + (err instanceof Error ? err.message : "erro desconhecido"));
     }
-    const people = await supabase.from("profiles").select("*").in("id", ids);
-    if (people.error) {
-      fail("Não foi possível carregar os perfis: " + people.error.message);
-      return;
-    }
-    setOwnSocialList({ kind, people: (people.data || []) as Profile[] });
   }
   function startMessage() {
     if (!viewingProfile || isDemo) return;
@@ -1668,6 +1767,16 @@ export default function Home() {
       <ConnectLanding
         onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
         onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
+        onGuest={() => setAuthScreen("guest")}
+      />
+    );
+  }
+  if (!session && authScreen === "guest") {
+    return (
+      <ConnectGuestExplorer
+        onBack={() => setAuthScreen("home")}
+        onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
+        onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
       />
     );
   }
@@ -1977,6 +2086,17 @@ export default function Home() {
                   >
                     <Download size={17} /> Download do aplicativo
                   </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTab("admin");
+                        setUserMenuOpen(false);
+                      }}
+                    >
+                      <ShieldCheck size={17} /> Painel Admin
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="user-menu-logout"
@@ -2018,11 +2138,28 @@ export default function Home() {
             <Eye size={15} /> MODO DE DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO
           </div>
         )}
+        {announcements
+          .filter((item) => !dismissedAnnouncements.includes(item.id))
+          .slice(0, 2)
+          .map((item) => (
+            <div key={item.id} className="announcement-banner" role="status">
+              <BellRing size={16} />
+              <div>
+                <strong>{item.title}</strong>
+                <span>{item.body}</span>
+              </div>
+              <button type="button" aria-label="Dispensar aviso" onClick={() => dismissAnnouncement(item.id)}>
+                <X size={14} />
+              </button>
+            </div>
+          ))}
         <ConnectOverlays
           profile={profile}
           isDemo={isDemo}
-          ownSocialList={ownSocialList}
-          setOwnSocialList={setOwnSocialList}
+          followList={followList}
+          setFollowList={setFollowList}
+          openFollowList={openFollowList}
+          loadMoreFollowList={loadMoreFollowList}
           openProfile={openProfile}
           showVisitorPreview={showVisitorPreview}
           setShowVisitorPreview={setShowVisitorPreview}
@@ -2128,6 +2265,8 @@ export default function Home() {
           queue={queue}
           queueCityFilter={queueCityFilter}
           queueStateFilter={queueStateFilter}
+          setQueueStateFilter={setQueueStateFilter}
+          setQueueCityFilter={setQueueCityFilter}
           queueQuota={queueQuota}
           matchId={matchId}
           setTab={setTab}
@@ -2181,7 +2320,7 @@ export default function Home() {
                   <small>{relationship.mutual ? "CONVERSA DIRETA" : "PEDIDO DE MENSAGEM"}</small>
                   <h2>Mensagem para {messageRecipient.display_name}</h2>
                 </div>
-                <button type="button" onClick={() => setMessageRecipient(null)}>
+                <button type="button" aria-label="Fechar mensagem" onClick={() => setMessageRecipient(null)}>
                   <X />
                 </button>
               </header>
@@ -2261,9 +2400,15 @@ export default function Home() {
             setBio={setBio}
             saveBio={saveBio}
             ownSocialCounts={ownSocialCounts}
-            openOwnSocialList={openOwnSocialList}
+            openFollowList={openFollowList}
             ownPosts={ownPosts}
             removePost={removePost}
+          />
+        )}
+        {tab === "admin" && isAdmin && (
+          <ConnectAdminPanel
+            onAnnouncementsUpdated={loadAnnouncements}
+            onOpenProfile={openProfile}
           />
         )}
                 {tab === "subscription" && (
