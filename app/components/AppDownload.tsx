@@ -1,97 +1,79 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Smartphone, RefreshCw, ShieldCheck, Sparkles, Globe2, Clock3, CheckCircle2, ArrowDownToLine } from "lucide-react";
+import { CheckCircle2, MoreVertical, Share, Smartphone, Monitor, Globe2, ShieldCheck } from "lucide-react";
 
-type ReleaseAsset = { name: string; browser_download_url: string; download_count: number };
-type Release = { draft?: boolean; prerelease?: boolean; tag_name: string; name: string; body: string; published_at: string; html_url: string; assets: ReleaseAsset[] };
 type InstallPrompt = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }> };
-type SiteVersion = { version: string; commit: string; updatedAt: string; changes: string };
 
+/** Tutorial de instalação do CONNECT como app (PWA) pelo navegador. Não há APK: a instalação usa o menu do Chrome. */
 export default function AppDownload() {
-  const [releases, setReleases] = useState<Release[]>([]);
-  const [siteVersion, setSiteVersion] = useState<SiteVersion | null>(null);
-  const [loading, setLoading] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    const controller = new AbortController();
     const onPrompt = (event: Event) => { event.preventDefault(); setInstallPrompt(event as InstallPrompt); };
     const onInstalled = () => { setInstalled(true); setInstallPrompt(null); };
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     setInstalled(window.matchMedia("(display-mode: standalone)").matches);
-    fetch("/Connect/app-version.json", { cache: "no-store", signal: controller.signal }).then(r => r.ok ? r.json() as Promise<SiteVersion> : null).then(v => { if (v && !controller.signal.aborted) setSiteVersion(v); }).catch(() => {});
-    fetch("https://api.github.com/repos/appswebb/Connect/releases?per_page=8", { cache: "no-store", signal: controller.signal })
-      .then(async r => { if (!r.ok) throw new Error("Não foi possível consultar as versões agora."); return r.json() as Promise<Release[]>; })
-      .then(data => { if (!controller.signal.aborted) setReleases(Array.isArray(data) ? data : []); })
-      .catch(() => { if (!controller.signal.aborted) setError("Não foi possível carregar as versões agora. Você ainda pode instalar a versão web pelo navegador."); })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => { controller.abort(); window.removeEventListener("beforeinstallprompt", onPrompt); window.removeEventListener("appinstalled", onInstalled); };
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
   }, []);
 
-  // Only the newest published (non-draft, non-prerelease) version is shown; prefer one that really ships an APK.
-  const published = releases
-    .filter(r => !r.draft && !r.prerelease)
-    .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
-  const hasApk = (r: Release) => !!r.assets?.some(asset => asset.name.toLowerCase().endsWith(".apk"));
-  const latest = published.find(hasApk) ?? published[0];
-  const apk = latest?.assets?.find(asset => asset.name.toLowerCase().endsWith(".apk"));
-  const install = async () => {
+  async function install() {
     if (!installPrompt) return;
-    try {
-      await installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
-      if (choice.outcome === "accepted") setInstalled(true);
-      setInstallPrompt(null);
-    } catch {
-      setError("Não foi possível iniciar a instalação agora. Use o menu do navegador para instalar o CONNECT.");
-      setInstallPrompt(null);
-    }
-  };
+    await installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    setInstallPrompt(null);
+  }
 
-  return <div className="app-download">
-    <section className="app-download-hero">
-      <div className="app-download-hero-copy">
-        <span className="app-download-eyebrow"><i/> CONNECT PARA CELULAR</span>
-        <h2>Seu mundo. Suas conexões. <em>Sempre com você.</em></h2>
-        <p>Uma experiência feita para o celular, com as mesmas conversas, pessoas, salas, transmissões e notificações da sua conta CONNECT.</p>
-        <div className="app-download-hero-actions">
-          {installed ? <span className="app-installed-label" role="status"><CheckCircle2 size={17}/> CONNECT instalado neste aparelho</span> : installPrompt ? <button className="primary" onClick={install}><Smartphone size={17}/> Instalar aplicativo</button> : <span className="app-install-hint"><Smartphone size={16}/> No Chrome, use o menu ⋮ e escolha “Instalar aplicativo”.</span>}
-          <a className="app-download-secondary" href="#android-download">Ver versão Android <ArrowDownToLine size={15}/></a>
-        </div>
-        <div className="app-download-benefits"><span><CheckCircle2/> Mesma conta</span><span><CheckCircle2/> Atualizações automáticas</span><span><CheckCircle2/> Sem Play Store</span></div>
-      </div>
-      <div className="app-download-art" aria-hidden="true">
-        <div className="app-download-orbit app-download-orbit-one"/><div className="app-download-orbit app-download-orbit-two"/>
-        <div className="app-download-device"><div className="app-download-device-camera"/><img src="/Connect/icons/connect.svg" alt="Ícone CONNECT"/><strong>CONNECT</strong><small>Conexões reais começam aqui.</small><div className="app-download-device-dots"><i/><i/><i/></div></div>
-        <span className="app-download-float app-download-float-one"><Globe2/> Salas do Brasil</span><span className="app-download-float app-download-float-two"><Sparkles/> Novas conexões</span>
-      </div>
-    </section>
+  return (
+    <div className="app-download">
+      <section className="install-guide-intro">
+        <span className="app-download-eyebrow"><i /> CONNECT NO CELULAR</span>
+        <h2>Instale o CONNECT em poucos toques.</h2>
+        <p>Não precisa de loja nem de arquivo. O CONNECT abre em tela cheia, com ícone na tela inicial e atualiza sozinho.</p>
+        {installed ? (
+          <span className="app-installed-label" role="status"><CheckCircle2 size={16} /> Já instalado neste dispositivo</span>
+        ) : installPrompt ? (
+          <button type="button" className="primary" onClick={() => void install()}><Smartphone size={16} /> Instalar agora</button>
+        ) : null}
+      </section>
 
-    <div className="app-download-platform-grid">
-      <section className="app-download-platform-card app-download-web-card">
-        <div className="app-download-platform-icon"><Smartphone/></div><span className="app-download-eyebrow">INSTALAÇÃO RÁPIDA</span>
-        <h3>Instale pelo navegador</h3><p>Adicione o CONNECT à tela inicial e abra em uma janela própria, sem precisar procurar o site toda vez.</p>
-        <ol><li>Abra esta página no Chrome.</li><li>Toque no menu ⋮ do navegador.</li><li>Escolha “Instalar aplicativo” ou “Adicionar à tela inicial”.</li></ol>
-        {installed ? <span className="app-installed-label" role="status"><CheckCircle2 size={16}/> Já instalado neste dispositivo</span> : installPrompt ? <button className="primary" onClick={install}><Smartphone size={16}/> Instalar agora</button> : <span className="app-download-status" role="status"><i/> Disponível em navegadores compatíveis</span>}
-      </section>
-      <section className="app-download-platform-card app-download-android-card" id="android-download">
-        <div className="app-download-platform-icon"><Download/></div><span className="app-download-eyebrow">ANDROID · APK OFICIAL</span>
-        <h3>Baixe o aplicativo</h3>
-        {loading ? <p role="status">Consultando a versão Android mais recente...</p> : apk ? <><p>Versão <strong>{latest.tag_name}</strong> · publicada em {new Date(latest.published_at).toLocaleDateString("pt-BR")}</p><a className="primary" href={apk.browser_download_url}><Download size={16}/> Baixar APK</a><small>Após baixar, abra o arquivo e confirme a instalação no Android.</small></> : <><p>A primeira versão Android assinada está sendo preparada. Assim que estiver publicada, o botão de download aparecerá aqui.</p><span className="app-download-status" role="status"><RefreshCw size={14}/> Aguardando a primeira versão APK</span></>}
-      </section>
+      <div className="install-guide-grid">
+        <section className="install-guide-card">
+          <h3><Smartphone size={18} /> Android (Chrome)</h3>
+          <ol>
+            <li>Abra <strong>appswebb.github.io/Connect</strong> no <strong>Google Chrome</strong>.</li>
+            <li>Toque nos <strong>3 pontinhos</strong> <MoreVertical size={14} aria-label="menu" /> no canto superior direito.</li>
+            <li>Toque em <strong>“Instalar app”</strong> ou <strong>“Adicionar à tela inicial”</strong>.</li>
+            <li>Confirme em <strong>Instalar</strong>. O ícone do CONNECT aparece na sua tela inicial.</li>
+          </ol>
+        </section>
+
+        <section className="install-guide-card">
+          <h3><Share size={18} /> iPhone (Safari)</h3>
+          <ol>
+            <li>Abra o site no <strong>Safari</strong>.</li>
+            <li>Toque em <strong>Compartilhar</strong> <Share size={14} aria-label="compartilhar" />, na barra de baixo.</li>
+            <li>Escolha <strong>“Adicionar à Tela de Início”</strong>.</li>
+            <li>Toque em <strong>Adicionar</strong>.</li>
+          </ol>
+        </section>
+
+        <section className="install-guide-card">
+          <h3><Monitor size={18} /> Computador (Chrome ou Edge)</h3>
+          <ol>
+            <li>Abra o site no navegador.</li>
+            <li>Clique no ícone de <strong>instalar</strong> na barra de endereço, ou nos 3 pontinhos → <strong>“Instalar CONNECT”</strong>.</li>
+            <li>Confirme em <strong>Instalar</strong>.</li>
+          </ol>
+        </section>
+      </div>
+
+      <p className="app-download-footnote"><Globe2 size={15} /> <ShieldCheck size={15} /> Não achou a opção? Atualize o Chrome e confira se está no site <strong>https://appswebb.github.io/Connect/</strong> (não dentro de outro app, como o navegador do Instagram ou do WhatsApp). O CONNECT continua funcionando normalmente pelo navegador.</p>
     </div>
-
-    <section className="app-download-updates">
-      <div className="section-heading"><div><h2>Última versão do CONNECT</h2><span>Só a versão mais recente fica disponível para baixar.</span></div><span className="app-live-update"><i/> ATUALIZAÇÕES DO SITE AUTOMÁTICAS</span></div>
-      {siteVersion && <article className="app-release app-site-release"><header><strong><Sparkles size={15}/> Site atualizado · {siteVersion.version}</strong><time><Clock3 size={13}/> {new Date(siteVersion.updatedAt).toLocaleString("pt-BR",{day:"2-digit",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}</time></header><p>{siteVersion.changes}</p><small>Esta atualização já está disponível no site e também aparece no aplicativo instalado.</small></article>}
-      {error && <div className="app-download-note" role="alert">{error}</div>}
-      {!loading && !latest && !error && <div className="app-download-note" role="status"><ShieldCheck size={16}/> A primeira versão pública do APK ainda está sendo preparada.</div>}
-      {latest && <div className="app-release-list"><article className="app-release" key={latest.tag_name}><header><strong>Novidades da versão {latest.name || latest.tag_name}</strong><time>{new Date(latest.published_at).toLocaleDateString("pt-BR")}</time></header><p>{latest.body || "Atualização do CONNECT."}</p></article></div>}
-      <p className="app-download-footnote"><ShieldCheck size={15}/> O site continua funcionando normalmente pelo navegador. O aplicativo usa a mesma versão publicada do CONNECT; quando houver uma nova versão do APK, ela será disponibilizada nesta página.</p>
-    </section>
-  </div>;
+  );
 }

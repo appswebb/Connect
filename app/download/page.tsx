@@ -2,7 +2,7 @@ import AppDownload from "../components/AppDownload";
 
 export const metadata = {
   title: "Baixar CONNECT",
-  description: "Instale o aplicativo CONNECT ou baixe a versão Android mais recente."
+  description: "Veja como instalar o CONNECT no seu celular pelo navegador."
 };
 
 export default function DownloadPage() {
@@ -12,7 +12,7 @@ export default function DownloadPage() {
       <a className="secondary" href="/Connect/">Voltar ao site</a>
     </header>
     <section className="download-page-content">
-      <div className="heading"><div><small>CONNECT NO SEU CELULAR</small><h1>Baixe o <em>CONNECT.</em></h1><p>Use pelo navegador ou instale no seu Android.</p></div></div>
+      <div className="heading"><div><small>CONNECT NO SEU CELULAR</small><h1>Instale o <em>CONNECT.</em></h1><p>Instale pelo navegador, sem loja e sem arquivo.</p></div></div>
       <AppDownload/>
     </section>
   </main>;

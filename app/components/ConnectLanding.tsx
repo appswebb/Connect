@@ -220,7 +220,7 @@ export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingPro
                 <a href="#experiencia">Experiência</a>
                 <a href="#como">Como funciona</a>
                 <a href="#seguranca">Segurança</a>
-                <a href="/Connect/download/">Baixar o app</a>
+                <a href="/Connect/download/">Como instalar o app</a>
               </nav>
               <span>© CONNECT 2026 · PRIVACIDADE · RESPEITO · COMUNIDADE</span>
             </footer>

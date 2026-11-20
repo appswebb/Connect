@@ -143,8 +143,8 @@ try {
 
   const downloadResponse = await page.goto("http://127.0.0.1:4173/Connect/download/", { waitUntil: "domcontentloaded" });
   assert.equal(downloadResponse?.status(), 200, "Download page must return HTTP 200");
-  await page.locator(".app-download-hero").waitFor();
-  await page.getByRole("heading", { name: /Baixe o CONNECT/ }).waitFor();
+  await page.locator(".install-guide-grid").waitFor();
+  await page.getByRole("heading", { name: /Instale o CONNECT/ }).waitFor();
   await page.setViewportSize({ width: 1440, height: 900 });
   await capture("09-download-desktop");
   await page.addScriptTag({ content: axe.source });

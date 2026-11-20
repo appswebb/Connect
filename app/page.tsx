@@ -2438,7 +2438,7 @@ export default function Home() {
                 <h1>
                   Seu CONNECT, <em>sempre por perto.</em>
                 </h1>
-                <p>Instale o aplicativo ou baixe a versão Android quando estiver disponível.</p>
+                <p>Instale o CONNECT na tela inicial do seu celular, direto pelo navegador.</p>
               </div>
             </div>
             <AppDownload />
