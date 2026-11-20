@@ -68,7 +68,6 @@ import ConnectChat from "./components/ConnectChat";
 import ConnectQueue from "./components/ConnectQueue";
 import ConnectOverlays from "./components/ConnectOverlays";
 import ConnectAdminPanel from "./components/ConnectAdminPanel";
-import ConnectGuestExplorer from "./components/ConnectGuestExplorer";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago, formatNotificationCount, sanitizeSearchTerm } from "./lib/connect-utils";
 import { essentialNotificationTypes, PEOPLE_PAGE_SIZE, PEOPLE_ONLINE_ID_CAP, PAYWALL_ENABLED } from "./lib/connect-data";
@@ -79,7 +78,7 @@ export default function Home() {
     [profile, setProfile] = useState<Profile | null>(null),
     [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"signup" | "signin">("signup"),
-    [authScreen, setAuthScreen] = useState<"home" | "auth" | "guest">("home"),
+    [authScreen, setAuthScreen] = useState<"home" | "auth">("home"),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [demoUsername, setDemoUsername] = useState(""),
@@ -1829,16 +1828,6 @@ export default function Home() {
       <ConnectLanding
         onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
         onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
-        onGuest={() => setAuthScreen("guest")}
-      />
-    );
-  }
-  if (!session && authScreen === "guest") {
-    return (
-      <ConnectGuestExplorer
-        onBack={() => setAuthScreen("home")}
-        onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
-        onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
       />
     );
   }

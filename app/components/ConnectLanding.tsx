@@ -1,14 +1,13 @@
 "use client";
 
-import { ArrowRight, Eye, ShieldCheck, Users, MessageCircle, Globe2, UserSearch } from "lucide-react";
+import { ArrowRight, ShieldCheck, Users, MessageCircle, Globe2, UserSearch } from "lucide-react";
 
 type ConnectLandingProps = {
   onSignIn: () => void;
   onSignUp: () => void;
-  onGuest: () => void;
 };
 
-export default function ConnectLanding({ onSignIn, onSignUp, onGuest }: ConnectLandingProps) {
+export default function ConnectLanding({ onSignIn, onSignUp }: ConnectLandingProps) {
   return (
     <main className="connect-home" data-screen="marketing">
             <header className="landing-header">
@@ -64,9 +63,6 @@ export default function ConnectLanding({ onSignIn, onSignUp, onGuest }: ConnectL
                     }}
                   >
                     Faça parte do CONNECT <ArrowRight size={18} />
-                  </button>
-                  <button type="button" className="landing-demo" onClick={() => onGuest()}>
-                    <Eye size={16} /> Explorar como visitante
                   </button>
                 </div>
                 <div className="landing-note">
