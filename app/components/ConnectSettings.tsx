@@ -1,6 +1,6 @@
 "use client";
 
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import { useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
 import { Check, ShieldCheck, Trash2, UserRound, Users } from "lucide-react";
 import Avatar from "./ConnectAvatar";
 import type { Profile } from "../types/connect";
@@ -25,7 +25,7 @@ type Props = {
   unblockUser: (userId: string) => void | Promise<void>;
   deletionDue: string;
   cancelDeletion: () => void | Promise<void>;
-  requestDeletion: () => void | Promise<void>;
+  deleteAccountNow: (password: string) => Promise<string | null>;
 };
 
 export default function ConnectSettings(props: Props) {
@@ -35,8 +35,22 @@ export default function ConnectSettings(props: Props) {
     genderDescriptionSetting, setGenderDescriptionSetting, saveIdentity,
     lookingForSetting, setLookingForSetting, saveMatchingPreferences,
     sendPasswordReset, blockedPeople, unblockUser, deletionDue,
-    cancelDeletion, requestDeletion,
+    cancelDeletion, deleteAccountNow,
   } = props;
+  const [delStep, setDelStep] = useState<0 | 1 | 2>(0);
+  const [delConfirm, setDelConfirm] = useState("");
+  const [delPassword, setDelPassword] = useState("");
+  const [delError, setDelError] = useState("");
+  const [delBusy, setDelBusy] = useState(false);
+  const closeDelete = () => { setDelStep(0); setDelConfirm(""); setDelPassword(""); setDelError(""); };
+  async function submitDelete(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (delConfirm.trim() !== "EXCLUIR" || !delPassword || delBusy) return;
+    setDelBusy(true); setDelError("");
+    const err = await deleteAccountNow(delPassword);
+    setDelBusy(false);
+    if (err) setDelError(err);
+  }
 
   return (
     <>
@@ -132,15 +146,33 @@ export default function ConnectSettings(props: Props) {
         <section className="settings-section danger-zone">
           <div>
             <Trash2 />
-            <span><strong>Excluir minha conta</strong><small>Você terá 7 dias para cancelar o pedido antes da exclusão definitiva.</small></span>
+            <span><strong>Excluir minha conta</strong><small>A exclusão é imediata e definitiva: perfil, posts, conversas e arquivos são apagados.</small></span>
           </div>
           {deletionDue ? (
             <>
               <p className="deletion-pending">Exclusão programada para {new Date(deletionDue).toLocaleString("pt-BR")}. Você ainda pode cancelar.</p>
               <button type="button" className="secondary" onClick={() => void cancelDeletion()}>Cancelar exclusão e recuperar conta</button>
             </>
+          ) : delStep === 0 ? (
+            <button type="button" className="danger-button" onClick={() => setDelStep(1)}>Excluir minha conta</button>
+          ) : delStep === 1 ? (
+            <div className="deletion-confirm">
+              <p className="deletion-pending"><strong>Esta ação não pode ser desfeita.</strong> Serão apagados imediatamente seu perfil, posts, comentários, mensagens, seguidores, fotos e vídeos, e você será desconectado. Assinaturas ativas serão canceladas. Registros de pagamento podem ser mantidos de forma isolada e sem identificação, apenas pelo prazo exigido em lei.</p>
+              <button type="button" className="secondary" onClick={closeDelete}>Cancelar</button>
+              <button type="button" className="danger-button" onClick={() => setDelStep(2)}>Entendi, continuar</button>
+            </div>
           ) : (
-            <button type="button" className="danger-button" onClick={() => void requestDeletion()}>Solicitar exclusão da conta</button>
+            <form className="deletion-confirm" onSubmit={(event) => void submitDelete(event)}>
+              <label>Digite EXCLUIR para confirmar
+                <input value={delConfirm} onChange={(event) => setDelConfirm(event.target.value)} autoComplete="off" />
+              </label>
+              <label>Sua senha
+                <input type="password" value={delPassword} onChange={(event) => setDelPassword(event.target.value)} autoComplete="current-password" />
+              </label>
+              {delError && <p className="deletion-pending" role="alert">{delError}</p>}
+              <button type="button" className="secondary" onClick={closeDelete} disabled={delBusy}>Cancelar</button>
+              <button type="submit" className="danger-button" disabled={delBusy || delConfirm.trim() !== "EXCLUIR" || !delPassword}>{delBusy ? "Excluindo..." : "Excluir minha conta agora"}</button>
+            </form>
           )}
         </section>
       </div>

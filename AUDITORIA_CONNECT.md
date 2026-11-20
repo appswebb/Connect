@@ -73,8 +73,13 @@ Aplicadas e testadas no banco (arquivos em `supabase/migrations/`):
 
 Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` no schema errado).
 
-### Ainda NÃO aplicado
-Exclusão imediata de conta: a migration (retenção financeira isolada, auditoria mínima, `delete_account_data`, purga legada robusta) não foi aplicada, porque o Supabase pediu confirmação e ficou sem resposta. Faltam também a Edge Function `delete-account` (senha, cancelamento da assinatura no Mercado Pago, limpeza de Storage) e a tela em duas etapas. Prazo de retenção financeira de 5 anos é suposição a confirmar com contador/advogado.
+### Exclusão imediata de conta (Parte 19)
+- Migration `20261120010000` **aplicada**: `delete_account_data` (service_role), retenção financeira isolada (hash do id, sem user_id, e-mail, Pix ou payload bruto), auditoria mínima, fila de arquivos órfãos, purga legada robusta por usuário.
+- Testado em transação revertida com usuários sintéticos: usuário, perfil e ledger removidos; 2 registros retidos sem identificação; auditoria gravada; saque em andamento bloqueia (`PENDING_WITHDRAWAL`).
+- Edge Function `delete-account` **publicada** (JWT obrigatório, CORS só `appswebb.github.io`, recusa contas demo, exige senha, cancela assinatura no Mercado Pago e aborta se falhar, apaga banco e depois Storage em lotes). **Não foi testada ponta a ponta com uma conta real** (exige senha e navegador).
+- Tela em duas etapas (aviso + digitar EXCLUIR e senha) no código; depende do deploy do PR.
+- Limitações: prazo de 5 anos de retenção é suposição (confirmar com contador/advogado); limite de tentativas é por instância da função; contas criadas só por login social (sem senha) não conseguem confirmar; se o banco apagar mas o Storage falhar, os arquivos ficam na fila de órfãos e são reprocessados na próxima exclusão (ainda não há cron para isso).
+- O pedido real de exclusão em 7 dias (26/11) continua intacto; a função antiga segue ativa só para ele.
 
 ### Achados no banco
 - `connect-demo-login` lista só os primeiros 1000 usuários para achar a conta demo e quebra acima disso.

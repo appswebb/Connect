@@ -1171,21 +1171,21 @@ export default function Home() {
     setReportTarget("");
     setNotice("Denúncia enviada para análise da equipe CONNECT.");
   }
-  async function requestDeletion() {
-    if (
-      !window.confirm(
-        "Sua conta será programada para exclusão definitiva daqui a 7 dias. Durante esse prazo, você poderá cancelar e recuperar o acesso. Deseja continuar?",
-      )
-    )
-      return;
-    const r = await supabase.rpc("request_account_deletion");
+  // Exclusão imediata: a Edge Function reautentica por senha, cancela assinatura, apaga banco e arquivos.
+  async function deleteAccountNow(password: string): Promise<string | null> {
+    const r = await supabase.functions.invoke("delete-account", { body: { password, confirm: "EXCLUIR" } });
     if (r.error) {
-      fail(r.error.message);
-      return;
+      let msg = "Não foi possível excluir a conta. Tente novamente.";
+      try {
+        const ctx = (r.error as { context?: Response }).context;
+        const j = ctx ? await ctx.json() : null;
+        if (j?.error) msg = j.error;
+      } catch { /* mantém mensagem padrão */ }
+      return msg;
     }
-    const due = typeof r.data === "string" ? r.data : new Date(Date.now() + 7 * 86400000).toISOString();
-    setDeletionDue(due);
-    setNotice("Exclusão agendada. Você tem 7 dias para cancelar.");
+    try { await supabase.auth.signOut({ scope: "local" }); } catch { /* conta já removida */ }
+    setNotice("Sua conta foi excluída.");
+    return null;
   }
   async function cancelDeletion() {
     const r = await supabase.rpc("cancel_account_deletion");
@@ -2271,7 +2271,7 @@ export default function Home() {
             unblockUser={unblockUser}
             deletionDue={deletionDue}
             cancelDeletion={cancelDeletion}
-            requestDeletion={requestDeletion}
+            deleteAccountNow={deleteAccountNow}
           />
         )}
                 {tab === "download" && (
