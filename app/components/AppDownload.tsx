@@ -23,7 +23,7 @@ export default function AppDownload() {
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     setInstalled(window.matchMedia("(display-mode: standalone)").matches);
-    fetch("/Connect/app-version.json", { cache: "no-store", signal: controller.signal }).then(r => r.ok ? r.json() as Promise<SiteVersion> : null).then(v => { if (v && !controller.signal.aborted) setSiteVersion(v); }).catch(() => {});
+    fetch("/app-version.json", { cache: "no-store", signal: controller.signal }).then(r => r.ok ? r.json() as Promise<SiteVersion> : null).then(v => { if (v && !controller.signal.aborted) setSiteVersion(v); }).catch(() => {});
     fetch("https://api.github.com/repos/appswebb/Connect/releases?per_page=8", { cache: "no-store", signal: controller.signal })
       .then(async r => { if (!r.ok) throw new Error("Não foi possível consultar as versões agora."); return r.json() as Promise<Release[]>; })
       .then(data => { if (!controller.signal.aborted) setReleases(Array.isArray(data) ? data : []); })
@@ -66,7 +66,7 @@ export default function AppDownload() {
       </div>
       <div className="app-download-art" aria-hidden="true">
         <div className="app-download-orbit app-download-orbit-one"/><div className="app-download-orbit app-download-orbit-two"/>
-        <div className="app-download-device"><div className="app-download-device-camera"/><img src="/Connect/icons/connect.svg" alt="Ícone CONNECT"/><strong>CONNECT</strong><small>Conexões reais começam aqui.</small><div className="app-download-device-dots"><i/><i/><i/></div></div>
+        <div className="app-download-device"><div className="app-download-device-camera"/><img src="/icons/connect.svg" alt="Ícone CONNECT"/><strong>CONNECT</strong><small>Conexões reais começam aqui.</small><div className="app-download-device-dots"><i/><i/><i/></div></div>
         <span className="app-download-float app-download-float-one"><Globe2/> Salas do Brasil</span><span className="app-download-float app-download-float-two"><Sparkles/> Novas conexões</span>
       </div>
     </section>

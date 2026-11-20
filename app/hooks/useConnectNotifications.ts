@@ -142,7 +142,7 @@ export function useConnectNotifications(options: ConnectNotificationsOptions) {
     setBrowserNotificationPermission(permission);
     if (permission === "granted" && "serviceWorker" in navigator) {
       try {
-        await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
+        await navigator.serviceWorker.register("/sw.js", { scope: "/" });
       } catch {
         setNotice("Permissão ativada, mas não foi possível preparar os alertas em segundo plano.");
         return;
@@ -155,7 +155,7 @@ export function useConnectNotifications(options: ConnectNotificationsOptions) {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
     if ("serviceWorker" in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
+        const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
         await navigator.serviceWorker.ready;
         await registration.showNotification(item.title, { body: item.body, tag: item.id });
         return;

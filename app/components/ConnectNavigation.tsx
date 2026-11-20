@@ -27,7 +27,7 @@ export default function ConnectNavigation({ tab, setTab, queue }: Props) {
       <aside className="connect-rail" aria-label="Navegação do CONNECT">
         <a className="brand" href="#inicio" aria-label="CONNECT — início" onClick={(event) => { event.preventDefault(); setTab("feed"); }}>
           <span className="brand-icon">
-            <img className="connect-brand-symbol" src="/Connect/connect-mark.svg" alt="" />
+            <img className="connect-brand-symbol" src="/connect-mark.svg" alt="" />
           </span>
           <span>CONNECT</span>
         </a>

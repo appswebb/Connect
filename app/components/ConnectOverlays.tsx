@@ -1,15 +1,15 @@
 "use client";
 
 import type { Dispatch, FormEvent, SetStateAction } from "react";
-import { ArrowRight, Ban, Flag, MessageCircle, Users, X } from "lucide-react";
+import { ArrowRight, Ban, Flag, LoaderCircle, MessageCircle, Users, X } from "lucide-react";
 import Avatar from "./ConnectAvatar";
 import ImageCropper from "./ImageCropper";
 import { genders, preferences } from "../lib/connect-data";
-import type { Profile } from "../types/connect";
+import type { FollowListState, Profile } from "../types/connect";
 
-type OwnSocialList = { kind: "followers" | "following"; people: Profile[] } | null;
 type Relationship = {
   following: boolean;
+  follows_me?: boolean;
   mutual: boolean;
   followers: number;
   following_count: number;
@@ -18,8 +18,10 @@ type Relationship = {
 type Props = {
   profile: Profile;
   isDemo: boolean;
-  ownSocialList: OwnSocialList;
-  setOwnSocialList: Dispatch<SetStateAction<OwnSocialList>>;
+  followList: FollowListState | null;
+  setFollowList: Dispatch<SetStateAction<FollowListState | null>>;
+  openFollowList: (profileId: string, displayName: string, kind: "followers" | "following") => void | Promise<void>;
+  loadMoreFollowList: () => void | Promise<void>;
   openProfile: (id: string) => void | Promise<void>;
   showVisitorPreview: boolean;
   setShowVisitorPreview: Dispatch<SetStateAction<boolean>>;
@@ -48,7 +50,7 @@ type Props = {
 
 export default function ConnectOverlays(props: Props) {
   const {
-    profile, isDemo, ownSocialList, setOwnSocialList, openProfile,
+    profile, isDemo, followList, setFollowList, openFollowList, loadMoreFollowList, openProfile,
     showVisitorPreview, setShowVisitorPreview, ownSocialCounts,
     viewingProfile, setViewingProfile, relationship, toggleFollow,
     startMessage, openReport, blockUser, reportTarget, setReportTarget,
@@ -59,23 +61,27 @@ export default function ConnectOverlays(props: Props) {
 
   return (
     <>
-        {ownSocialList && (
+        {followList && (
           <div
             className="profile-view-backdrop"
             role="dialog"
             aria-modal="true"
-            aria-label={ownSocialList.kind === "followers" ? "Seus seguidores" : "Pessoas que você segue"}
-            onClick={() => setOwnSocialList(null)}
+            aria-label={(followList.kind === "followers" ? "Seguidores de " : "Quem segue ") + followList.displayName}
+            onClick={() => setFollowList(null)}
           >
             <section className="profile-view-card own-social-list" onClick={(e) => e.stopPropagation()}>
               <header>
-                <strong>{ownSocialList.kind === "followers" ? "SEUS SEGUIDORES" : "VOCÊ ESTÁ SEGUINDO"}</strong>
-                <button type="button" onClick={() => setOwnSocialList(null)} aria-label="Fechar lista">
+                <strong>
+                  {followList.kind === "followers"
+                    ? "SEGUIDORES · " + followList.displayName.toUpperCase()
+                    : "SEGUINDO · " + followList.displayName.toUpperCase()}
+                </strong>
+                <button type="button" onClick={() => setFollowList(null)} aria-label="Fechar lista">
                   <X />
                 </button>
               </header>
               <div className="own-social-people">
-                {ownSocialList.people.map((person) => (
+                {followList.people.map((person) => (
                   <article key={person.id}>
                     <Avatar p={person} size="small" />
                     <div>
@@ -86,7 +92,7 @@ export default function ConnectOverlays(props: Props) {
                       type="button"
                       className="secondary"
                       onClick={() => {
-                        setOwnSocialList(null);
+                        setFollowList(null);
                         void openProfile(person.id);
                       }}
                     >
@@ -94,12 +100,22 @@ export default function ConnectOverlays(props: Props) {
                     </button>
                   </article>
                 ))}
-                {!ownSocialList.people.length && (
+                {followList.loading && (
+                  <div className="follow-list-loading">
+                    <LoaderCircle size={16} className="spin" /> Carregando...
+                  </div>
+                )}
+                {!followList.loading && !followList.people.length && (
                   <div className="empty">
                     <Users />
-                    <h3>{ownSocialList.kind === "followers" ? "Você ainda não tem seguidores." : "Você ainda não segue ninguém."}</h3>
+                    <h3>{followList.kind === "followers" ? "Nenhum seguidor ainda." : "Não segue ninguém ainda."}</h3>
                     <p>Quando essa lista tiver pessoas, elas aparecerão aqui.</p>
                   </div>
+                )}
+                {!followList.loading && followList.hasMore && (
+                  <button type="button" className="secondary follow-load-more" onClick={() => void loadMoreFollowList()}>
+                    Carregar mais
+                  </button>
                 )}
               </div>
             </section>
@@ -218,47 +234,54 @@ export default function ConnectOverlays(props: Props) {
                     </strong>
                   </div>
                 </div>
+                <div className="social-profile-stats">
+                  <button
+                    type="button"
+                    className="social-stat-button"
+                    onClick={() => void openFollowList(viewingProfile.id, viewingProfile.display_name, "followers")}
+                  >
+                    <strong>{relationship.followers}</strong> seguidores
+                  </button>
+                  <button
+                    type="button"
+                    className="social-stat-button"
+                    onClick={() => void openFollowList(viewingProfile.id, viewingProfile.display_name, "following")}
+                  >
+                    <strong>{relationship.following_count}</strong> seguindo
+                  </button>
+                  {relationship.follows_me && !relationship.mutual && <b className="follows-me-badge">SEGUE VOCÊ</b>}
+                  {relationship.mutual && <b>AMIGOS</b>}
+                </div>
                 {!isDemo && (
-                  <>
-                    <div className="social-profile-stats">
-                      <span>
-                        <strong>{relationship.followers}</strong> seguidores
-                      </span>
-                      <span>
-                        <strong>{relationship.following_count}</strong> seguindo
-                      </span>
-                      {relationship.mutual && <b>AMIGOS</b>}
-                    </div>
-                    <footer>
-                      <button type="button" className="secondary" onClick={() => void toggleFollow()}>
-                        {relationship.following ? "Deixar de seguir" : "Seguir"} <Users size={15} />
-                      </button>
-                      <button type="button" className="primary" onClick={startMessage}>
-                        <MessageCircle size={15} /> Mensagem
-                      </button>
-                      <button
-                        type="button"
-                        className="secondary"
-                        onClick={() => {
-                          openReport(viewingProfile.id);
-                          setViewingProfile(null);
-                        }}
-                      >
-                        <Flag size={15} /> Denunciar
-                      </button>
-                      <button
-                        type="button"
-                        className="danger-button"
-                        onClick={() => {
-                          const id = viewingProfile.id;
-                          setViewingProfile(null);
-                          void blockUser(id);
-                        }}
-                      >
-                        <Ban size={15} /> Bloquear
-                      </button>
-                    </footer>
-                  </>
+                  <footer>
+                    <button type="button" className="secondary" onClick={() => void toggleFollow()}>
+                      {relationship.following ? "Deixar de seguir" : "Seguir"} <Users size={15} />
+                    </button>
+                    <button type="button" className="primary" onClick={startMessage}>
+                      <MessageCircle size={15} /> Mensagem
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() => {
+                        openReport(viewingProfile.id);
+                        setViewingProfile(null);
+                      }}
+                    >
+                      <Flag size={15} /> Denunciar
+                    </button>
+                    <button
+                      type="button"
+                      className="danger-button"
+                      onClick={() => {
+                        const id = viewingProfile.id;
+                        setViewingProfile(null);
+                        void blockUser(id);
+                      }}
+                    >
+                      <Ban size={15} /> Bloquear
+                    </button>
+                  </footer>
                 )}
               </div>
             </section>
@@ -281,10 +304,10 @@ export default function ConnectOverlays(props: Props) {
                             ? "Denunciar mensagem da sala"
                             : reportTargetType === "chat_message"
                               ? "Denunciar mensagem privada"
-                                : "Denunciar conteúdo"}
+                              : "Denunciar conteúdo"}
                   </h2>
                 </div>
-                <button type="button" onClick={() => setReportTarget("")}>
+                <button type="button" aria-label="Fechar denúncia" onClick={() => setReportTarget("")}>
                   <X />
                 </button>
               </header>
@@ -313,7 +336,7 @@ export default function ConnectOverlays(props: Props) {
                 <button type="button" className="secondary" onClick={() => setReportTarget("")}>
                   Cancelar
                 </button>
-                <button className="primary">
+                <button type="submit" className="primary">
                   Enviar denúncia <Flag size={15} />
                 </button>
               </footer>
@@ -332,7 +355,6 @@ export default function ConnectOverlays(props: Props) {
             onApply={(f) => void applyCroppedImage(f)}
           />
         )}
-
     </>
   );
 }

@@ -7,10 +7,10 @@ import PWARegister from "./components/PWARegister";
 export const metadata: Metadata = {
   title: "CONNECT — Pessoas, conversas e comunidades",
   description: "Conheça pessoas, converse em tempo real e participe de comunidades.",
-  manifest: "/Connect/manifest.webmanifest",
+  manifest: "/manifest.webmanifest",
   applicationName: "CONNECT",
   appleWebApp: { capable: true, title: "CONNECT", statusBarStyle: "black-translucent" },
-  icons: { icon: "/Connect/icons/connect.svg", apple: "/Connect/icons/connect-192.png" },
+  icons: { icon: "/icons/connect.svg", apple: "/icons/connect-192.png" },
   openGraph: { title: "CONNECT — Pessoas, conversas e comunidades", description: "Conheça pessoas, converse em tempo real e participe de comunidades.", type: "website", locale: "pt_BR" },
   twitter: { card: "summary_large_image" },
 };

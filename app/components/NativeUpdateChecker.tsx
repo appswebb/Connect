@@ -50,7 +50,7 @@ export default function NativeUpdateChecker() {
       if (checking || !navigator.onLine) return;
       checking = true;
       try {
-        const response = await fetch(`/Connect/app-version.json?check=${Date.now()}`, {
+        const response = await fetch(`/app-version.json?check=${Date.now()}`, {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache" },
         });

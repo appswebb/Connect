@@ -1,11 +1,11 @@
 {
-  "id": "/Connect/",
+  "id": "/",
   "name": "CONNECT — Conexões reais",
   "short_name": "CONNECT",
   "description": "Conheça pessoas, converse e participe de comunidades em tempo real.",
   "lang": "pt-BR",
-  "start_url": "/Connect/",
-  "scope": "/Connect/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#101222",
@@ -16,25 +16,25 @@
   ],
   "icons": [
     {
-      "src": "/Connect/icons/connect-192.png",
+      "src": "/icons/connect-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Connect/icons/connect-512.png",
+      "src": "/icons/connect-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/Connect/icons/connect-512.png",
+      "src": "/icons/connect-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/Connect/icons/connect.svg",
+      "src": "/icons/connect.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

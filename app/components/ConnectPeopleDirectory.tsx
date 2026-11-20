@@ -140,8 +140,20 @@ export default function ConnectPeopleDirectory({
         {filtered.length === 0 && (
           <div className="empty people-directory-empty">
             <Compass />
-            <h3>{peopleFilter === "near" ? "Não encontramos membros da sua cidade." : "Nenhuma pessoa encontrada."}</h3>
-            <p>{peopleFilter === "online" ? "Quando alguém estiver online, vai aparecer aqui em tempo real." : "Tente mudar os filtros ou buscar por outro termo."}</p>
+            <h3>
+              {peopleFilter === "near"
+                ? !profile.location_visible || !profile.city || !profile.state_code
+                  ? "Ative sua localização pública para filtrar sua cidade."
+                  : "Não encontramos membros visíveis em " + profile.city + "."
+                : "Nenhuma pessoa encontrada."}
+            </h3>
+            <p>
+              {peopleFilter === "near" && (!profile.location_visible || !profile.city || !profile.state_code)
+                ? "Use o ícone de localização no topo e marque a opção para exibir cidade e estado no perfil."
+                : peopleFilter === "online"
+                  ? "Quando alguém estiver online, vai aparecer aqui em tempo real."
+                  : "Tente mudar os filtros ou buscar por outro termo."}
+            </p>
             <button type="button" className="secondary" onClick={() => { setPeopleFilter("all"); setPeopleSearch(""); }}>
               Mostrar todo mundo
             </button>

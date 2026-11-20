@@ -41,7 +41,7 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
       <main className="connect-auth" data-screen="authentication">
               <section className="entry-story">
                 <div className="entry-brand">
-                  <img src="/Connect/connect-mark.svg" alt="" />
+                  <img src="/connect-mark.svg" alt="" />
                   CONNECT
                 </div>
                 <div className="entry-story-copy">
@@ -54,7 +54,7 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
                     <em>se conectar.</em>
                   </h1>
                   <p>Explore a experiência com uma conta de demonstração. O acesso é somente para visualizar e não altera dados de usuários.</p>
-                  <img className="entry-photo" src="/Connect/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
+                  <img className="entry-photo" src="/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
                 </div>
                 <footer>CONNECT © 2026 · PRIVACIDADE · RESPEITO</footer>
               </section>
@@ -109,7 +109,7 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
     <main className="entry-layout">
             <section className="entry-story">
               <div className="entry-brand">
-                <img src="/Connect/connect-mark.svg" alt="" />
+                <img src="/connect-mark.svg" alt="" />
                 CONNECT
               </div>
               <div className="entry-story-copy">
@@ -122,7 +122,7 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
                   <em>Novas histórias.</em>
                 </h1>
                 <p>Conheça pessoas, encontre comunidades e compartilhe momentos em um espaço feito para aproximar.</p>
-                <img className="entry-photo" src="/Connect/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
+                <img className="entry-photo" src="/images/auth-night.webp" alt="" loading="lazy" width={896} height={1280} />
               </div>
               <footer>CONNECT © 2026 · PRIVACIDADE · RESPEITO</footer>
             </section>
