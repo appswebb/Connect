@@ -102,3 +102,10 @@ Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` 
 - Front: removidos o botão "Conhecer por dentro", a tela de login demo e o atalho `?demo=1`.
 - Edge Function `connect-demo-login` substituída por um stub que responde 410 (não cria nem abre sessões). Os segredos `CONNECT_DEMO_*` não são mais necessários.
 - Mantido por segurança: colunas/guardas `is_demo` no banco e no front (inofensivos; contas demo continuam ocultas das listas). Nenhuma conta demo existia no banco. Limpeza total desses guardas fica como refatoração opcional.
+
+### Integração com o commit da outra IA na `main` (`de7277d`)
+- Verificado: não alterou o Supabase (migrations e Edge Functions inalteradas) nem expôs chaves (`.env.example` só com nomes). Trouxe painel admin (usa as RPCs `admin_*`), visitante, salas, fila e checkout Pix novos.
+- Quebrou a `main`: `output: "standalone"` sem `basePath` e caminhos na raiz (`/icons`, `/sw.js`, manifest), o que fez o deploy do Pages falhar (`app-version.json` ausente) e, se publicado, quebraria o PWA em `/Connect/`. Também publicava `public/assets/aistudio/PENDENCIAS_CONNECT_*.md`.
+- Corrigido neste branch (merge): `output: "export"` + `basePath "/Connect"`, prefixo `/Connect/` restaurado, doc interno removido de `public/`, modo demo removido.
+- Bugs achados e corrigidos: (1) admin oferecia status `open`, que o `CHECK` de `user_reports` rejeita (aceita só pending/reviewing/resolved/dismissed); (2) `PWARegister` recarregava a página sozinho no `controllerchange` (perda de estado/conversa), agora só após clicar em "Atualizar"; (3) texto da janela do encontro mostrava `{windowLabel}` literal.
+- CI do PR #10 verde no commit `7b50cf5`. **Enquanto o PR #10 não for mesclado, a `main` continua com o deploy quebrado.** Não testado em navegador real: painel admin com conta admin, fluxo visitante, salas, checkout Pix.
