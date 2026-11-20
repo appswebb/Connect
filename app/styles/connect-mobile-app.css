@@ -768,3 +768,10 @@ html[data-theme="dark"] :where(.connect-app) :where(input,textarea)::placeholder
 .connect-app .spin{animation:orbit 1s linear infinite}
 @media (prefers-reduced-motion:reduce){.connect-app .spin{animation:none}}
 .entry-forgot{display:block;margin:12px auto 0;padding:6px 10px;border:0;background:transparent;color:var(--cx-primary-dark);font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+/* Pedidos de mensagem: o texto não pode ser espremido pelos botões (letras empilhadas em telas estreitas). */
+.connect-app .message-requests article{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 12px}
+.connect-app .message-request-copy{flex:1 1 150px;min-width:0}
+.connect-app .message-request-copy strong,.connect-app .message-request-copy small,.connect-app .message-request-copy p{display:block;overflow-wrap:anywhere;word-break:break-word}
+.connect-app .message-request-copy p{margin:6px 0 0;font-size:13px;line-height:1.45}
+.connect-app .message-request-actions{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.connect-app .message-request-actions .primary,.connect-app .message-request-actions .secondary{flex:1 1 120px;min-height:44px}
