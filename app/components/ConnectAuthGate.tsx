@@ -32,10 +32,11 @@ type ConnectAuthGateProps = {
   busy: boolean;
   error: string;
   notice: string;
+  forgotPassword?: (email: string) => void | Promise<void>;
 };
 
 export default function ConnectAuthGate(props: ConnectAuthGateProps) {
-  const { demoMode, onBack, mode, setMode, demoUsername, setDemoUsername, demoPassword, setDemoPassword, demoLogin, name, setName, username, setUsername, gender, setGender, looking, setLooking, description, setDescription, email, setEmail, password, setPassword, auth, busy, error, notice } = props;
+  const { demoMode, onBack, mode, setMode, demoUsername, setDemoUsername, demoPassword, setDemoPassword, demoLogin, name, setName, username, setUsername, gender, setGender, looking, setLooking, description, setDescription, email, setEmail, password, setPassword, auth, busy, error, notice, forgotPassword } = props;
   if (demoMode) {
     return (
       <main className="connect-auth" data-screen="authentication">
@@ -220,6 +221,11 @@ export default function ConnectAuthGate(props: ConnectAuthGateProps) {
                   <button className="entry-submit" disabled={busy}>
                     {busy ? "Aguarde..." : mode === "signup" ? "Criar minha conta" : "Entrar"} <ArrowRight size={17} />
                   </button>
+                  {mode === "signin" && forgotPassword && (
+                    <button type="button" className="entry-forgot" disabled={busy} onClick={() => void forgotPassword(email)}>
+                      Esqueci minha senha
+                    </button>
+                  )}
                 </form>
                 <p className="entry-terms">Ao continuar, você concorda em usar o CONNECT com respeito e responsabilidade.</p>
               </div>

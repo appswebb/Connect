@@ -767,3 +767,4 @@ html[data-theme="dark"] :where(.connect-app) :where(input,textarea)::placeholder
 .connect-app .people-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:28px 0;color:var(--cx-muted,#7a7080)}
 .connect-app .spin{animation:orbit 1s linear infinite}
 @media (prefers-reduced-motion:reduce){.connect-app .spin{animation:none}}
+.entry-forgot{display:block;margin:12px auto 0;padding:6px 10px;border:0;background:transparent;color:var(--cx-primary-dark);font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}

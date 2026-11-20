@@ -92,7 +92,10 @@ export default function Home() {
   const [tab, setTab] = useState("feed"),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [recoveryMode, setRecoveryMode] = useState(false),
+    [newPassword, setNewPassword] = useState(""),
+    [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [chatView, setChatView] = useState<"direct" | "rooms">("direct"),
     [roomCode, setRoomCode] = useState("BR"),
     [roomMessages, setRoomMessages] = useState<RoomMessage[]>([]),
@@ -583,6 +586,8 @@ export default function Home() {
         clearTimeout(fallback);
       });
     const { data: listener } = supabase.auth.onAuthStateChange((_e, s) => {
+      // Link de recuperação de senha aberto: pede a nova senha antes de entrar no app.
+      if (_e === "PASSWORD_RECOVERY") setRecoveryMode(true);
       if (alive) {
         // Mantém a mesma referência quando é só renovação de token/foco da aba,
         // para não disparar recarregamentos desnecessários.
@@ -1226,9 +1231,41 @@ export default function Home() {
     setDeletionDue("");
     setNotice("Pedido de exclusão cancelado. Sua conta continua ativa.");
   }
+  async function forgotPassword(address: string) {
+    const to = address.trim();
+    fail("");
+    setNotice("");
+    if (!to || !to.includes("@")) {
+      fail("Digite seu e-mail no campo acima e toque em \"Esqueci minha senha\".");
+      return;
+    }
+    setBusy(true);
+    const r = await supabase.auth.resetPasswordForEmail(to, { redirectTo: `${window.location.origin}/Connect/` });
+    setBusy(false);
+    // Mesma resposta exista ou não a conta, para não revelar quais e-mails estão cadastrados.
+    if (r.error && /rate|limit|seconds/i.test(r.error.message)) {
+      fail("Aguarde um pouco antes de pedir outro link.");
+      return;
+    }
+    setNotice("Se este e-mail tiver uma conta, enviamos um link para redefinir a senha. Confira também o spam.");
+  }
+  async function saveNewPassword(e: FormEvent) {
+    e.preventDefault();
+    fail("");
+    if (newPassword.length < 8) { fail("A senha precisa ter pelo menos 8 caracteres."); return; }
+    if (newPassword !== newPasswordConfirm) { fail("As senhas não conferem."); return; }
+    setBusy(true);
+    const r = await supabase.auth.updateUser({ password: newPassword });
+    setBusy(false);
+    if (r.error) { fail(r.error.message); return; }
+    setNewPassword("");
+    setNewPasswordConfirm("");
+    setRecoveryMode(false);
+    setNotice("Senha atualizada. Você já está conectado.");
+  }
   async function sendPasswordReset() {
     if (!session?.user.email) return;
-    const r = await supabase.auth.resetPasswordForEmail(session.user.email, { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/` : undefined });
+    const r = await supabase.auth.resetPasswordForEmail(session.user.email, { redirectTo: typeof window !== "undefined" ? `${window.location.origin}/Connect/` : undefined });
     if (r.error) {
       fail(r.error.message);
       return;
@@ -1762,6 +1799,31 @@ export default function Home() {
         <span>Preparando o CONNECT...</span>
       </main>
     );
+  if (session && recoveryMode) {
+    return (
+      <main className="entry-layout">
+        <section className="entry-form-wrap">
+          <div className="entry-form">
+            <span className="entry-overline">REDEFINIR SENHA</span>
+            <h2>Crie uma nova senha.</h2>
+            <p>Escolha uma senha nova para a sua conta CONNECT.</p>
+            <form onSubmit={saveNewPassword}>
+              <label>
+                Nova senha
+                <input type="password" required minLength={8} autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              </label>
+              <label>
+                Repita a nova senha
+                <input type="password" required minLength={8} autoComplete="new-password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} />
+              </label>
+              {error && <p className="error">{error}</p>}
+              <button className="entry-submit" disabled={busy}>{busy ? "Salvando..." : "Salvar nova senha"}</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    );
+  }
   if (!session && authScreen === "home") {
     return (
       <ConnectLanding
@@ -1784,6 +1846,7 @@ export default function Home() {
     return (
       <ConnectAuthGate
         demoMode={false}
+        forgotPassword={forgotPassword}
         onBack={() => setAuthScreen("home")}
         mode={mode}
         setMode={setMode}
