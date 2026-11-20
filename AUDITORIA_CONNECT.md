@@ -61,3 +61,23 @@ Partes 1 (ícones), 5 (salas), 7 (checkout), 9 (painel administrativo), 10 (perf
 
 ## Capacidade estimada
 **Não há medição.** Nenhum teste de carga foi executado, então qualquer número seria invenção. O que se sabe: antes desta fase, cada alteração em qualquer perfil forçava todos os clientes online a baixar até 1000 perfis; isso foi removido.
+
+## Atualização — banco de produção (Supabase conectado)
+
+Aplicadas e testadas no banco (arquivos em `supabase/migrations/`):
+
+- `20261119192705` janela do encontro: 3 → 5 minutos (`enter_queue(text,text)`).
+- `20261120004243` `profiles`: o usuário só atualiza as 11 colunas que o app edita (antes: qualquer uma, inclusive `is_demo` e `created_at`); anônimo sem acesso.
+- `20261120004241` índices (cursor da aba Pessoas e chaves estrangeiras sem índice).
+- `20261120004420` `list_community_profiles`: cursor por tupla `(created_at, id)`. Em tabela temporária de 200 mil perfis, a página do meio caiu de ~29,6 ms (cursor em `OR`, lia 100 mil linhas) para ~0,06 ms. Esses números são de plano de consulta em dados sintéticos, não medição em produção (3 perfis).
+
+Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` no schema errado).
+
+### Ainda NÃO aplicado
+Exclusão imediata de conta: a migration (retenção financeira isolada, auditoria mínima, `delete_account_data`, purga legada robusta) não foi aplicada, porque o Supabase pediu confirmação e ficou sem resposta. Faltam também a Edge Function `delete-account` (senha, cancelamento da assinatura no Mercado Pago, limpeza de Storage) e a tela em duas etapas. Prazo de retenção financeira de 5 anos é suposição a confirmar com contador/advogado.
+
+### Achados no banco
+- `connect-demo-login` lista só os primeiros 1000 usuários para achar a conta demo e quebra acima disso.
+- Chaves `NO ACTION`/`RESTRICT` (`live_*`, `subscription_gifts`, `wallet_ledger`, `withdrawal_requests`) bloqueiam a exclusão do usuário; a purga legada falharia para todos.
+- Proteção contra senhas vazadas desativada (painel do Supabase).
+- Existe 1 pedido de exclusão pendente de conta real (26/11); não foi alterado.

@@ -22,14 +22,9 @@ export const formatNotificationCount = (count: number) =>
   count > NOTIFICATION_COUNT_CAP ? NOTIFICATION_COUNT_CAP + "+" : String(Math.max(0, count));
 
 /**
- * Remove caracteres que têm significado especial em filtros do PostgREST (.or/.ilike),
- * para que o texto digitado pelo usuário nunca altere a estrutura da consulta.
+ * Normaliza o texto da busca de pessoas. O escape de curingas (% _ \\) e o uso em SQL são feitos
+ * no banco (`list_community_profiles`, com format %L), então aqui só tiramos o "@", espaços e limitamos o tamanho.
+ * Não removemos "_": ele é válido em usernames.
  */
 export const sanitizeSearchTerm = (term: string) =>
-  term
-    .normalize("NFC")
-    .replace(/^@/, "")
-    .replace(/[,()*%_\\"'`;:]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 60);
+  term.normalize("NFC").replace(/^\s*@/, "").replace(/\s+/g, " ").trim().slice(0, 60);

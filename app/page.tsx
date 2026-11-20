@@ -482,60 +482,26 @@ export default function Home() {
     );
   }
   /**
-   * Carrega uma página da aba Pessoas com paginação por cursor (created_at, id).
-   * Filtros, busca e localização são aplicados no banco; bloqueios e contas de demonstração
-   * já são excluídos pela política de segurança (RLS) de `profiles`.
+   * Carrega uma página da aba Pessoas pela função `list_community_profiles` do banco:
+   * paginação por cursor de tupla (created_at, id) — custo constante em qualquer profundidade —,
+   * busca, filtros e cidade resolvidos no servidor. É `security invoker`, então a RLS de `profiles`
+   * continua excluindo bloqueios (nos dois sentidos) e contas de demonstração.
    */
   async function loadCommunityProfiles(uid: string, mode: "reset" | "more" = "reset") {
     const requestId = ++peopleRequestRef.current;
-    if (mode === "reset") {
-      setPeopleCursor(null);
-    }
+    if (mode === "reset") setPeopleCursor(null);
     setPeopleLoading(true);
     try {
-      let query = supabase
-        .from("profiles")
-        .select("*")
-        .neq("id", uid)
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
-        .limit(PEOPLE_PAGE_SIZE + 1);
-      const term = sanitizeSearchTerm(peopleSearch);
-      if (term) {
-        const like = "%" + term + "%";
-        query = query.or(
-          ["display_name", "username", "bio", "city", "state_code"].map((column) => column + ".ilike." + like).join(","),
-        );
-      }
-      if (peopleFilter === "new") {
-        query = query.gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString());
-      } else if (peopleFilter === "near") {
-        if (!(profile?.location_visible && profile.city && profile.state_code)) {
-          if (requestId === peopleRequestRef.current) {
-            setCommunityProfiles([]);
-            setPeopleHasMore(false);
-          }
-          return;
-        }
-        query = query.eq("location_visible", true).eq("city", profile.city).eq("state_code", profile.state_code);
-      } else if (peopleFilter === "online") {
-        const ids = onlinePeople.filter((id: string) => id !== uid).slice(0, PEOPLE_ONLINE_ID_CAP);
-        if (!ids.length) {
-          if (requestId === peopleRequestRef.current) {
-            setCommunityProfiles([]);
-            setPeopleHasMore(false);
-          }
-          return;
-        }
-        query = query.in("id", ids);
-      }
       const cursor = mode === "more" ? peopleCursor : null;
-      if (cursor) {
-        query = query.or(
-          "created_at.lt." + cursor.created_at + ",and(created_at.eq." + cursor.created_at + ",id.lt." + cursor.id + ")",
-        );
-      }
-      const r = await query;
+      const filter = ["all", "new", "near", "online"].includes(peopleFilter) ? peopleFilter : "all";
+      const r = await supabase.rpc("list_community_profiles", {
+        p_limit: PEOPLE_PAGE_SIZE + 1,
+        p_cursor_created_at: cursor?.created_at ?? null,
+        p_cursor_id: cursor?.id ?? null,
+        p_search: sanitizeSearchTerm(peopleSearch) || null,
+        p_filter: filter,
+        p_online_ids: filter === "online" ? onlinePeople.filter((id: string) => id !== uid).slice(0, PEOPLE_ONLINE_ID_CAP) : null,
+      });
       if (requestId !== peopleRequestRef.current) return; // resposta antiga: ignora
       if (r.error) {
         fail("Não foi possível carregar os perfis da comunidade: " + r.error.message);
