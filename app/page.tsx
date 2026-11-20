@@ -77,7 +77,7 @@ export default function Home() {
     [profile, setProfile] = useState<Profile | null>(null),
     [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"signup" | "signin">("signup"),
-    [authScreen, setAuthScreen] = useState<"home" | "auth" | "demo">("home"),
+    [authScreen, setAuthScreen] = useState<"home" | "auth">("home"),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
     [demoUsername, setDemoUsername] = useState(""),
@@ -688,9 +688,6 @@ export default function Home() {
     };
   }, [session?.user.id, profile?.id]);
 
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("demo") === "1") setAuthScreen("demo");
-  }, []);
   useEffect(() => {
     if (!session?.user.id || !profile) return;
     const c = supabase
@@ -1671,40 +1668,6 @@ export default function Home() {
       <ConnectLanding
         onSignIn={() => { setMode("signin"); setAuthScreen("auth"); }}
         onSignUp={() => { setMode("signup"); setAuthScreen("auth"); }}
-        onDemo={() => setAuthScreen("demo")}
-      />
-    );
-  }
-  if (!session && authScreen === "demo") {
-    return (
-      <ConnectAuthGate
-        demoMode
-        onBack={() => setAuthScreen("home")}
-        mode={mode}
-        setMode={setMode}
-        demoUsername={demoUsername}
-        setDemoUsername={setDemoUsername}
-        demoPassword={demoPassword}
-        setDemoPassword={setDemoPassword}
-        demoLogin={demoLogin}
-        name={name}
-        setName={setName}
-        username={username}
-        setUsername={setUsername}
-        gender={gender}
-        setGender={setGender}
-        looking={looking}
-        setLooking={setLooking}
-        description={description}
-        setDescription={setDescription}
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        auth={auth}
-        busy={busy}
-        error={error}
-        notice={notice}
       />
     );
   }

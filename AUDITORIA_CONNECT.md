@@ -97,3 +97,8 @@ Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` 
 - Testado em transação revertida: não-admin recebe `Forbidden`, não consegue se promover nem publicar; admin vê o resumo, publica aviso; anônimo negado.
 - **Nenhum admin foi cadastrado** (decisão de quem terá acesso é sua). Para se cadastrar, no SQL Editor do Supabase: `insert into public.connect_admins(user_id) select id from auth.users where email = 'SEU_EMAIL';`
 - **Tela do painel NÃO foi construída**, e a lista de usuários/ações de moderação (suspender, remover conteúdo) e notificação em massa não existem. Avisos publicados ainda não aparecem para os usuários no app.
+
+### Modo demonstração removido (a pedido)
+- Front: removidos o botão "Conhecer por dentro", a tela de login demo e o atalho `?demo=1`.
+- Edge Function `connect-demo-login` substituída por um stub que responde 410 (não cria nem abre sessões). Os segredos `CONNECT_DEMO_*` não são mais necessários.
+- Mantido por segurança: colunas/guardas `is_demo` no banco e no front (inofensivos; contas demo continuam ocultas das listas). Nenhuma conta demo existia no banco. Limpeza total desses guardas fica como refatoração opcional.
