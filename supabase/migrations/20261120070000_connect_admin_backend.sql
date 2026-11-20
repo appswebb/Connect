@@ -40,7 +40,7 @@ begin
   return jsonb_build_object(
     'users', (select count(*) from public.profiles where not is_demo),
     'new_7d', (select count(*) from public.profiles where not is_demo and created_at >= now() - interval '7 days'),
-    'open_reports', (select count(*) from public.user_reports where status = 'open' or status = 'pending'),
+    'open_reports', (select count(*) from public.user_reports where status in ('pending','reviewing')),
     'pending_deletions', (select count(*) from public.account_deletion_requests)
   );
 end $$;

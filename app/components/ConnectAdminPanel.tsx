@@ -20,7 +20,6 @@ const OVERVIEW_LABELS: Record<string, string> = {
 };
 
 const REPORT_STATUS_OPTIONS = [
-  { value: "open", label: "Aberta" },
   { value: "pending", label: "Pendente" },
   { value: "reviewing", label: "Em análise" },
   { value: "resolved", label: "Resolvida" },
