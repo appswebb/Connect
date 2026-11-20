@@ -66,3 +66,10 @@ export const PEOPLE_PAGE_SIZE = Number.isFinite(configuredPeoplePageSize) && con
   : 24;
 /** Máximo de ids de "online agora" enviados ao banco em uma consulta. */
 export const PEOPLE_ONLINE_ID_CAP = 100;
+
+/**
+ * Modo gratuito: por padrão não há cobrança (buscas ilimitadas, sem menu de assinatura).
+ * Para voltar a cobrar: NEXT_PUBLIC_PAYWALL_ENABLED=true no build E, no banco,
+ *   update public.connect_app_config set value='true'::jsonb where key='paywall_enabled';
+ */
+export const PAYWALL_ENABLED = process.env.NEXT_PUBLIC_PAYWALL_ENABLED === "true";

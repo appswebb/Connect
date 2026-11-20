@@ -371,7 +371,7 @@ export default function ConnectQueue(props: Props) {
                   {queueQuota.unlimited ? (
                     <>
                       <strong>BUSCAS ILIMITADAS</strong>
-                      <span>Seu pacote está ativo.</span>
+                      <span>Sem limite de buscas por enquanto.</span>
                     </>
                   ) : (
                     <>

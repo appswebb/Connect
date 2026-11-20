@@ -71,7 +71,7 @@ import ConnectAdminPanel from "./components/ConnectAdminPanel";
 import ConnectGuestExplorer from "./components/ConnectGuestExplorer";
 import { useConnectNotifications } from "./hooks/useConnectNotifications";
 import { ago, formatNotificationCount, sanitizeSearchTerm } from "./lib/connect-utils";
-import { essentialNotificationTypes, PEOPLE_PAGE_SIZE, PEOPLE_ONLINE_ID_CAP } from "./lib/connect-data";
+import { essentialNotificationTypes, PEOPLE_PAGE_SIZE, PEOPLE_ONLINE_ID_CAP, PAYWALL_ENABLED } from "./lib/connect-data";
 import type { Profile, Post, Comment, Message, ChatHistoryItem, MessageRequestItem, RoomMessage, NotificationItem, ConnectAnnouncement, FollowListState } from "./types/connect";
 
 export default function Home() {
@@ -103,7 +103,7 @@ export default function Home() {
     [roomReply, setRoomReply] = useState<RoomMessage | null>(null);
   const [queueStateFilter, setQueueStateFilter] = useState(""),
     [queueCityFilter, setQueueCityFilter] = useState(""),
-    [queueQuota, setQueueQuota] = useState({ used: 0, remaining: 20, unlimited: false }),
+    [queueQuota, setQueueQuota] = useState({ used: 0, remaining: 20, unlimited: !PAYWALL_ENABLED }),
     [lookingForSetting, setLookingForSetting] = useState("any");
   const [posts, setPosts] = useState<Post[]>([]),
     [ownPosts, setOwnPosts] = useState<Post[]>([]),
@@ -2131,6 +2131,7 @@ export default function Home() {
                   >
                     <Settings size={17} /> Configurações
                   </button>
+                  {PAYWALL_ENABLED && (
                   <button
                     type="button"
                     onClick={() => {
@@ -2140,6 +2141,7 @@ export default function Home() {
                   >
                     <CreditCard size={17} /> Assinatura
                   </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -2474,7 +2476,7 @@ export default function Home() {
             onOpenProfile={openProfile}
           />
         )}
-                {tab === "subscription" && (
+                {PAYWALL_ENABLED && tab === "subscription" && (
           <>
             <div className="heading">
               <div>

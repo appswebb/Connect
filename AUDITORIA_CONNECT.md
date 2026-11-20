@@ -109,3 +109,8 @@ Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` 
 - Corrigido neste branch (merge): `output: "export"` + `basePath "/Connect"`, prefixo `/Connect/` restaurado, doc interno removido de `public/`, modo demo removido.
 - Bugs achados e corrigidos: (1) admin oferecia status `open`, que o `CHECK` de `user_reports` rejeita (aceita só pending/reviewing/resolved/dismissed); (2) `PWARegister` recarregava a página sozinho no `controllerchange` (perda de estado/conversa), agora só após clicar em "Atualizar"; (3) texto da janela do encontro mostrava `{windowLabel}` literal.
 - CI do PR #10 verde no commit `7b50cf5`. **Enquanto o PR #10 não for mesclado, a `main` continua com o deploy quebrado.** Não testado em navegador real: painel admin com conta admin, fluxo visitante, salas, checkout Pix.
+
+### Modo gratuito (a pedido)
+- Banco: `connect_app_config.paywall_enabled = false` (migration `20261120110000`): `enter_queue` não conta nem limita buscas e `get_queue_search_quota` devolve ilimitado. Testado: 25 buscas novas seguidas passam; com a chave em `true` o limite de 20 volta.
+- Front: menu "Assinatura" e a aba de planos ficam ocultos (`PAYWALL_ENABLED`, build com `NEXT_PUBLIC_PAYWALL_ENABLED=true` para reexibir).
+- Não removido: Edge Functions de pagamento, tabelas e webhook (continuam disponíveis, sem entrada na interface). Quem já tem assinatura ativa no Mercado Pago **continua sendo cobrado** até cancelar; isso não foi tratado aqui.
