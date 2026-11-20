@@ -9,10 +9,9 @@ type Props = {
   onBack: () => void;
   onSignUp: () => void;
   onSignIn: () => void;
-  onDemo: () => void;
 };
 
-export default function ConnectGuestExplorer({ onBack, onSignUp, onSignIn, onDemo }: Props) {
+export default function ConnectGuestExplorer({ onBack, onSignUp, onSignIn }: Props) {
   const [guestTab, setGuestTab] = useState<"feed" | "rooms" | "queue">("feed");
   const [roomCode, setRoomCode] = useState("BR");
   const [promptAction, setPromptAction] = useState("");
@@ -202,9 +201,6 @@ export default function ConnectGuestExplorer({ onBack, onSignUp, onSignIn, onDem
               <LockKeyhole size={15} /> Para manter a comunidade segura e evitar spam, interações e perfis completos exigem uma conta CONNECT.
             </p>
             <footer>
-              <button type="button" className="secondary" onClick={onDemo}>
-                Acesso demo
-              </button>
               <button type="button" className="secondary" onClick={onSignIn}>
                 Entrar
               </button>
