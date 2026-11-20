@@ -91,3 +91,9 @@ Substitui a migration `20261119160000`, removida (índice duplicado e `pg_trgm` 
 - `connect-demo-login` publicado sem `listUsers` (localiza a conta pelo perfil `is_demo`). Hoje não há conta demo no banco; a função a cria no primeiro uso. Não testei o login demo em execução (exige as credenciais demo).
 - Migration `20261120060000`: `profile_follow_stats` e `list_profile_follows` (cursor, sem demo, sem bloqueios nos dois sentidos, anônimo negado). Testadas em transação revertida: contagens 2/1 e 1/1, `i_follow`/`follows_me`, paginação, bloqueio remove da lista e das estatísticas, tipo inválido rejeitado.
 - **Não ligado na interface ainda:** a tela continua mostrando só as listas do próprio usuário; ver seguidores de outro perfil exige a tela.
+
+### Painel administrativo (Parte 9) — só o backend
+- Migration `20261120070000` aplicada: `connect_admins` (sem acesso de cliente), `is_connect_admin`, `admin_overview`, `admin_list_reports`, `admin_set_report_status`, `admin_publish_announcement`, `connect_announcements`, `admin_audit_log`.
+- Testado em transação revertida: não-admin recebe `Forbidden`, não consegue se promover nem publicar; admin vê o resumo, publica aviso; anônimo negado.
+- **Nenhum admin foi cadastrado** (decisão de quem terá acesso é sua). Para se cadastrar, no SQL Editor do Supabase: `insert into public.connect_admins(user_id) select id from auth.users where email = 'SEU_EMAIL';`
+- **Tela do painel NÃO foi construída**, e a lista de usuários/ações de moderação (suspender, remover conteúdo) e notificação em massa não existem. Avisos publicados ainda não aparecem para os usuários no app.
