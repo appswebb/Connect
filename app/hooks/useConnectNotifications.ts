@@ -151,17 +151,27 @@ export function useConnectNotifications(options: ConnectNotificationsOptions) {
     setNotice(permission === "granted" ? "Notificações do navegador ativadas." : "A permissão para notificações do navegador não foi concedida.");
   }, [setBrowserNotificationPermission, setNotice]);
 
+  // Identidade visual do CONNECT nas notificações do sistema (logo + selo); título e descrição vêm do item.
+  const brandedNotificationOptions = (item: NotificationItem) => ({
+    body: item.body,
+    tag: item.id,
+    icon: "/Connect/icons/connect-192.png",
+    badge: "/Connect/icons/connect-192.png",
+    lang: "pt-BR",
+    data: { url: "/Connect/" },
+  });
+
   const showBrowserNotification = useCallback(async (item: NotificationItem) => {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
     if ("serviceWorker" in navigator) {
       try {
         const registration = await navigator.serviceWorker.register("/Connect/sw.js", { scope: "/Connect/" });
         await navigator.serviceWorker.ready;
-        await registration.showNotification(item.title, { body: item.body, tag: item.id });
+        await registration.showNotification(item.title, brandedNotificationOptions(item));
         return;
       } catch {}
     }
-    try { new Notification(item.title, { body: item.body, tag: item.id }); } catch {}
+    try { new Notification(item.title, brandedNotificationOptions(item)); } catch {}
   }, []);
 
   return { loadNotifications, markNotificationRead, markAllNotificationsRead, clearReadNotifications, openNotification, enableBrowserNotifications, showBrowserNotification };

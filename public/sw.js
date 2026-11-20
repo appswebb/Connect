@@ -80,6 +80,9 @@ self.addEventListener("push", event => {
   const options = {
     body: payload.body || "Você tem uma nova atualização.",
     tag: payload.tag || "connect-update",
+    icon: "/Connect/icons/connect-192.png",
+    badge: "/Connect/icons/connect-192.png",
+    lang: "pt-BR",
     data: { url: payload.url || "/Connect/" }
   };
   event.waitUntil(self.registration.showNotification(title, options));
